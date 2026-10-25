@@ -157,7 +157,7 @@ pub fn Root() -> Element {
 /// Controller-Modus ein-/ausschalten (Skript wird nur einmal geladen)
 fn apply_controller(on: bool) {
     let js = include_str!("../../assets/controller.js").replace("__ON__", if on { "true" } else { "false" });
-    let _ = dioxus::document::eval(&js);
+    let _ = window().webview.evaluate_script(&js);
 }
 
 #[component]
