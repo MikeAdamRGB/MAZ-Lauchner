@@ -763,3 +763,6 @@ theme.layout_keep = Değiştirme
 theme.export = Dosya olarak kaydet
 theme.exported = Tema dosyası kaydedildi
 theme.import_file = Dosya aç
+coll.rename = Yeniden adlandır
+coll.delete = Koleksiyonu sil
+coll.delete_hint = Oyunların kendisi silinmez.

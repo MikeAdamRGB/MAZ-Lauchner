@@ -114,6 +114,7 @@ pub fn system_language() -> String {
     }
     #[cfg(not(windows))]
     {
+        #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
         let mut candidates: Vec<String> = ["LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"]
             .iter()
             .filter_map(|v| std::env::var(v).ok())

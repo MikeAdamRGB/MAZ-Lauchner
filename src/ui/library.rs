@@ -582,6 +582,60 @@ fn CollectionsNav() -> Element {
     }
 }
 
+/// Umbenennen / Löschen der gerade gezeigten Sammlung
+#[component]
+fn CollectionBar() -> Element {
+    let app = use_app();
+    let id = app.filter_arg.read().clone();
+    let current = app.settings.read().collections.iter().find(|c| c.id == id).map(|c| c.name.clone()).unwrap_or_default();
+    let renaming = use_signal(|| None::<String>);
+    let (id_r, id_d) = (id.clone(), id.clone());
+    rsx! {
+        div { class: "flex flex-wrap items-center gap-2 -mt-3 mb-6",
+            {match renaming() {
+                Some(v) => rsx! {
+                    input {
+                        class: "h-8 w-64 rounded-md border border-input bg-background/60 px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        autofocus: true,
+                        value: "{v}",
+                        oninput: move |e| {
+                            let mut r = renaming;
+                            r.set(Some(e.value()));
+                        },
+                        onkeydown: move |e| {
+                            let mut r = renaming;
+                            if e.key() == Key::Enter {
+                                if let Some(n) = r.peek().clone() {
+                                    rename_collection(app, &id_r, &n);
+                                }
+                                r.set(None);
+                            } else if e.key() == Key::Escape {
+                                r.set(None);
+                            }
+                        },
+                    }
+                },
+                None => rsx! {
+                    Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm,
+                        onclick: move |_| {
+                            let mut r = renaming;
+                            r.set(Some(current.clone()));
+                        },
+                        Icon { name: "pencil", class: "size-3.5" }
+                        {t("coll.rename")}
+                    }
+                },
+            }}
+            Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, class: "text-destructive hover:text-destructive",
+                onclick: move |_| delete_collection(app, &id_d),
+                Icon { name: "trash", class: "size-3.5" }
+                {t("coll.delete")}
+            }
+            span { class: "text-xs text-muted-foreground", {t("coll.delete_hint")} }
+        }
+    }
+}
+
 /// Eigene Tags in der Seitenleiste
 #[component]
 fn TagsNav() -> Element {
@@ -672,6 +726,9 @@ fn MazLayout() -> Element {
                         ContinueHero {}
                     }
                     Toolbar { title, count }
+                    if filter == Filter::Collection {
+                        CollectionBar {}
+                    }
                     if games.is_empty() {
                         EmptyState {}
                     } else {
@@ -725,10 +782,19 @@ fn SteamLayout() -> Element {
                                     "fav" => Filter::Favorites,
                                     "recent" => Filter::Recent,
                                     "hidden" => Filter::Hidden,
-                                    other => stores_with_games(app).into_iter().find(|s| s.key() == other).map(Filter::Store).unwrap_or(Filter::All),
+                                    other => {
+                                        if let Some(c) = other.strip_prefix("coll:") {
+                                            app.set_filter(Filter::Collection, c);
+                                            return;
+                                        }
+                                        if let Some(tag) = other.strip_prefix("tag:") {
+                                            app.set_filter(Filter::Tag, tag);
+                                            return;
+                                        }
+                                        stores_with_games(app).into_iter().find(|s| s.key() == other).map(Filter::Store).unwrap_or(Filter::All)
+                                    }
                                 };
-                                let mut fs = app.filter;
-                                fs.set(f);
+                                app.set_filter(f, "");
                             },
                             option { value: "all", selected: filter == Filter::All, {t("steam.f_all")} }
                             option { value: "installed", selected: filter == Filter::Installed, {t("filter.installed").to_uppercase()} }
@@ -744,6 +810,18 @@ fn SteamLayout() -> Element {
                             option { value: "fav", selected: filter == Filter::Favorites, {t("filter.favorites").to_uppercase()} }
                             option { value: "recent", selected: filter == Filter::Recent, {t("filter.recent").to_uppercase()} }
                             option { value: "hidden", selected: filter == Filter::Hidden, {t("filter.hidden").to_uppercase()} }
+                            {app.settings.read().collections.iter().map(|c| {
+                                let v = format!("coll:{}", c.id);
+                                let sel = filter == Filter::Collection && *app.filter_arg.read() == c.id;
+                                let label = format!("▸ {}", c.name.to_uppercase());
+                                rsx! { option { key: "{v}", value: "{v}", selected: sel, "{label}" } }
+                            })}
+                            {app.settings.read().all_tags().into_iter().map(|tag| {
+                                let v = format!("tag:{tag}");
+                                let sel = filter == Filter::Tag && *app.filter_arg.read() == tag;
+                                let label = format!("# {}", tag.to_uppercase());
+                                rsx! { option { key: "{v}", value: "{v}", selected: sel, "{label}" } }
+                            })}
                         }
                     }
                     div { class: "relative",
@@ -936,6 +1014,8 @@ fn EpicLayout() -> Element {
     }
     chips.extend(stores_with_games(app).into_iter().map(Filter::Store));
     chips.extend([Filter::Custom, Filter::Recent]);
+    let coll_chips: Vec<(String, String)> = app.settings.read().collections.iter().map(|c| (c.id.clone(), c.name.clone())).collect();
+    let arg_now = app.filter_arg.read().clone();
     let s = app.settings.read();
     let min = min_card_width(&s) + 20;
     let cards: Vec<(Game, Vec<String>, bool)> = games
@@ -983,6 +1063,18 @@ fn EpicLayout() -> Element {
                             let label = c.label();
                             rsx! {
                                 button { key: "{label}", class: "{cls}", onclick: move |_| app.set_filter(c, ""), "{label}" }
+                            }
+                        })}
+                        {coll_chips.into_iter().map(|(cid, name)| {
+                            let active = filter == Filter::Collection && arg_now == cid;
+                            let cls = if active {
+                                "h-9 px-4 rounded-full text-sm font-medium bg-white text-black cursor-pointer"
+                            } else {
+                                "h-9 px-4 rounded-full text-sm font-medium bg-secondary text-secondary-foreground hover:bg-accent cursor-pointer"
+                            };
+                            let key = format!("coll-{cid}");
+                            rsx! {
+                                button { key: "{key}", class: "{cls}", onclick: move |_| app.set_filter(Filter::Collection, &cid), "{name}" }
                             }
                         })}
                         div { class: "flex-1" }

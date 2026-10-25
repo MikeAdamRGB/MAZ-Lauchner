@@ -768,3 +768,6 @@ theme.layout_keep = Don't change
 theme.export = Save as file
 theme.exported = Theme file saved
 theme.import_file = Open file
+coll.rename = Rename
+coll.delete = Delete collection
+coll.delete_hint = The games themselves are kept.

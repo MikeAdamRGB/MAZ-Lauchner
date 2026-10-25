@@ -763,3 +763,6 @@ theme.layout_keep = No cambiar
 theme.export = Guardar como archivo
 theme.exported = Archivo de tema guardado
 theme.import_file = Abrir archivo
+coll.rename = Renombrar
+coll.delete = Eliminar colección
+coll.delete_hint = Los juegos se conservan.

@@ -303,9 +303,11 @@ pub fn FolderScanDialog() -> Element {
                                         onchange: move |e| {
                                             let v = e.checked();
                                             let mut fw = found;
-                                            if let Some(x) = fw.write().get_mut(i) {
+                                            let mut list = fw.write();
+                                            if let Some(x) = list.get_mut(i) {
                                                 x.on = v;
                                             }
+                                            drop(list);
                                         },
                                     }
                                     div { class: "min-w-0 flex-1",
@@ -315,9 +317,11 @@ pub fn FolderScanDialog() -> Element {
                                             onclick: move |e| e.stop_propagation(),
                                             oninput: move |e| {
                                                 let mut fw = found;
-                                                if let Some(x) = fw.write().get_mut(i) {
+                                                let mut list = fw.write();
+                                                if let Some(x) = list.get_mut(i) {
                                                     x.name = e.value();
                                                 }
+                                                drop(list);
                                             },
                                         }
                                         div { class: "text-xs text-muted-foreground font-mono truncate", title: "{exe}", "{exe}" }
