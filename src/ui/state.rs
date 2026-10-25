@@ -763,7 +763,7 @@ fn uninstall_other(app: App, game: &Game) {
     }
     let dir = game.install_dir.clone().unwrap_or_default();
     let entry = crate::stores::uninstall_entries().into_iter().find(|e| {
-        !dir.is_empty() && !e.install_location.is_empty() && sys::same_path(&e.install_location, &dir)
+        launch::specific_dir(&dir) && sys::same_path(&e.install_location, &dir)
     });
     match entry {
         Some(e) if !e.uninstall_string.trim().is_empty() => {

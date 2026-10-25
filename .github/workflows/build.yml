@@ -50,7 +50,11 @@ jobs:
 
       - name: Design (Tailwind CSS) neu erzeugen
         shell: bash
-        run: npx --yes @tailwindcss/cli@4.3.3 -i tailwind.css -o assets/maz.css --minify
+        run: |
+          set -o pipefail
+          # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
+          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build
         shell: pwsh
@@ -133,7 +137,11 @@ jobs:
 
       - name: Design (Tailwind CSS) neu erzeugen
         shell: bash
-        run: npx --yes @tailwindcss/cli@4.3.3 -i tailwind.css -o assets/maz.css --minify
+        run: |
+          set -o pipefail
+          # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
+          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build
         run: |
@@ -195,7 +203,11 @@ jobs:
 
       - name: Design (Tailwind CSS) neu erzeugen
         shell: bash
-        run: npx --yes @tailwindcss/cli@4.3.3 -i tailwind.css -o assets/maz.css --minify
+        run: |
+          set -o pipefail
+          # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
+          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build (Apple Silicon + Intel)
         run: |

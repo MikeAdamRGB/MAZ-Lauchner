@@ -313,7 +313,7 @@ pub struct Uninstaller {
 }
 
 /// Ist das ein Ordner, der zu genau einem Programm gehört? ("C:\\Program Files" ist es nicht.)
-fn specific_dir(loc: &str) -> bool {
+pub fn specific_dir(loc: &str) -> bool {
     let parts: Vec<&str> = loc.split(['\\', '/']).filter(|p| !p.is_empty()).collect();
     if parts.len() < 2 {
         return false;
