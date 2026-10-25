@@ -69,6 +69,12 @@ fn windows_player() -> Option<PathBuf> {
     best.map(|(_, p)| p)
 }
 
+/// Roblox aus dem Microsoft Store
+#[cfg(windows)]
+fn store_app() -> Option<crate::appx::Package> {
+    crate::appx::find("ROBLOXCORPORATION.ROBLOX")
+}
+
 #[cfg(windows)]
 fn bloxstrap() -> Option<PathBuf> {
     let p = crate::sys::env_path("LOCALAPPDATA")?.join("Bloxstrap").join("Bloxstrap.exe");
@@ -97,7 +103,10 @@ fn sober_installed() -> bool {
 pub fn installed() -> bool {
     #[cfg(windows)]
     {
-        windows_player().is_some() || bloxstrap().is_some() || crate::sys::protocol_registered("roblox-player")
+        windows_player().is_some()
+            || bloxstrap().is_some()
+            || crate::sys::protocol_registered("roblox-player")
+            || store_app().is_some()
     }
     #[cfg(target_os = "macos")]
     {
@@ -119,6 +128,7 @@ fn location() -> Option<String> {
         windows_player()
             .and_then(|p| p.parent().and_then(|v| v.parent()).map(|v| v.to_string_lossy().to_string()))
             .or_else(|| bloxstrap().map(|p| p.to_string_lossy().to_string()))
+            .or_else(|| store_app().map(|p| format!("Microsoft Store: {}", p.full_name)))
     }
     #[cfg(target_os = "macos")]
     {
@@ -216,17 +226,29 @@ pub fn launch(place: Option<u64>) -> Result<(), Problem> {
         }
         #[cfg(windows)]
         {
-            if let Some(b) = bloxstrap() {
-                return std::process::Command::new(b).spawn().map(|_| ()).map_err(|e| fail(e.to_string()));
+            // Die Roblox-App öffnen (nicht die Webseite!):
+            // 1. offizieller Link "roblox-player:1+launchmode:app" (normaler Installer und Bloxstrap)
+            if crate::sys::protocol_registered("roblox-player") && crate::sys::open_url("roblox-player:1+launchmode:app").is_ok() {
+                return Ok(());
             }
+            // 2. Roblox aus dem Microsoft Store
+            if let Some(p) = store_app() {
+                let app = p.app_ids.first().cloned().unwrap_or_else(|| "App".into());
+                return crate::appx::launch(&p.family, &app).map_err(fail);
+            }
+            // 3. Player direkt im App-Modus starten
             if let Some(exe) = windows_player() {
                 return std::process::Command::new(&exe)
+                    .arg("--app")
                     .current_dir(exe.parent().unwrap_or(&exe))
                     .spawn()
                     .map(|_| ())
                     .map_err(|e| fail(e.to_string()));
             }
-            crate::sys::open_url("https://www.roblox.com/home").map_err(|c| fail(format!("open failed ({c})")))
+            if let Some(b) = bloxstrap() {
+                return std::process::Command::new(b).spawn().map(|_| ()).map_err(|e| fail(e.to_string()));
+            }
+            Err(Problem::roblox_missing())
         }
         #[cfg(target_os = "macos")]
         {

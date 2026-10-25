@@ -46,11 +46,16 @@ Steam, Epic Games, Roblox und deine eigenen Spiele in einer schnellen, schlanken
 | 🎮 **Steam** | Zeigt **alle** deine Steam-Spiele – installiert oder nicht – auf allen Festplatten, inklusive Spielzeit. Installieren und deinstallieren direkt im Launcher. |
 | 🟦 **Epic Games** | Findet alle installierten Epic-Spiele automatisch. Einmal das Epic-Konto verbinden und die **komplette** Epic-Bibliothek erscheint – installieren oder deinstallieren mit einem Klick. Unter Linux über den [Heroic Games Launcher](https://heroicgameslauncher.com). |
 | 🧱 **Roblox** | Erkennt und startet Roblox. Füg Links deiner Lieblings-Roblox-Spiele ein – jedes wird eine eigene Kachel, die direkt ins Spiel startet. Unter Linux über [Sober](https://flathub.org/apps/org.vinegarhq.Sober). |
+| 🏪 **7 weitere Stores** | GOG (Windows: GOG Galaxy, Linux: Heroic), EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io und Xbox / Microsoft Store. Installierte Spiele werden automatisch gefunden und immer über das offizielle Programm gestartet. Fehlt ein Programm, erklärt der Launcher, wo es das gibt. Jeder Store lässt sich ausschalten. |
+| 🕹️ **Emulatoren** | Profile für RetroArch, Dolphin, PCSX2, DuckStation, PPSSPP, mGBA, Snes9x oder jeden anderen Emulator. ROM-Ordner wählen – jede ROM wird ein eigenes Spiel. |
+| 🗂️ **Bibliothek ordnen** | Suchen, sortieren (Name, zuletzt gespielt, Spielzeit, zuletzt hinzugefügt) und filtern (Store, installiert, Favoriten, Genre, Tags, Sammlungen). Eigene Tags und Sammlungen, Spielzeit-Messung, doppelte Spiele aus mehreren Stores werden zusammengefasst. |
+| 📝 **Spiel-Infos** | Beschreibung, Genres, Entwickler und Erscheinungsdatum werden automatisch geladen (öffentliche Steam-Store-Daten, zwischengespeichert). Name, Cover, Hintergrund, Beschreibung und Genres selbst bearbeiten. |
 | 🎁 **Gratis-Spiele** | Ein Tab mit allen Spielen, die es gerade bei Epic Games und Steam kostenlos gibt, mit Countdown, wie lange noch. „Zur Bibliothek hinzufügen“ öffnet den Store – ein Klick auf „Holen“ und das Spiel ist im MAZ Launcher. |
 | 🚀 **Eigene Spiele** | Füge jedes Spiel hinzu: EXE, Verknüpfung oder Batch-Datei. Vor **jedem** Start fragt eine Checkliste: *„Hast du alles Wichtige deaktiviert?“* Bei **Nein** startet das Spiel nicht. |
 | 🖼️ **Original-Icons & Cover** | Echte Spiel-Icons (direkt aus der EXE bzw. aus Steam) und Original-Cover. Für jedes Spiel kannst du ein eigenes Cover setzen. |
 | 🎨 **3 Ansichten** | Sieht aus **wie die Steam-Bibliothek**, **wie Epic Games** oder im **eigenen MAZ-Stil**. |
-| 🌈 **16 Designs + eigene** | 16 fertige Farbschemata, ein Design-Editor für eigene Designs (als Code teilbar), eigene Akzentfarbe und eigenes Hintergrundbild. |
+| 🌈 **16 Designs + eigene** | 16 fertige Farbschemata, ein Design-Editor für eigene Designs mit Schrift, Abständen und Ansicht – teilbar als Code oder `.maztheme.json`-Datei –, eigene Akzentfarbe und eigenes Hintergrundbild. |
+| 🎮 **Controller-Modus** | Optional: den ganzen Launcher mit dem Gamepad bedienen (Steuerkreuz/Stick, A, B, LB/RB). |
 | 🌍 **9 Sprachen** | Deutsch, English, Español, Français, Italiano, Português, Polski, Türkçe und Русский – inklusive aller Fehlererklärungen. |
 | 🛟 **Fehler einfach erklärt** | Startet ein Spiel nicht oder stürzt es direkt nach dem Start ab (Steam, Epic oder eigenes), erklärt der Launcher **Schritt für Schritt** in einfachen Worten, was los ist und wie man es behebt, mit Knöpfen, die direkt helfen (z. B. „Spieldateien überprüfen“, „Als Administrator starten“ oder „Visual C++ herunterladen“). Jedes Spiel hat außerdem einen Knopf „Startet nicht? Hilfe“. |
 | 🔄 **Updates in der App** | Du bekommst Bescheid, wenn es eine neue Version gibt. „Jetzt updaten“ lädt sie, prüft die SHA256-Prüfsumme und installiert sie – ohne Umweg über GitHub. |
@@ -155,6 +160,11 @@ Der MAZ Launcher schaut bei GitHub nach neuen Versionen (abschaltbar unter **Ein
 - **Spiel deinstallieren:** Spiel öffnen → **Deinstallieren**.
 - **Spiel startet nicht?** Spiel öffnen → **Startet nicht? Hilfe**. Stürzt ein Spiel direkt nach dem Start ab, erscheint die Erklärung automatisch.
 - **Roblox:** **Einstellungen → Verbindungen → Roblox** → Link eines Roblox-Spiels einfügen (z. B. `https://www.roblox.com/games/920587237/…`).
+- **Ordner durchsuchen:** leere Bibliothek oder **Meine Spiele** → **Ordner durchsuchen** → z. B. `D:\Spiele` wählen → Spiele anhaken → **Hinzufügen**.
+- **Tags & Sammlungen:** Spiel öffnen → unten einen Tag eintippen oder eine Sammlung anklicken. Neue Sammlungen mit **+** in der Seitenleiste.
+- **Emulatoren:** **Einstellungen → Verbindungen → Emulatoren** → Vorlage wählen → Emulator-Programm und ROM-Ordner auswählen.
+- **Spiel-Infos ändern:** Spiel öffnen → **Infos bearbeiten**.
+- **Design teilen:** **Einstellungen → Design** → eigenes Design bearbeiten → **Als Datei speichern**.
 - **Sicherheitsfrage anpassen:** **Einstellungen → Eigene Spiele** → Punkte hinzufügen, ändern oder löschen. Pro Spiel kannst du zusätzliche Punkte festlegen.
 
 ### Diese Fehler erklärt der Launcher automatisch
@@ -233,7 +243,10 @@ Einstellungen liegen in `%APPDATA%\MAZ Launcher\config.json`, der Bilder-Cache i
 ## FAQ
 
 **Lädt der Launcher Spiele herunter oder umgeht er Kopierschutz?**
-Nein. Steam- und Epic-Spiele werden immer über den Original-Launcher gestartet. Es werden nie Passwörter abgefragt.
+Nein. Store-Spiele werden immer über das offizielle Programm gestartet (Steam, Epic, GOG Galaxy, EA app …). Es werden nie Passwörter abgefragt. Emulatoren nutzen nur ROMs, die du selbst auswählst – der Launcher lädt nie ROMs oder BIOS-Dateien herunter.
+
+**Wie oft gibt es Updates?**
+Neue Funktionen kommen gesammelt in größeren Updates statt vieler kleiner. Einzelne Fixes gibt es nur, wenn sie dringend sind (Sicherheit, Abstürze). Siehe [UPDATE-POLICY.md](../UPDATE-POLICY.md) und den [CHANGELOG](../../CHANGELOG.md).
 
 **Warum sehe ich nicht alle meine Epic-Spiele?**
 Epic gibt die Liste der gekauften Spiele nur nach einer Anmeldung heraus. Geh auf **Einstellungen → Verbindungen → Epic-Konto verbinden**, melde dich im Browser an und drück auf der Seite, die Epic dann zeigt, Strg + A und Strg + C – fertig. Deine ganze Epic-Bibliothek erscheint.

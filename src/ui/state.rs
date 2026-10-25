@@ -17,21 +17,32 @@ pub enum Filter {
     Favorites,
     Recent,
     Hidden,
+    /// Weitere Stores und Emulatoren
+    Store(Source),
+    /// Eigener Tag (Name steht in `App::filter_arg`)
+    Tag,
+    /// Eigene Sammlung (ID steht in `App::filter_arg`)
+    Collection,
 }
 
 impl Filter {
     pub fn label(self) -> String {
-        t(match self {
-            Filter::All => "filter.all",
-            Filter::Installed => "filter.installed",
-            Filter::Steam => "filter.steam",
-            Filter::Epic => "filter.epic",
-            Filter::Roblox => "filter.roblox",
-            Filter::Custom => "filter.custom",
-            Filter::Favorites => "filter.favorites",
-            Filter::Recent => "filter.recent",
-            Filter::Hidden => "filter.hidden",
-        })
+        match self {
+            Filter::Store(src) => src.label(),
+            _ => t(match self {
+                Filter::All => "filter.all",
+                Filter::Installed => "filter.installed",
+                Filter::Steam => "filter.steam",
+                Filter::Epic => "filter.epic",
+                Filter::Roblox => "filter.roblox",
+                Filter::Custom => "filter.custom",
+                Filter::Favorites => "filter.favorites",
+                Filter::Recent => "filter.recent",
+                Filter::Hidden => "filter.hidden",
+                Filter::Tag => "filter.tag",
+                Filter::Collection | Filter::Store(_) => "filter.collection",
+            }),
+        }
     }
     pub fn icon(self) -> &'static str {
         match self {
@@ -44,6 +55,25 @@ impl Filter {
             Filter::Favorites => "star",
             Filter::Recent => "clock",
             Filter::Hidden => "eye-off",
+            Filter::Store(src) => src.icon(),
+            Filter::Tag => "tag",
+            Filter::Collection => "folder",
+        }
+    }
+    /// Passt das Spiel zu diesem Filter? (versteckte Spiele prüft der Aufrufer)
+    pub fn matches(self, arg: &str, g: &Game, s: &Settings) -> bool {
+        match self {
+            Filter::All | Filter::Hidden => true,
+            Filter::Installed => g.installed,
+            Filter::Steam => g.source == Source::Steam,
+            Filter::Epic => g.source == Source::Epic,
+            Filter::Roblox => g.source == Source::Roblox,
+            Filter::Custom => g.source == Source::Custom,
+            Filter::Store(src) => g.source == src,
+            Filter::Favorites => s.is_favorite(&g.id),
+            Filter::Recent => s.last_played(&g.id) > 0,
+            Filter::Tag => s.tags.get(&g.id).map(|t| t.iter().any(|x| x.eq_ignore_ascii_case(arg))).unwrap_or(false),
+            Filter::Collection => s.in_collection(arg, &g.id),
         }
     }
 }
@@ -82,6 +112,10 @@ pub enum Modal {
     Info(String, String),
     /// Neue Version verfügbar
     Update,
+    /// Spiel-Infos bearbeiten (Name, Bilder, Beschreibung, Genres)
+    EditMeta(String),
+    /// Ordner nach Spielen durchsuchen
+    FolderScan,
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -98,11 +132,22 @@ pub struct App {
     pub steam: Signal<StoreStatus>,
     pub epic: Signal<StoreStatus>,
     pub roblox: Signal<StoreStatus>,
+    pub stores: Signal<Vec<(Source, StoreStatus)>>,
+    /// Automatisch geladene Spiel-Infos (Beschreibung, Genres)
+    pub meta_cache: Signal<std::collections::BTreeMap<String, crate::metadata::Info>>,
     pub warnings: Signal<Vec<Problem>>,
     pub scanning: Signal<bool>,
     pub loaded: Signal<bool>,
     pub page: Signal<Page>,
     pub filter: Signal<Filter>,
+    /// Tag-Name bzw. Sammlungs-ID für Filter::Tag / Filter::Collection
+    pub filter_arg: Signal<String>,
+    /// Genre-Filter (leer = alle)
+    pub genre: Signal<String>,
+    /// Weitere Versionen desselben Spiels (ID → andere Stores)
+    pub dupes: Signal<std::collections::BTreeMap<String, Vec<Game>>>,
+    /// Spiele, deren Spielzeit gerade gemessen wird
+    pub tracking: Signal<Vec<String>>,
     pub search: Signal<String>,
     pub selected: Signal<Option<String>>,
     pub modal: Signal<Option<Modal>>,
@@ -184,7 +229,31 @@ impl App {
     }
 
     pub fn game(&self, id: &str) -> Option<Game> {
-        self.games.peek().iter().find(|g| g.id == id).cloned()
+        self.games
+            .peek()
+            .iter()
+            .find(|g| g.id == id)
+            .cloned()
+            .or_else(|| self.dupes.peek().values().flatten().find(|g| g.id == id).cloned())
+    }
+
+    /// Filter setzen (Tag/Sammlung mit Namen bzw. ID)
+    pub fn set_filter(&self, f: Filter, arg: &str) {
+        let mut fl = self.filter;
+        let mut a = self.filter_arg;
+        a.set(arg.to_string());
+        fl.set(f);
+        self.go(Page::Library);
+    }
+
+    /// Genres eines Spiels: selbst eingetragen oder automatisch geladen
+    pub fn genres_of(&self, id: &str) -> Vec<String> {
+        let s = self.settings.read();
+        if let Some(m) = s.meta.get(id).filter(|m| !m.genres.is_empty()) {
+            return m.genres.clone();
+        }
+        drop(s);
+        self.meta_cache.read().get(id).map(|i| i.genres.clone()).unwrap_or_default()
     }
 
     pub fn go(&self, page: Page) {
@@ -218,6 +287,8 @@ pub fn rescan(app: App) {
         let mut steam = app.steam;
         let mut epic = app.epic;
         let mut roblox = app.roblox;
+        let mut stores = app.stores;
+        let mut dupes = app.dupes;
         let mut warnings = app.warnings;
         let mut loaded = app.loaded;
         if let Ok(r) = res {
@@ -225,7 +296,24 @@ pub fn rescan(app: App) {
             steam.set(r.steam);
             epic.set(r.epic);
             roblox.set(r.roblox);
+            stores.set(r.stores);
+            dupes.set(r.duplicates);
             warnings.set(r.warnings);
+            // Neu aufgetauchte Spiele merken (für "Zuletzt hinzugefügt")
+            let now = sys::now_secs();
+            let new_ids: Vec<String> = games
+                .peek()
+                .iter()
+                .filter(|g| !settings.first_seen.contains_key(&g.id))
+                .map(|g| g.id.clone())
+                .collect();
+            if !new_ids.is_empty() {
+                app.update(|s| {
+                    for id in new_ids {
+                        s.first_seen.entry(id).or_insert(now);
+                    }
+                });
+            }
         }
         loaded.set(true);
         scanning.set(false);
@@ -235,7 +323,7 @@ pub fn rescan(app: App) {
             let names: Vec<String> = games
                 .peek()
                 .iter()
-                .filter(|g| matches!(g.source, Source::Epic | Source::Custom))
+                .filter(|g| !matches!(g.source, Source::Steam | Source::Roblox))
                 .map(|g| g.name.clone())
                 .collect();
             let known = settings.art_lookup.clone();
@@ -249,6 +337,55 @@ pub fn rescan(app: App) {
                         }
                     }
                 }
+            }
+            fill_metadata(app).await;
+        }
+    });
+}
+
+/// Steam-AppID für Spiel-Infos (eigene oder über den Namen gefunden)
+fn meta_appid(app: App, g: &Game) -> Option<u32> {
+    g.steam_appid.or_else(|| app.settings.peek().art_lookup.get(&normalize_name(&g.name)).copied().filter(|a| *a != 0))
+}
+
+/// Fehlende Spiel-Infos langsam im Hintergrund laden (höchstens 30 pro Durchgang)
+async fn fill_metadata(app: App) {
+    let lang = crate::i18n::current_code();
+    let todo: Vec<(String, u32)> = {
+        let cache = app.meta_cache.peek();
+        app.games
+            .peek()
+            .iter()
+            .filter(|g| !cache.contains_key(&g.id))
+            .filter_map(|g| meta_appid(app, g).map(|a| (g.id.clone(), a)))
+            .take(30)
+            .collect()
+    };
+    for (id, appid) in todo {
+        let l = lang.clone();
+        // Keine Verbindung → aufhören, beim nächsten Mal weiter
+        let Ok(Some(info)) = tokio::task::spawn_blocking(move || crate::metadata::fetch(appid, &l)).await else { break };
+        let mut cache = app.meta_cache;
+        cache.write().insert(id, info);
+        crate::metadata::save_cache(&cache.peek());
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+    }
+}
+
+/// Infos für ein Spiel sofort laden (beim Öffnen der Details)
+pub fn load_metadata(app: App, id: String) {
+    if !app.settings.peek().online_art || app.meta_cache.peek().get(&id).map(|i| i.fetched > 0).unwrap_or(false) {
+        return;
+    }
+    let Some(g) = app.game(&id) else { return };
+    let Some(appid) = meta_appid(app, &g) else { return };
+    let lang = crate::i18n::current_code();
+    dioxus::core::spawn_forever(async move {
+        if let Ok(Some(info)) = tokio::task::spawn_blocking(move || crate::metadata::fetch(appid, &lang)).await {
+            if info.fetched > 0 {
+                let mut cache = app.meta_cache;
+                cache.write().insert(id, info);
+                crate::metadata::save_cache(&cache.peek());
             }
         }
     });
@@ -335,62 +472,82 @@ fn restore_window() {
     w.window.set_focus();
 }
 
+/// Woran die Spielzeit-Messung das laufende Spiel erkennt
+fn matcher_for(game: &Game) -> Option<crate::playtime::Matcher> {
+    use crate::playtime::Matcher;
+    match (&game.launch, game.source) {
+        (LaunchTarget::Roblox(_), _) => Some(Matcher::Name("robloxplayer".into())),
+        (LaunchTarget::Exe { path, .. }, Source::Emulator) => Some(Matcher::Exe(path.clone())),
+        _ => game.install_dir.clone().filter(|d| d.len() > 3).map(Matcher::Dir),
+    }
+}
+
+/// Spielzeit im Hintergrund messen und speichern
+pub fn track_playtime(app: App, game: &Game) {
+    let Some(m) = matcher_for(game) else { return };
+    let id = game.id.clone();
+    if app.tracking.peek().contains(&id) {
+        return;
+    }
+    let mut tr = app.tracking;
+    tr.write().push(id.clone());
+    dioxus::core::spawn_forever(async move {
+        let minutes = tokio::task::spawn_blocking(move || crate::playtime::track(m)).await.unwrap_or(0);
+        let mut tr = app.tracking;
+        tr.write().retain(|x| *x != id);
+        if minutes > 0 {
+            app.update(|s| *s.playtime_local.entry(id).or_insert(0) += minutes);
+        }
+    });
+}
+
 /// "Spielen" wurde geklickt.
 pub fn play(app: App, id: String) {
     let Some(game) = app.game(&id) else { return };
-    match game.source {
-        Source::Steam | Source::Epic => match launch::launch_store(&game) {
-            Ok(()) => {
-                let installing = matches!(game.launch, LaunchTarget::SteamInstall(_) | LaunchTarget::EpicInstall(_));
-                let store = if game.source == Source::Steam { "Steam" } else { "Epic Games" };
-                if installing {
-                    app.toast(&tf("toast.installing", &[("name", &game.name), ("store", store)]), "download");
-                    // Nach der Installation taucht das Spiel automatisch als installiert auf
-                    rescan_later(app, &[90, 300, 900]);
-                } else {
-                    mark_played(app, &id);
-                    app.toast(&tf("toast.started_via", &[("name", &game.name), ("store", store)]), "rocket");
-                    if app.settings.peek().minimize_on_launch {
-                        minimize_window();
-                    }
-                    // Stürzt das Spiel direkt ab? Dann erklären, was los ist.
-                    let g = game.clone();
-                    let gid = id.clone();
-                    dioxus::core::spawn_forever(async move {
-                        let res = tokio::task::spawn_blocking(move || launch::watch_store(&g)).await;
-                        if let Ok(Some(p)) = res {
-                            restore_window();
-                            app.show_problem(p, Some(gid));
-                        }
-                    });
-                }
-            }
+    if game.source == Source::Custom {
+        let Some(c) = app.settings.peek().custom(&id).cloned() else { return };
+        match launch::precheck_custom(&c) {
+            // Vor JEDEM Start eines eigenen Spiels: Sicherheitsfrage
+            Ok(()) => app.open(Modal::Confirm(id)),
             Err(p) => app.show_problem(p, Some(id)),
-        },
-        Source::Roblox => {
-            let place = match game.launch {
-                LaunchTarget::Roblox(p) => p,
-                _ => None,
+        }
+        return;
+    }
+    match launch::launch_store(&game) {
+        Ok(()) => {
+            let installing = matches!(game.launch, LaunchTarget::SteamInstall(_) | LaunchTarget::EpicInstall(_));
+            let store = game.source.label();
+            if installing {
+                app.toast(&tf("toast.installing", &[("name", &game.name), ("store", &store)]), "download");
+                // Nach der Installation taucht das Spiel automatisch als installiert auf
+                rescan_later(app, &[90, 300, 900]);
+                return;
+            }
+            mark_played(app, &id);
+            let text = if game.source == Source::Emulator {
+                tf("toast.started", &[("name", &game.name)])
+            } else {
+                tf("toast.started_via", &[("name", &game.name), ("store", &store)])
             };
-            match crate::roblox::launch(place) {
-                Ok(()) => {
-                    mark_played(app, &id);
-                    app.toast(&tf("toast.started_via", &[("name", &game.name), ("store", "Roblox")]), "rocket");
-                    if app.settings.peek().minimize_on_launch {
-                        minimize_window();
+            app.toast(&text, "rocket");
+            if app.settings.peek().minimize_on_launch {
+                minimize_window();
+            }
+            track_playtime(app, &game);
+            // Stürzt das Spiel direkt ab? Dann erklären, was los ist.
+            if matches!(game.source, Source::Steam | Source::Epic) {
+                let g = game.clone();
+                let gid = id.clone();
+                dioxus::core::spawn_forever(async move {
+                    let res = tokio::task::spawn_blocking(move || launch::watch_store(&g)).await;
+                    if let Ok(Some(p)) = res {
+                        restore_window();
+                        app.show_problem(p, Some(gid));
                     }
-                }
-                Err(p) => app.show_problem(p, Some(id)),
+                });
             }
         }
-        Source::Custom => {
-            let Some(c) = app.settings.peek().custom(&id).cloned() else { return };
-            match launch::precheck_custom(&c) {
-                // Vor JEDEM Start eines eigenen Spiels: Sicherheitsfrage
-                Ok(()) => app.open(Modal::Confirm(id)),
-                Err(p) => app.show_problem(p, Some(id)),
-            }
-        }
+        Err(p) => app.show_problem(p, Some(id)),
     }
 }
 
@@ -401,6 +558,9 @@ pub fn start_custom(app: App, id: String, force_admin: bool) {
     match launch::launch_custom(&c, force_admin) {
         Ok(child) => {
             mark_played(app, &id);
+            if let Some(g) = app.game(&id) {
+                track_playtime(app, &g);
+            }
             app.toast(&tf("toast.started", &[("name", &c.name)]), "rocket");
             if app.settings.peek().minimize_on_launch {
                 minimize_window();
@@ -582,7 +742,58 @@ pub fn uninstall(app: App, id: String) {
                 None => app.show_problem(Problem::no_uninstaller(&c.name, dir), Some(id)),
             }
         }
-        _ => {}
+        LaunchTarget::Roblox(_) => {}
+        _ => uninstall_other(app, &game),
+    }
+}
+
+/// GOG, EA, Ubisoft, Battle.net, Amazon, itch.io, Xbox, Emulator-ROMs
+fn uninstall_other(app: App, game: &Game) {
+    let id = game.id.clone();
+    // Microsoft Store / Xbox: Windows-Einstellungen → Apps
+    if game.source == Source::Xbox {
+        let _ = sys::open_url("ms-settings:appsfeatures");
+        app.show_problem(Problem::store_uninstall(&game.name, &game.source.label()), Some(id));
+        return;
+    }
+    // ROMs gehören zu keinem Store – nur den Ordner zeigen
+    if game.source == Source::Emulator {
+        app.show_problem(Problem::store_uninstall(&game.name, &t("source.emulator")), Some(id));
+        return;
+    }
+    let dir = game.install_dir.clone().unwrap_or_default();
+    let entry = crate::stores::uninstall_entries().into_iter().find(|e| {
+        !dir.is_empty() && !e.install_location.is_empty() && sys::same_path(&e.install_location, &dir)
+    });
+    match entry {
+        Some(e) if !e.uninstall_string.trim().is_empty() => {
+            let (program, args) = launch::split_command(&e.uninstall_string);
+            let u = launch::Uninstaller { display_name: e.display_name.clone(), program, args };
+            if !confirm_uninstall(&game.name, &u) {
+                return;
+            }
+            #[cfg(windows)]
+            let res = crate::winffi::shell_execute(Some("open"), &u.program, Some(&u.args), None);
+            #[cfg(not(windows))]
+            let res: Result<(), i32> = Err(0);
+            match res {
+                Ok(()) => {
+                    app.close_modal();
+                    app.toast(&tf("toast.uninstall_custom", &[("name", &game.name)]), "trash");
+                    rescan_later(app, &[30, 120, 600]);
+                }
+                Err(_) => app.show_problem(Problem::store_uninstall(&game.name, &game.source.label()), Some(id)),
+            }
+        }
+        // Kein Eintrag gefunden → Store-Programm öffnen und erklären
+        _ => {
+            if let Some(lib) = crate::stores::library(game.source) {
+                if let Some(uri) = lib.client_uri() {
+                    let _ = sys::open_url(uri);
+                }
+            }
+            app.show_problem(Problem::store_uninstall(&game.name, &game.source.label()), Some(id));
+        }
     }
 }
 
@@ -609,6 +820,80 @@ pub fn toggle_hidden(app: App, id: &str) {
         }
     });
     app.toast(&t(if hide { "toast.hidden" } else { "toast.unhidden" }), "eye-off");
+}
+
+// ----------------------------------------------------------------------
+// Tags und Sammlungen
+// ----------------------------------------------------------------------
+
+/// Neue Sammlung anlegen, gibt die ID zurück
+pub fn create_collection(app: App, name: &str) -> String {
+    let id = format!("c{:x}", sys::now_secs().wrapping_mul(1000) + rand_small());
+    let name: String = name.trim().chars().take(40).collect();
+    let nid = id.clone();
+    app.update(|s| s.collections.push(crate::model::Collection { id: nid, name, games: Vec::new() }));
+    id
+}
+
+pub fn toggle_in_collection(app: App, coll: &str, game: &str) {
+    let (coll, game) = (coll.to_string(), game.to_string());
+    app.update(|s| {
+        if let Some(c) = s.collections.iter_mut().find(|c| c.id == coll) {
+            if let Some(pos) = c.games.iter().position(|g| *g == game) {
+                c.games.remove(pos);
+            } else {
+                c.games.push(game);
+            }
+        }
+    });
+}
+
+pub fn delete_collection(app: App, coll: &str) {
+    let coll = coll.to_string();
+    app.update(|s| s.collections.retain(|c| c.id != coll));
+    if *app.filter.peek() == Filter::Collection && *app.filter_arg.peek() == coll {
+        app.set_filter(Filter::All, "");
+    }
+}
+
+pub fn rename_collection(app: App, coll: &str, name: &str) {
+    let (coll, name) = (coll.to_string(), name.trim().chars().take(40).collect::<String>());
+    if name.is_empty() {
+        return;
+    }
+    app.update(|s| {
+        if let Some(c) = s.collections.iter_mut().find(|c| c.id == coll) {
+            c.name = name;
+        }
+    });
+}
+
+pub fn add_tag(app: App, game: &str, tag: &str) {
+    let tag: String = tag.trim().trim_start_matches('#').chars().take(30).collect();
+    if tag.is_empty() {
+        return;
+    }
+    // Schreibweise eines vorhandenen Tags übernehmen
+    let tag = app.settings.peek().all_tags().into_iter().find(|t| t.eq_ignore_ascii_case(&tag)).unwrap_or(tag);
+    let game = game.to_string();
+    app.update(|s| {
+        let list = s.tags.entry(game).or_default();
+        if !list.iter().any(|t| t.eq_ignore_ascii_case(&tag)) {
+            list.push(tag);
+        }
+    });
+}
+
+pub fn remove_tag(app: App, game: &str, tag: &str) {
+    let (game, tag) = (game.to_string(), tag.to_string());
+    app.update(|s| {
+        if let Some(list) = s.tags.get_mut(&game) {
+            list.retain(|t| *t != tag);
+            if list.is_empty() {
+                s.tags.remove(&game);
+            }
+        }
+    });
 }
 
 /// Eigenes Cover für irgendein Spiel wählen.

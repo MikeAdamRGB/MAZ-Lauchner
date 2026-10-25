@@ -14,6 +14,9 @@ use dioxus::prelude::*;
 pub fn visible_games(app: App) -> Vec<Game> {
     let s = app.settings.read();
     let filter = *app.filter.read();
+    let arg = app.filter_arg.read().clone();
+    let genre = app.genre.read().clone();
+    let cache = app.meta_cache.read();
     let q = app.search.read().trim().to_lowercase();
     let mut list: Vec<Game> = app
         .games
@@ -24,34 +27,36 @@ pub fn visible_games(app: App) -> Vec<Game> {
             if filter == Filter::Hidden {
                 return hidden;
             }
-            if hidden {
-                return false;
-            }
-            match filter {
-                Filter::Installed => g.installed,
-                Filter::Steam => g.source == Source::Steam,
-                Filter::Epic => g.source == Source::Epic,
-                Filter::Roblox => g.source == Source::Roblox,
-                Filter::Custom => g.source == Source::Custom,
-                Filter::Favorites => s.is_favorite(&g.id),
-                Filter::Recent => s.last_played(&g.id) > 0,
-                _ => true,
+            !hidden && filter.matches(&arg, g, &s)
+        })
+        .filter(|g| {
+            genre.is_empty() || {
+                let own = s.meta.get(&g.id).map(|m| m.genres.clone()).filter(|v| !v.is_empty());
+                let auto = || cache.get(&g.id).map(|i| i.genres.clone()).unwrap_or_default();
+                own.unwrap_or_else(auto).iter().any(|x| x.eq_ignore_ascii_case(&genre))
             }
         })
-        .filter(|g| q.is_empty() || g.name.to_lowercase().contains(&q))
+        .filter(|g| {
+            q.is_empty() || g.name.to_lowercase().contains(&q) || s.tags_of(&g.id).iter().any(|t| t.to_lowercase().contains(&q))
+        })
         .cloned()
         .collect();
     let sort = if filter == Filter::Recent { "recent" } else { s.sort.as_str() };
     match sort {
         "recent" => list.sort_by(|a, b| s.last_played(&b.id).cmp(&s.last_played(&a.id)).then(a.sort_key().cmp(&b.sort_key()))),
-        "playtime" => list.sort_by(|a, b| b.playtime_min.unwrap_or(0).cmp(&a.playtime_min.unwrap_or(0)).then(a.sort_key().cmp(&b.sort_key()))),
+        "playtime" => list.sort_by(|a, b| s.playtime(b).cmp(&s.playtime(a)).then(a.sort_key().cmp(&b.sort_key()))),
         "installed" => list.sort_by(|a, b| b.installed.cmp(&a.installed).then(a.sort_key().cmp(&b.sort_key()))),
+        "added" => list.sort_by(|a, b| s.first_seen(&b.id).cmp(&s.first_seen(&a.id)).then(a.sort_key().cmp(&b.sort_key()))),
         _ => list.sort_by_key(|a| a.sort_key()),
     }
     list
 }
 
 pub fn count_for(app: App, f: Filter) -> usize {
+    count_with(app, f, "")
+}
+
+pub fn count_with(app: App, f: Filter, arg: &str) -> usize {
     let s = app.settings.read();
     app.games
         .read()
@@ -61,17 +66,56 @@ pub fn count_for(app: App, f: Filter) -> usize {
             match f {
                 Filter::Hidden => hidden,
                 _ if hidden => false,
-                Filter::All => true,
-                Filter::Installed => g.installed,
-                Filter::Steam => g.source == Source::Steam,
-                Filter::Epic => g.source == Source::Epic,
-                Filter::Roblox => g.source == Source::Roblox,
-                Filter::Custom => g.source == Source::Custom,
-                Filter::Favorites => s.is_favorite(&g.id),
-                Filter::Recent => s.last_played(&g.id) > 0,
+                _ => f.matches(arg, g, &s),
             }
         })
         .count()
+}
+
+/// Alle bekannten Genres (eigene + automatisch geladene), sortiert
+pub fn all_genres(app: App) -> Vec<String> {
+    let s = app.settings.read();
+    let cache = app.meta_cache.read();
+    let mut v: Vec<String> = Vec::new();
+    for g in app.games.read().iter() {
+        let own = s.meta.get(&g.id).map(|m| m.genres.clone()).filter(|v| !v.is_empty());
+        for genre in own.unwrap_or_else(|| cache.get(&g.id).map(|i| i.genres.clone()).unwrap_or_default()) {
+            if !v.iter().any(|x| x.eq_ignore_ascii_case(&genre)) {
+                v.push(genre);
+            }
+        }
+    }
+    v.sort_by_key(|x| x.to_lowercase());
+    v
+}
+
+/// Weitere Stores/Emulatoren, in denen es Spiele gibt
+pub fn stores_with_games(app: App) -> Vec<Source> {
+    let games = app.games.read();
+    Source::STORES
+        .iter()
+        .copied()
+        .chain(std::iter::once(Source::Emulator))
+        .filter(|src| games.iter().any(|g| g.source == *src))
+        .collect()
+}
+
+/// Überschrift für den aktuellen Filter
+pub fn filter_title(app: App) -> String {
+    let f = *app.filter.read();
+    let arg = app.filter_arg.read().clone();
+    match f {
+        Filter::Tag => format!("# {arg}"),
+        Filter::Collection => app
+            .settings
+            .read()
+            .collections
+            .iter()
+            .find(|c| c.id == arg)
+            .map(|c| c.name.clone())
+            .unwrap_or_else(|| f.label()),
+        _ => f.label(),
+    }
 }
 
 fn min_card_width(s: &Settings) -> u32 {
@@ -106,6 +150,7 @@ pub fn SourceBadge(source: Source) -> Element {
         Source::Epic => rsx! { Badge { variant: BadgeVariant::Epic, "EPIC" } },
         Source::Roblox => rsx! { Badge { variant: BadgeVariant::Roblox, "ROBLOX" } },
         Source::Custom => rsx! { Badge { variant: BadgeVariant::Custom, {t("badge.custom")} } },
+        other => rsx! { Badge { variant: BadgeVariant::Store, {other.badge()} } },
     }
 }
 
@@ -136,6 +181,7 @@ fn Toolbar(#[props(into)] title: String, count: usize) -> Element {
                     },
                 }
             }
+            GenreSelect {}
             SortSelect { value: sort }
             Segmented {
                 options: vec![("1".to_string(), "S".to_string()), ("2".to_string(), "M".to_string()), ("3".to_string(), "L".to_string())],
@@ -178,6 +224,33 @@ fn SortSelect(value: String) -> Element {
             option { value: "recent", selected: value == "recent", {t("sort.recent")} }
             option { value: "playtime", selected: value == "playtime", {t("sort.playtime")} }
             option { value: "installed", selected: value == "installed", {t("sort.installed")} }
+            option { value: "added", selected: value == "added", {t("sort.added")} }
+        }
+    }
+}
+
+/// Genre-Filter (nur sichtbar, wenn Genres bekannt sind)
+#[component]
+fn GenreSelect() -> Element {
+    let app = use_app();
+    let genres = all_genres(app);
+    let current = app.genre.read().clone();
+    if genres.is_empty() {
+        return rsx! {};
+    }
+    rsx! {
+        select {
+            class: "h-9 max-w-44 rounded-md border border-input bg-background/60 px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 cursor-pointer",
+            title: t("genre.title"),
+            onchange: move |e| {
+                let mut g = app.genre;
+                g.set(e.value());
+            },
+            option { value: "", selected: current.is_empty(), {t("genre.all")} }
+            {genres.into_iter().map(|g| {
+                let sel = g.eq_ignore_ascii_case(&current);
+                rsx! { option { key: "{g}", value: "{g}", selected: sel, "{g}" } }
+            })}
         }
     }
 }
@@ -245,6 +318,9 @@ fn EmptyState() -> Element {
             Filter::Steam => (t("empty.steam.title"), t("empty.steam.text")),
             Filter::Epic => (t("empty.epic.title"), t("empty.epic.text")),
             Filter::Roblox => (t("empty.roblox.title"), t("empty.roblox.text")),
+            Filter::Tag | Filter::Collection => (t("empty.group.title"), t("empty.group.text")),
+            Filter::Store(Source::Emulator) => (t("empty.emu.title"), t("empty.emu.text")),
+            Filter::Store(src) => (tf("empty.store.title", &[("store", &src.label())]), tf("store.client_missing", &[("store", &src.label())])),
             _ => (t("empty.all.title"), t("empty.all.text")),
         }
     };
@@ -260,6 +336,10 @@ fn EmptyState() -> Element {
                     Icon { name: "plus", class: "size-4" }
                     {t("lib.add_custom")}
                 }
+                Button { variant: ButtonVariant::Outline, onclick: move |_| app.open(Modal::FolderScan),
+                    Icon { name: "folder", class: "size-4" }
+                    {t("scan.button")}
+                }
                 Button { variant: ButtonVariant::Outline, onclick: move |_| rescan(app),
                     Icon { name: "refresh", class: "size-4" }
                     {t("lib.reload")}
@@ -273,6 +353,7 @@ fn EmptyState() -> Element {
 #[component]
 pub fn GameCard(game: Game, favorite: bool, show_name: bool, #[props(into)] covers: Vec<String>) -> Element {
     let app = use_app();
+    let more = app.dupes.read().get(&game.id).map(|v| v.len()).unwrap_or(0);
     let id = game.id.clone();
     let id_play = game.id.clone();
     let name = game.name.clone();
@@ -300,6 +381,9 @@ pub fn GameCard(game: Game, favorite: bool, show_name: bool, #[props(into)] cove
                 div { class: "absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-black/80 to-transparent opacity-70 group-hover:opacity-100 transition-opacity" }
                 div { class: "absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
                     SourceBadge { source: game.source }
+                    if more > 0 {
+                        span { class: "rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white", title: t("dupes.title"), "+{more}" }
+                    }
                 }
                 if favorite {
                     div { class: "absolute top-2 right-2 text-yellow-400 drop-shadow",
@@ -361,24 +445,20 @@ fn GameGrid(games: Vec<Game>) -> Element {
 // ======================================================================
 
 #[component]
-fn NavItem(filter: Filter, count: usize) -> Element {
+fn NavItem(filter: Filter, count: usize, #[props(into, default)] arg: String, #[props(into, default)] label: String) -> Element {
     let app = use_app();
-    let active = *app.filter.read() == filter && *app.page.read() == Page::Library;
+    let active = *app.filter.read() == filter && *app.page.read() == Page::Library && (arg.is_empty() || *app.filter_arg.read() == arg);
     let cls = if active {
         "w-full flex items-center gap-3 px-3 h-9 rounded-lg text-sm font-medium bg-sidenav-accent text-foreground cursor-pointer relative"
     } else {
         "w-full flex items-center gap-3 px-3 h-9 rounded-lg text-sm text-sidenav-foreground/80 hover:bg-sidenav-accent/60 hover:text-foreground cursor-pointer relative"
     };
-    let label = filter.label();
+    let label = if label.is_empty() { filter.label() } else { label };
     let icon = filter.icon();
     rsx! {
         button {
             class: "{cls}",
-            onclick: move |_| {
-                let mut f = app.filter;
-                f.set(filter);
-                app.go(Page::Library);
-            },
+            onclick: move |_| app.set_filter(filter, &arg),
             if active {
                 span { class: "absolute left-0 top-2 bottom-2 w-1 rounded-full maz-gradient-bg" }
             }
@@ -417,8 +497,14 @@ pub fn MazSidebar() -> Element {
                     if count_for(app, Filter::Roblox) > 0 {
                         NavItem { filter: Filter::Roblox, count: count_for(app, Filter::Roblox) }
                     }
+                    {stores_with_games(app).into_iter().map(|src| {
+                        let key = src.key();
+                        rsx! { NavItem { key: "{key}", filter: Filter::Store(src), count: count_for(app, Filter::Store(src)) } }
+                    })}
                     NavItem { filter: Filter::Custom, count: count_for(app, Filter::Custom) }
                 }
+                CollectionsNav {}
+                TagsNav {}
                 if count_for(app, Filter::Hidden) > 0 {
                     div { class: "space-y-0.5",
                         NavItem { filter: Filter::Hidden, count: count_for(app, Filter::Hidden) }
@@ -435,6 +521,83 @@ pub fn MazSidebar() -> Element {
                     {t("nav.settings")}
                 }
             }
+        }
+    }
+}
+
+/// Eigene Sammlungen in der Seitenleiste (+ neue anlegen)
+#[component]
+fn CollectionsNav() -> Element {
+    let app = use_app();
+    let mut adding = use_signal(|| false);
+    let mut name = use_signal(String::new);
+    let cols = app.settings.read().collections.clone();
+    let mut create = move || {
+        let n = name.peek().trim().to_string();
+        if !n.is_empty() {
+            let id = create_collection(app, &n);
+            app.set_filter(Filter::Collection, &id);
+        }
+        name.set(String::new());
+        adding.set(false);
+    };
+    rsx! {
+        div { class: "space-y-0.5",
+            div { class: "flex items-center px-3 pb-2",
+                span { class: "flex-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", {t("nav.collections")} }
+                button {
+                    class: "p-0.5 rounded text-muted-foreground hover:text-foreground cursor-pointer",
+                    title: t("coll.new"),
+                    onclick: move |_| adding.set(!adding()),
+                    Icon { name: "plus", class: "size-3.5" }
+                }
+            }
+            if adding() {
+                div { class: "px-1 pb-1",
+                    input {
+                        class: "w-full h-8 rounded-md border border-input bg-background/60 px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        placeholder: t("coll.name_ph"),
+                        autofocus: true,
+                        value: "{name}",
+                        oninput: move |e| name.set(e.value()),
+                        onkeydown: move |e| {
+                            if e.key() == Key::Enter {
+                                create();
+                            } else if e.key() == Key::Escape {
+                                adding.set(false);
+                            }
+                        },
+                    }
+                }
+            }
+            if cols.is_empty() && !adding() {
+                div { class: "px-3 text-xs text-muted-foreground/70", {t("coll.none")} }
+            }
+            {cols.into_iter().map(|c| {
+                let n = count_with(app, Filter::Collection, &c.id);
+                let key = c.id.clone();
+                rsx! { NavItem { key: "{key}", filter: Filter::Collection, count: n, arg: c.id.clone(), label: c.name.clone() } }
+            })}
+        }
+    }
+}
+
+/// Eigene Tags in der Seitenleiste
+#[component]
+fn TagsNav() -> Element {
+    let app = use_app();
+    let tags = app.settings.read().all_tags();
+    if tags.is_empty() {
+        return rsx! {};
+    }
+    rsx! {
+        div { class: "space-y-0.5",
+            div { class: "px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", {t("nav.tags")} }
+            {tags.into_iter().map(|tag| {
+                let n = count_with(app, Filter::Tag, &tag);
+                let key = tag.clone();
+                rsx! { NavItem { key: "{key}", filter: Filter::Tag, count: n, arg: tag.clone(), label: tag.clone() } }
+            })}
         }
     }
 }
@@ -498,7 +661,7 @@ fn MazLayout() -> Element {
     let filter = *app.filter.read();
     let searching = !app.search.read().trim().is_empty();
     let count = games.len();
-    let title = filter.label();
+    let title = filter_title(app);
     rsx! {
         div { class: "flex h-full min-h-0",
             MazSidebar {}
@@ -562,7 +725,7 @@ fn SteamLayout() -> Element {
                                     "fav" => Filter::Favorites,
                                     "recent" => Filter::Recent,
                                     "hidden" => Filter::Hidden,
-                                    _ => Filter::All,
+                                    other => stores_with_games(app).into_iter().find(|s| s.key() == other).map(Filter::Store).unwrap_or(Filter::All),
                                 };
                                 let mut fs = app.filter;
                                 fs.set(f);
@@ -572,6 +735,11 @@ fn SteamLayout() -> Element {
                             option { value: "steam", selected: filter == Filter::Steam, "STEAM" }
                             option { value: "epic", selected: filter == Filter::Epic, "EPIC GAMES" }
                             option { value: "roblox", selected: filter == Filter::Roblox, "ROBLOX" }
+                            {stores_with_games(app).into_iter().map(|src| {
+                                let k = src.key();
+                                let label = src.label().to_uppercase();
+                                rsx! { option { key: "{k}", value: "{k}", selected: filter == Filter::Store(src), "{label}" } }
+                            })}
                             option { value: "custom", selected: filter == Filter::Custom, {t("filter.custom").to_uppercase()} }
                             option { value: "fav", selected: filter == Filter::Favorites, {t("filter.favorites").to_uppercase()} }
                             option { value: "recent", selected: filter == Filter::Recent, {t("filter.recent").to_uppercase()} }
@@ -762,7 +930,12 @@ fn EpicLayout() -> Element {
     let page = *app.page.read();
     let search = app.search.read().clone();
     let sort = app.settings.read().sort.clone();
-    let chips = [Filter::All, Filter::Installed, Filter::Favorites, Filter::Steam, Filter::Epic, Filter::Roblox, Filter::Custom, Filter::Recent];
+    let mut chips = vec![Filter::All, Filter::Installed, Filter::Favorites, Filter::Steam, Filter::Epic];
+    if count_for(app, Filter::Roblox) > 0 {
+        chips.push(Filter::Roblox);
+    }
+    chips.extend(stores_with_games(app).into_iter().map(Filter::Store));
+    chips.extend([Filter::Custom, Filter::Recent]);
     let s = app.settings.read();
     let min = min_card_width(&s) + 20;
     let cards: Vec<(Game, Vec<String>, bool)> = games
@@ -809,7 +982,7 @@ fn EpicLayout() -> Element {
                             };
                             let label = c.label();
                             rsx! {
-                                button { key: "{label}", class: "{cls}", onclick: move |_| { let mut f = app.filter; f.set(c); }, "{label}" }
+                                button { key: "{label}", class: "{cls}", onclick: move |_| app.set_filter(c, ""), "{label}" }
                             }
                         })}
                         div { class: "flex-1" }
@@ -852,12 +1025,7 @@ fn EpicCard(game: Game, covers: Vec<String>, favorite: bool) -> Element {
     let status = if !game.installed {
         t("game.not_installed")
     } else {
-        match game.source {
-            Source::Steam => "Steam".to_string(),
-            Source::Epic => "Epic Games".to_string(),
-            Source::Roblox => "Roblox".to_string(),
-            Source::Custom => t("source.custom"),
-        }
+        game.source.label()
     };
     let action = t(if game.installed { "epic.start" } else { "game.install" });
     let g2 = game.clone();

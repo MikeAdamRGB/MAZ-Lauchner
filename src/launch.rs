@@ -28,8 +28,34 @@ pub fn launch_store(game: &Game) -> Result<(), Problem> {
             sys::open_url(uri).map_err(|code| Problem::launcher_uri_failed(&game.name, "Epic Games", code, uri))
         }
         LaunchTarget::Roblox(place) => crate::roblox::launch(*place),
+        LaunchTarget::Uri(uri) => {
+            let scheme = uri.split(':').next().unwrap_or("");
+            if !scheme.starts_with("http") && !sys::protocol_registered(scheme) {
+                return Err(client_missing(game));
+            }
+            sys::open_url(uri).map_err(|code| Problem::launcher_uri_failed(&game.name, &game.source.label(), code, uri))
+        }
+        LaunchTarget::Exe { path, args, dir } => {
+            if path.is_empty() || !Path::new(path).exists() {
+                return Err(Problem::exe_missing(&game.name, path, sys::drive_exists(path)));
+            }
+            let mut cmd = sys::host_command(path);
+            cmd.args(args);
+            let wd = if dir.is_empty() { Path::new(path).parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_default() } else { dir.clone() };
+            if !wd.is_empty() && Path::new(&wd).is_dir() {
+                cmd.current_dir(&wd);
+            }
+            cmd.spawn().map(|_| ()).map_err(|e| Problem::from_os_error(&game.name, path, e.raw_os_error(), &e.to_string()))
+        }
+        LaunchTarget::Appx { family, app } => crate::appx::launch(family, app).map_err(|e| Problem::unknown(&game.name, &e)),
         LaunchTarget::Custom => Err(Problem::unknown(&game.name, "Internal error: custom game without data")),
     }
+}
+
+/// Store-Programm fehlt → freundlich erklären, wo es das gibt
+fn client_missing(game: &Game) -> Problem {
+    let url = crate::stores::library(game.source).map(|s| s.download_url()).unwrap_or(sys::GITHUB_URL);
+    Problem::client_missing(&game.source.label(), url)
 }
 
 /// Prüft ein eigenes Spiel, bevor die Sicherheitsfrage gestellt wird.

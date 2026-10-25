@@ -23,6 +23,8 @@ serde_json = "1"
 tokio = { version = "1", default-features = false, features = ["rt", "time"] }
 # Nur PNG/JPEG – hält die EXE klein
 image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+# itch.io-Belege (receipt.json.gz) entpacken – reine Rust-Variante, keine C-Bibliothek
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 # HTTP für optionale Online-Funktionen (Steam-API, Cover-Suche).
 # native-tls nutzt das in Windows eingebaute SChannel → keine große TLS-Bibliothek in der EXE.
 ureq = { version = "3.5", default-features = false, features = ["json", "native-tls-no-default"] }

@@ -48,11 +48,16 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 | 🎮 **Steam** | Shows **all** your Steam games – installed or not – across all drives, including playtime. Install and uninstall them right from the launcher. Works on Windows, macOS and Linux (incl. Flatpak/Snap Steam). |
 | 🟦 **Epic Games** | Detects every installed Epic Games title automatically. Connect your Epic account once to see your **complete** Epic library, then install or uninstall with one click. On Linux, Epic games come from the [Heroic Games Launcher](https://heroicgameslauncher.com). |
 | 🧱 **Roblox** | Detects Roblox and starts it. Paste links of your favorite Roblox games – each becomes its own tile that starts straight into the game. On Linux via [Sober](https://flathub.org/apps/org.vinegarhq.Sober). |
+| 🏪 **7 more stores** | GOG (Windows: GOG Galaxy, Linux: Heroic), EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io and Xbox / Microsoft Store. Installed games are found automatically and always started through the official app. If an app is missing, the launcher tells you where to get it. Every store can be turned off. |
+| 🕹️ **Emulators** | Profiles for RetroArch, Dolphin, PCSX2, DuckStation, PPSSPP, mGBA, Snes9x or any other emulator. Pick your ROM folders – every ROM becomes its own game. |
+| 🗂️ **Organize your library** | Search, sort (name, last played, playtime, recently added) and filter (store, installed, favorites, genre, tags, collections). Your own tags and collections, playtime tracking, duplicates across stores merged into one tile. |
+| 📝 **Game info** | Description, genres, developer and release date loaded automatically (public Steam store data, cached). Edit name, cover, background, description and genres yourself. |
 | 🎁 **Free games** | A tab with every game that is currently free on Epic Games and Steam, with a countdown of how long the offer lasts. *Add to library* opens the store page – one click on *Get* and it shows up in MAZ Launcher. |
 | 🚀 **Your own games** | Add any game: an `.exe`, a shortcut or a batch file. Before **every** launch a safety checklist asks *"Have you turned off everything important?"*. If you answer **No**, the game does not start. |
 | 🖼️ **Original icons & covers** | Real game icons (taken straight from the EXE or from Steam) and original cover art. You can set a custom cover for any game. |
 | 🎨 **3 library layouts** | Looks like **the Steam library**, like **Epic Games**, or uses the launcher's own **MAZ style**. |
-| 🌈 **16 designs + your own** | 16 ready-made color themes, a design editor for your own themes (shareable as a code), a custom accent color and your own background image. |
+| 🌈 **16 designs + your own** | 16 ready-made color themes, a design editor for your own themes with font, spacing and layout, shareable as a code or a `.maztheme.json` file, a custom accent color and your own background image. |
+| 🎮 **Controller mode** | Optional: navigate the whole launcher with a gamepad (D-pad/stick, A, B, LB/RB). |
 | 🌍 **9 languages** | English, Deutsch, Español, Français, Italiano, Português, Polski, Türkçe and Русский – including every error explanation. |
 | 🛟 **Errors explained in plain words** | If a game won't start or crashes right after launch (Steam, Epic or your own), the launcher explains **step by step** what happened and how to fix it, with buttons that fix it directly (for example *Verify game files*, *Run as administrator* or *Download Visual C++*). Every game also has a *Won't start? Help* button. |
 | 🔄 **Updates in the app** | You get a message when a new version is out. *Update now* downloads it, checks the SHA256 checksum and installs it – no trip to GitHub needed. |
@@ -164,6 +169,11 @@ MAZ Launcher checks GitHub for new versions (can be turned off in **Settings →
 - **Uninstall a game:** open the game → **Uninstall**.
 - **A game won't start?** open the game → **Won't start? Help**. If a game crashes right after launch, the explanation appears automatically.
 - **Roblox:** **Settings → Connections → Roblox** → paste the link of a Roblox game (e.g. `https://www.roblox.com/games/920587237/…`).
+- **Scan a folder:** empty library or **My games** → **Scan a folder** → pick e.g. `D:\Games` → tick the games → **Add**.
+- **Tags & collections:** open a game → type a tag at the bottom or click a collection. Create collections with **+** in the sidebar.
+- **Emulators:** **Settings → Connections → Emulators** → pick a preset → choose the emulator program and your ROM folders.
+- **Edit game info:** open a game → **Edit info**.
+- **Share a design:** **Settings → Design** → edit your design → **Save as file**.
 - **Customize the safety checklist:** **Settings → My games** → add, edit or delete items. You can also add extra items per game.
 
 ### Errors the launcher explains for you
@@ -203,7 +213,9 @@ The compiled stylesheet (`assets/maz.css`) is checked into the repository and em
 | Styling | Tailwind CSS v4, themes via CSS custom properties |
 | Steam | Registry → `libraryfolders.vdf` → `appmanifest_*.acf` (custom VDF parser), artwork from the Steam cache, optional Steam Web API |
 | Epic Games | Registry → launcher manifests (`*.item`), launcher catalog cache, optional Epic account for the full library |
-| Roblox | Roblox player / Sober detection, official `roblox://experiences/start?placeId=` links |
+| Roblox | Roblox player / Microsoft Store app / Sober detection, official `roblox-player:` and `roblox://experiences/start?placeId=` links |
+| More stores | One `StoreLibrary` trait per store: registry / manifest files (GOG, EA, Ubisoft, Battle.net, Amazon), itch receipts, Xbox `MicrosoftGame.config` + AppX packages |
+| Game info | Public Steam store `appdetails` endpoint, cached locally |
 | Updates | GitHub Releases API, SHA256 verification, in-place replacement or package manager |
 | Icons | Original icons extracted from the EXE through the Windows API (256 px) |
 | HTTP | `ureq` with the system TLS (SChannel / Security.framework / OpenSSL) |
@@ -231,6 +243,12 @@ src/
 ├── epic.rs        Epic Games detection (Windows/macOS launcher, Heroic on Linux)
 ├── epicacct.rs    optional Epic account for the full library
 ├── roblox.rs      Roblox detection, start and favorite experiences
+├── stores.rs      GOG, EA, Ubisoft, Battle.net, Amazon, itch.io, Xbox
+├── appx.rs        Microsoft Store / Xbox apps (Windows)
+├── emulators.rs   emulator profiles, ROM scanner, folder scan
+├── metadata.rs    automatic game info (cached)
+├── playtime.rs    local playtime tracking
+├── notes.rs       changelog rendering for the update window
 ├── updater.rs     update check and in-app update
 ├── freegames.rs   free games on Epic and Steam
 ├── library.rs     merges everything into one library
@@ -250,7 +268,10 @@ Settings: `%APPDATA%\MAZ Launcher` (Windows), `~/Library/Application Support/MAZ
 ## FAQ
 
 **Does the launcher download games or bypass copy protection?**
-No. Steam and Epic games are always started through their official launchers. The launcher never asks for passwords.
+No. Store games are always started through their official apps (Steam, Epic, GOG Galaxy, EA app …). The launcher never asks for passwords. Emulators only use ROMs you point it to – it never downloads ROMs or BIOS files.
+
+**How often are there updates?**
+New features are bundled into larger updates instead of many small ones. Quick fixes only ship on their own when they are urgent (security, crashes). See [docs/UPDATE-POLICY.md](docs/UPDATE-POLICY.md) and the [CHANGELOG](CHANGELOG.md).
 
 **Why don't I see all of my Epic games?**
 Epic only provides the list of owned games after signing in. Go to **Settings → Connections → Connect Epic account**, sign in in your browser, press Ctrl + A and Ctrl + C on the page Epic shows – done. Your whole Epic library appears.

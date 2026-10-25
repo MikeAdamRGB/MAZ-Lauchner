@@ -149,6 +149,8 @@ pub enum BadgeVariant {
     Epic,
     Roblox,
     Custom,
+    /// Weitere Stores (GOG, EA, Ubisoft …)
+    Store,
 }
 
 impl BadgeVariant {
@@ -164,6 +166,7 @@ impl BadgeVariant {
             Self::Epic => "border-transparent bg-[#2a2a2a] text-white",
             Self::Roblox => "border-transparent bg-[#e2231a] text-white",
             Self::Custom => "border-transparent bg-primary/20 text-primary",
+            Self::Store => "border-transparent bg-black/70 text-white",
         }
     }
 }
@@ -304,9 +307,15 @@ pub fn Dialog(
                     }
                 },
             }
-            div { class: "{cls}",
+            div { class: "{cls}", "data-dialog": "1",
+                onkeydown: move |e| {
+                    if e.key() == Key::Escape {
+                        on_close.call(());
+                    }
+                },
                 button {
                     r#type: "button",
+                    "data-dialog-close": "1",
                     class: "absolute top-4 right-4 z-10 p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer",
                     title: crate::i18n::t("common.close"),
                     onclick: move |_| on_close.call(()),

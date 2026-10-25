@@ -8,6 +8,7 @@ pub mod free;
 pub mod icons;
 pub mod installer;
 pub mod library;
+pub mod manage;
 pub mod net;
 pub mod settings;
 pub mod state;
@@ -34,11 +35,17 @@ pub fn Root() -> Element {
         steam: Signal::new(StoreStatus::default()),
         epic: Signal::new(StoreStatus::default()),
         roblox: Signal::new(StoreStatus::default()),
+        stores: Signal::new(Vec::new()),
+        meta_cache: Signal::new(crate::metadata::load_cache()),
         warnings: Signal::new(Vec::new()),
         scanning: Signal::new(false),
         loaded: Signal::new(false),
         page: Signal::new(Page::Library),
         filter: Signal::new(Filter::All),
+        filter_arg: Signal::new(String::new()),
+        genre: Signal::new(String::new()),
+        dupes: Signal::new(Default::default()),
+        tracking: Signal::new(Vec::new()),
         search: Signal::new(String::new()),
         selected: Signal::new(None),
         modal: Signal::new(None),
@@ -88,6 +95,7 @@ pub fn Root() -> Element {
     if authentic.is_empty() {
         if let Some(c) = &custom {
             style.push_str(&c.css_vars());
+            style.push_str(&c.extra_style());
         } else if let Some(p) = theme::preset(&s.theme) {
             style.push_str(&p.css_vars());
         }
@@ -146,9 +154,19 @@ pub fn Root() -> Element {
     }
 }
 
+/// Controller-Modus ein-/ausschalten (Skript wird nur einmal geladen)
+fn apply_controller(on: bool) {
+    let js = include_str!("../../assets/controller.js").replace("__ON__", if on { "true" } else { "false" });
+    let _ = document::eval(&js);
+}
+
 #[component]
 fn LauncherShell() -> Element {
     let app = use_app();
+    use_effect(move || {
+        let on = app.settings.read().controller_mode;
+        apply_controller(on);
+    });
     use_effect(move || {
         if !*app.loaded.peek() {
             rescan(app);

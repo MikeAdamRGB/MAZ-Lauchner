@@ -107,6 +107,24 @@ pub fn now_secs() -> u64 {
         .unwrap_or(0)
 }
 
+/// Dateiname ohne verbotene Zeichen (für "Speichern unter")
+pub fn safe_file_name(name: &str) -> String {
+    let s: String = name
+        .chars()
+        .map(|c| if c.is_alphanumeric() || c == ' ' || c == '-' || c == '_' { c } else { '_' })
+        .take(60)
+        .collect();
+    let s = s.trim().to_string();
+    if s.is_empty() { "datei".into() } else { s }
+}
+
+/// Zeigen zwei Pfade auf denselben Ordner? (Groß/klein und \\ vs. / egal)
+pub fn same_path(a: &str, b: &str) -> bool {
+    let n = |p: &str| p.trim().trim_matches('"').replace('\\', "/").trim_end_matches('/').to_lowercase();
+    let (a, b) = (n(a), n(b));
+    !a.is_empty() && a == b
+}
+
 /// Prüft, ob ein Laufwerk wie "D:" existiert.
 pub fn drive_exists(path: &str) -> bool {
     match crate::problem::drive_of(path) {
@@ -204,11 +222,17 @@ pub fn is_safe_url(url: &str) -> bool {
     if u.contains('\n') || u.contains('\r') || u.contains('"') {
         return false;
     }
-    const ALLOWED: [&str; 10] = [
+    const ALLOWED: [&str; 16] = [
         "https://",
         "http://",
         "steam://",
+        "uplay://",
+        "origin2://",
+        "amazon-games://",
+        "goggalaxy://",
+        "battlenet://",
         "roblox://",
+        "roblox-player:",
         "heroic://",
         "com.epicgames.launcher://",
         "ms-settings:",

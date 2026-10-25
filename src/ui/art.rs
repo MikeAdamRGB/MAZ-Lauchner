@@ -2,7 +2,7 @@
 //! probiert – und am Ende ein schönes, generiertes Cover angezeigt.
 
 use super::icons::Icon;
-use crate::model::{Game, Source};
+use crate::model::Game;
 use crate::sys;
 use dioxus::prelude::*;
 
@@ -82,12 +82,7 @@ pub fn CoverFallback(game: Game, #[props(default = true)] show_name: bool) -> El
     let name = game.name.clone();
     let ini = initials(&game.name);
     let icons = game.art.icon.clone();
-    let src_icon = match game.source {
-        Source::Steam => "gamepad",
-        Source::Epic => "layers",
-        Source::Roblox => "cube",
-        Source::Custom => "rocket",
-    };
+    let src_icon = game.source.icon();
     rsx! {
         div { class: "absolute inset-0 {grad} flex flex-col items-center justify-center gap-3 p-4 text-center overflow-hidden",
             div { class: "absolute -right-6 -bottom-6 opacity-10 text-white",

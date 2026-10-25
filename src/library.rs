@@ -2,7 +2,7 @@
 
 use crate::model::{normalize_name, Art, CustomGame, Game, LaunchTarget, Settings, Source, StoreStatus};
 use crate::problem::Problem;
-use crate::{epic, icons, roblox, steam, sys};
+use crate::{emulators, epic, icons, roblox, steam, stores, sys};
 use std::collections::BTreeMap;
 use std::path::Path;
 
@@ -12,7 +12,11 @@ pub struct ScanResult {
     pub steam: StoreStatus,
     pub epic: StoreStatus,
     pub roblox: StoreStatus,
+    /// Weitere Stores (GOG, EA …)
+    pub stores: Vec<(Source, StoreStatus)>,
     pub warnings: Vec<Problem>,
+    /// Weitere Versionen desselben Spiels: ID des angezeigten Spiels → andere Stores
+    pub duplicates: BTreeMap<String, Vec<Game>>,
 }
 
 /// Komplette Bibliothek einlesen (läuft im Hintergrund-Thread).
@@ -46,6 +50,20 @@ pub fn scan(settings: &Settings) -> ScanResult {
         result.roblox.note = Some(crate::i18n::t("roblox.off"));
     }
 
+    for (src, sc) in stores::scan_all(settings) {
+        // Gleiche ID nicht doppelt (z. B. GOG über Galaxy und Heroic)
+        for g in sc.games {
+            if !result.games.iter().any(|o| o.id == g.id) {
+                result.games.push(g);
+            }
+        }
+        result.stores.push((src, sc.status));
+    }
+
+    if settings.store_on(Source::Emulator) {
+        result.games.extend(emulators::scan(&settings.emulators));
+    }
+
     for g in result.games.iter_mut() {
         match g.source {
             Source::Epic => {
@@ -68,6 +86,20 @@ pub fn scan(settings: &Settings) -> ScanResult {
                     }
                 }
             }
+            Source::Gog | Source::Ea | Source::Ubisoft | Source::BattleNet | Source::Amazon | Source::Itch | Source::Xbox => {
+                if g.art.icon.is_empty() {
+                    let exe = g.exe.clone().map(std::path::PathBuf::from).or_else(|| {
+                        g.install_dir.as_ref().and_then(|d| icons::guess_main_exe(Path::new(d), &g.name))
+                    });
+                    if let Some(exe) = exe {
+                        if let Some(icon) = icons::cached_icon(&exe) {
+                            g.art.icon.push(sys::file_url(&icon));
+                        }
+                    }
+                }
+                apply_lookup(g, &settings.art_lookup);
+            }
+            Source::Emulator => apply_lookup(g, &settings.art_lookup),
             Source::Roblox | Source::Custom => {}
         }
     }
@@ -75,7 +107,55 @@ pub fn scan(settings: &Settings) -> ScanResult {
     for c in &settings.custom_games {
         result.games.push(custom_game(c, &settings.art_lookup, true));
     }
+    if settings.merge_duplicates {
+        let (games, dupes) = merge_duplicates(std::mem::take(&mut result.games));
+        result.games = games;
+        result.duplicates = dupes;
+    }
+    for g in result.games.iter_mut().chain(result.duplicates.values_mut().flatten()) {
+        apply_meta(g, settings);
+    }
     result
+}
+
+/// Selbst bearbeiteten Namen / Hintergrund übernehmen
+pub fn apply_meta(g: &mut Game, settings: &Settings) {
+    if let Some(m) = settings.meta.get(&g.id) {
+        if !m.name.trim().is_empty() {
+            g.name = m.name.trim().to_string();
+        }
+        if !m.hero.trim().is_empty() {
+            g.art.hero.insert(0, sys::file_url(Path::new(m.hero.trim())));
+        }
+    }
+}
+
+/// Dasselbe Spiel aus mehreren Stores nur einmal anzeigen (installierte Version bevorzugt).
+/// Eigene Spiele, Emulator-ROMs und Roblox bleiben immer einzeln.
+pub fn merge_duplicates(games: Vec<Game>) -> (Vec<Game>, BTreeMap<String, Vec<Game>>) {
+    let mergeable = |g: &Game| !matches!(g.source, Source::Custom | Source::Emulator | Source::Roblox);
+    let mut groups: BTreeMap<String, Vec<Game>> = BTreeMap::new();
+    let mut out = Vec::new();
+    for g in games {
+        let key = normalize_name(&g.name);
+        if mergeable(&g) && key.len() >= 2 {
+            groups.entry(key).or_default().push(g);
+        } else {
+            out.push(g);
+        }
+    }
+    let mut dupes = BTreeMap::new();
+    for (_, mut list) in groups {
+        list.sort_by_key(|g| (!g.installed, g.source.rank()));
+        let main = list.remove(0);
+        // Nur zusammenfassen, wenn es wirklich verschiedene Stores sind
+        list.retain(|g| g.source != main.source);
+        if !list.is_empty() {
+            dupes.insert(main.id.clone(), list);
+        }
+        out.push(main);
+    }
+    (out, dupes)
 }
 
 /// Wandelt ein eigenes Spiel in einen Bibliothekseintrag um.
@@ -105,6 +185,41 @@ pub fn custom_game(c: &CustomGame, lookup: &BTreeMap<String, u32>, with_icon: bo
     };
     apply_lookup(&mut g, lookup);
     g
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn g(id: &str, name: &str, source: Source, installed: bool) -> Game {
+        Game {
+            id: id.into(),
+            name: name.into(),
+            source,
+            installed,
+            install_dir: None,
+            exe: None,
+            launch: LaunchTarget::Custom,
+            art: Art::default(),
+            size_bytes: None,
+            playtime_min: None,
+            steam_appid: None,
+        }
+    }
+
+    #[test]
+    fn duplicates_prefer_installed() {
+        let (list, d) = merge_duplicates(vec![
+            g("s1", "The Witcher 3: Wild Hunt", Source::Steam, false),
+            g("g1", "The Witcher® 3 Wild Hunt", Source::Gog, true),
+            g("c1", "The Witcher 3 Wild Hunt", Source::Custom, true),
+            g("e1", "Fortnite", Source::Epic, true),
+        ]);
+        assert_eq!(list.len(), 3);
+        assert!(list.iter().any(|x| x.id == "g1"));
+        assert!(list.iter().any(|x| x.id == "c1"));
+        assert_eq!(d.get("g1").map(|v| v[0].id.as_str()), Some("s1"));
+    }
 }
 
 /// Hängt Steam-Store-Bilder an, wenn wir das Spiel dort gefunden haben.

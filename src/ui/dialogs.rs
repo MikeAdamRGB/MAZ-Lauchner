@@ -26,6 +26,8 @@ pub fn ModalHost() -> Element {
         Some(Modal::Detail(id)) => rsx! { DetailModal { id } },
         Some(Modal::Welcome) => rsx! { WelcomeDialog {} },
         Some(Modal::Update) => rsx! { UpdateDialog {} },
+        Some(Modal::EditMeta(id)) => rsx! { super::manage::EditMetaDialog { id } },
+        Some(Modal::FolderScan) => rsx! { super::manage::FolderScanDialog {} },
         Some(Modal::Info(title, text)) => rsx! {
             Dialog { on_close: move |_| app.close_modal(), class: "max-w-md",
                 div { class: "p-8 text-center",
@@ -77,7 +79,9 @@ fn UpdateDialog() -> Element {
                     }
                 }
                 if !notes.trim().is_empty() {
-                    div { class: "mt-5 max-h-56 overflow-y-auto rounded-xl bg-muted p-4 text-sm leading-relaxed whitespace-pre-line select-text", "{notes}" }
+                    div { class: "mt-5 max-h-72 overflow-y-auto rounded-xl bg-muted p-4 select-text",
+                        super::manage::MarkdownNotes { text: notes.clone() }
+                    }
                 }
                 {match state.clone() {
                     UpdateState::Downloading(..) | UpdateState::Installing => rsx! {
@@ -403,7 +407,7 @@ fn pretty_name(path: &str) -> String {
 }
 
 #[component]
-fn Field(#[props(into)] label: String, #[props(into, default)] hint: String, children: Element) -> Element {
+pub fn Field(#[props(into)] label: String, #[props(into, default)] hint: String, children: Element) -> Element {
     rsx! {
         div { class: "grid gap-2",
             Label { "{label}" }

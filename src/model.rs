@@ -8,6 +8,14 @@ pub enum Source {
     Steam,
     Epic,
     Roblox,
+    Gog,
+    Ea,
+    Ubisoft,
+    BattleNet,
+    Amazon,
+    Itch,
+    Xbox,
+    Emulator,
     Custom,
 }
 
@@ -17,9 +25,86 @@ impl Source {
             Source::Steam => "Steam".into(),
             Source::Epic => "Epic Games".into(),
             Source::Roblox => "Roblox".into(),
+            Source::Gog => "GOG".into(),
+            Source::Ea => "EA app".into(),
+            Source::Ubisoft => "Ubisoft Connect".into(),
+            Source::BattleNet => "Battle.net".into(),
+            Source::Amazon => "Amazon Games".into(),
+            Source::Itch => "itch.io".into(),
+            Source::Xbox => "Xbox / Microsoft Store".into(),
+            Source::Emulator => crate::i18n::t("source.emulator"),
             Source::Custom => crate::i18n::t("source.custom"),
         }
     }
+
+    /// Kurzer Text für Abzeichen auf den Kacheln
+    pub fn badge(self) -> String {
+        match self {
+            Source::Steam => "STEAM".into(),
+            Source::Epic => "EPIC".into(),
+            Source::Roblox => "ROBLOX".into(),
+            Source::Gog => "GOG".into(),
+            Source::Ea => "EA".into(),
+            Source::Ubisoft => "UBISOFT".into(),
+            Source::BattleNet => "BATTLE.NET".into(),
+            Source::Amazon => "AMAZON".into(),
+            Source::Itch => "ITCH".into(),
+            Source::Xbox => "XBOX".into(),
+            Source::Emulator => "EMU".into(),
+            Source::Custom => crate::i18n::t("badge.custom"),
+        }
+    }
+
+    /// Kennung für Einstellungen ("gog", "ea" …)
+    pub fn key(self) -> &'static str {
+        match self {
+            Source::Steam => "steam",
+            Source::Epic => "epic",
+            Source::Roblox => "roblox",
+            Source::Gog => "gog",
+            Source::Ea => "ea",
+            Source::Ubisoft => "ubisoft",
+            Source::BattleNet => "battlenet",
+            Source::Amazon => "amazon",
+            Source::Itch => "itch",
+            Source::Xbox => "xbox",
+            Source::Emulator => "emulator",
+            Source::Custom => "custom",
+        }
+    }
+
+    pub fn icon(self) -> &'static str {
+        match self {
+            Source::Steam => "gamepad",
+            Source::Epic => "layers",
+            Source::Roblox => "cube",
+            Source::Emulator => "monitor",
+            Source::Custom => "rocket",
+            _ => "package",
+        }
+    }
+
+    /// Welche Version bei doppelten Spielen bevorzugt wird (kleiner = besser)
+    pub fn rank(self) -> u8 {
+        match self {
+            Source::Steam => 0,
+            Source::Epic => 1,
+            Source::Gog => 2,
+            Source::Xbox => 3,
+            Source::Ea => 4,
+            Source::Ubisoft => 5,
+            Source::BattleNet => 6,
+            Source::Amazon => 7,
+            Source::Itch => 8,
+            Source::Roblox => 9,
+            Source::Emulator => 10,
+            Source::Custom => 11,
+        }
+    }
+
+    /// Weitere Stores (über Steam/Epic/Roblox hinaus)
+    pub const STORES: [Source; 7] =
+        [Source::Gog, Source::Ea, Source::Ubisoft, Source::BattleNet, Source::Amazon, Source::Itch, Source::Xbox];
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -34,6 +119,13 @@ pub enum LaunchTarget {
     EpicInstall(String),
     /// Roblox: None = die Roblox-App, Some(placeId) = direkt in eine Experience
     Roblox(Option<u64>),
+    /// Über einen Link des Store-Programms starten (uplay://, amazon-games:// …)
+    Uri(String),
+    /// Programm direkt starten (z. B. GOG ohne Galaxy, itch.io, Battle.net-Client mit Parametern)
+    Exe { path: String, args: Vec<String>, dir: String },
+    /// Microsoft-Store-/Xbox-App
+    Appx { family: String, app: String },
+
     /// Eigenes Spiel (Details stehen in den Einstellungen)
     Custom,
 }
@@ -108,6 +200,41 @@ pub struct RobloxGame {
     pub added: u64,
 }
 
+/// Eigene Sammlung (z. B. "Mit Freunden", "Durchgespielt")
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct Collection {
+    pub id: String,
+    pub name: String,
+    pub games: Vec<String>,
+}
+
+/// Vom Nutzer bearbeitete Spiel-Infos (leer = automatisch)
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct GameMeta {
+    pub name: String,
+    pub hero: String,
+    pub description: String,
+    pub genres: Vec<String>,
+}
+
+/// Emulator-Profil, z. B. RetroArch mit Kern, Dolphin, PCSX2, PPSSPP
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct Emulator {
+    pub id: String,
+    pub name: String,
+    /// Programm des Emulators
+    pub exe: String,
+    /// Startparameter; {rom} wird durch die ROM-Datei ersetzt
+    pub args: String,
+    /// Dateiendungen der ROMs, z. B. ["iso", "rvz"]
+    pub extensions: Vec<String>,
+    /// Ordner, die nach ROMs durchsucht werden
+    pub rom_dirs: Vec<String>,
+}
+
 pub mod layout {
     pub const MAZ: &str = "maz";
     pub const STEAM: &str = "steam";
@@ -172,6 +299,27 @@ pub struct Settings {
     pub update_skip: String,
     pub online_art: bool,
 
+    // Weitere Stores: Kennung ("gog", "ea" …) → angezeigt? (fehlt = ja)
+    pub stores_off: Vec<String>,
+    /// Doppelte Spiele (gleiches Spiel in mehreren Stores) zusammenfassen
+    pub merge_duplicates: bool,
+    /// Bedienung mit Controller (große Fokus-Rahmen, Steuerkreuz/Stick)
+    pub controller_mode: bool,
+
+    // Bibliothek verwalten
+    /// Im MAZ Launcher gemessene Spielzeit in Minuten
+    pub playtime_local: BTreeMap<String, u64>,
+    /// Wann ein Spiel zum ersten Mal in der Bibliothek auftauchte
+    pub first_seen: BTreeMap<String, u64>,
+    /// Eigene Tags je Spiel
+    pub tags: BTreeMap<String, Vec<String>>,
+    pub collections: Vec<Collection>,
+    /// Selbst bearbeitete Spiel-Infos
+    pub meta: BTreeMap<String, GameMeta>,
+
+    // Emulatoren
+    pub emulators: Vec<Emulator>,
+
 
     // Eigene Spiele
     /// Leer = Standardliste in der gewählten Sprache
@@ -220,6 +368,15 @@ impl Default for Settings {
             roblox_games: Vec::new(),
             update_check: true,
             update_skip: String::new(),
+            stores_off: Vec::new(),
+            merge_duplicates: true,
+            controller_mode: false,
+            playtime_local: BTreeMap::new(),
+            first_seen: BTreeMap::new(),
+            tags: BTreeMap::new(),
+            collections: Vec::new(),
+            meta: BTreeMap::new(),
+            emulators: Vec::new(),
             online_art: true,
             checklist: Vec::new(),
             custom_games: Vec::new(),
@@ -254,8 +411,32 @@ impl Settings {
             self.checklist.clone()
         }
     }
+    pub fn store_on(&self, s: Source) -> bool {
+        !self.stores_off.iter().any(|k| k == s.key())
+    }
+    pub fn tags_of(&self, id: &str) -> Vec<String> {
+        self.tags.get(id).cloned().unwrap_or_default()
+    }
+    /// Alle vergebenen Tags (sortiert, ohne Doppelte)
+    pub fn all_tags(&self) -> Vec<String> {
+        let mut v: Vec<String> = self.tags.values().flatten().cloned().collect();
+        v.sort_by_key(|t| t.to_lowercase());
+        v.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
+        v
+    }
     pub fn last_played(&self, id: &str) -> u64 {
         self.last_played.get(id).copied().unwrap_or(0)
+    }
+    /// Spielzeit in Minuten: Store-Angabe (Steam zählt selbst mit) oder im Launcher gemessen
+    pub fn playtime(&self, g: &Game) -> u64 {
+        let local = self.playtime_local.get(&g.id).copied().unwrap_or(0);
+        g.playtime_min.unwrap_or(0).max(local)
+    }
+    pub fn first_seen(&self, id: &str) -> u64 {
+        self.first_seen.get(id).copied().unwrap_or(0)
+    }
+    pub fn in_collection(&self, coll: &str, id: &str) -> bool {
+        self.collections.iter().any(|c| c.id == coll && c.games.iter().any(|g| g == id))
     }
 }
 

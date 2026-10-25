@@ -22,8 +22,9 @@ fn info_rows(app: App, g: &Game) -> Vec<InfoRow> {
         label: t("info.status"),
         value: t(if g.installed { "filter.installed" } else { "game.not_installed" }),
     });
-    if let Some(min) = g.playtime_min.filter(|m| *m > 0) {
-        rows.push(InfoRow { label: t("info.playtime"), value: sys::format_playtime(min) });
+    let pt = s.playtime(g);
+    if pt > 0 {
+        rows.push(InfoRow { label: t("info.playtime"), value: sys::format_playtime(pt) });
     }
     rows.push(InfoRow { label: t("filter.recent"), value: sys::format_ago(s.last_played(&g.id)) });
     if let Some(n) = s.launch_count.get(&g.id) {
@@ -35,6 +36,20 @@ fn info_rows(app: App, g: &Game) -> Vec<InfoRow> {
     if let Some(d) = &g.install_dir {
         rows.push(InfoRow { label: t("info.folder"), value: d.clone() });
     }
+    let fs = s.first_seen(&g.id);
+    drop(s);
+    if let Some(i) = app.meta_cache.read().get(&g.id) {
+        if !i.developer.is_empty() {
+            rows.push(InfoRow { label: t("info.developer"), value: i.developer.clone() });
+        }
+        if !i.release.is_empty() {
+            rows.push(InfoRow { label: t("info.release"), value: i.release.clone() });
+        }
+    }
+    if fs > 0 {
+        rows.push(InfoRow { label: t("info.added"), value: sys::format_ago(fs) });
+    }
+    let s = app.settings.read();
     if let Some(c) = s.custom(&g.id) {
         if !c.args.trim().is_empty() {
             rows.push(InfoRow { label: t("info.args"), value: c.args.clone() });
@@ -65,7 +80,7 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
         game.id.clone(),
         game.id.clone(),
     );
-    let (id7, id8, id9) = (game.id.clone(), game.id.clone(), game.id.clone());
+    let (id7, id8, id9, id10) = (game.id.clone(), game.id.clone(), game.id.clone(), game.id.clone());
     let rb_place = match game.launch {
         LaunchTarget::Roblox(Some(p)) => Some(p),
         _ => None,
@@ -93,6 +108,10 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
             Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| pick_cover(app, &id2),
                 Icon { name: "image", class: "size-4" }
                 {t("act.cover")}
+            }
+            Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::EditMeta(id10.clone())),
+                Icon { name: "pencil", class: "size-4" }
+                {t("act.edit_meta")}
             }
             if has_override {
                 Button { variant: ButtonVariant::Ghost, class: btn, onclick: move |_| reset_cover(app, &id3),
@@ -146,10 +165,165 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
     }
 }
 
+/// Beschreibung + Genres (selbst eingetragen oder automatisch geladen)
+#[component]
+fn AboutGame(id: String) -> Element {
+    let app = use_app();
+    let own = app.settings.read().meta.get(&id).cloned().unwrap_or_default();
+    let auto = app.meta_cache.read().get(&id).cloned().unwrap_or_default();
+    let desc = if own.description.trim().is_empty() { auto.description.clone() } else { own.description.clone() };
+    let genres = app.genres_of(&id);
+    if desc.is_empty() && genres.is_empty() {
+        return rsx! {};
+    }
+    rsx! {
+        div { class: "mt-5",
+            if !desc.is_empty() {
+                p { class: "text-sm leading-relaxed text-foreground/85 select-text", "{desc}" }
+            }
+            if !genres.is_empty() {
+                div { class: "flex flex-wrap gap-1.5 mt-3",
+                    {genres.into_iter().map(|g| {
+                        let g2 = g.clone();
+                        rsx! {
+                            button {
+                                key: "{g}",
+                                class: "h-6 px-2.5 rounded-full bg-secondary text-secondary-foreground text-xs hover:bg-accent cursor-pointer",
+                                onclick: move |_| {
+                                    let mut gs = app.genre;
+                                    gs.set(g2.clone());
+                                    app.close_modal();
+                                    app.set_filter(Filter::All, "");
+                                },
+                                "{g}"
+                            }
+                        }
+                    })}
+                }
+            }
+        }
+    }
+}
+
+/// Tags und Sammlungen eines Spiels
+#[component]
+pub fn OrganizeBox(id: String) -> Element {
+    let app = use_app();
+    let tags = app.settings.read().tags_of(&id);
+    let cols = app.settings.read().collections.clone();
+    let mut new_tag = use_signal(String::new);
+    let id_add = id.clone();
+    let mut add = move || {
+        let v = new_tag.peek().clone();
+        add_tag(app, &id_add, &v);
+        new_tag.set(String::new());
+    };
+    rsx! {
+        div { class: "mt-6 grid gap-4",
+            div {
+                div { class: "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2", {t("nav.tags")} }
+                div { class: "flex flex-wrap items-center gap-1.5",
+                    {tags.into_iter().map(|tag| {
+                        let (gid, t2) = (id.clone(), tag.clone());
+                        rsx! {
+                            span { key: "{tag}", class: "inline-flex items-center gap-1 h-7 pl-2.5 pr-1 rounded-full bg-primary/15 text-primary text-xs font-medium",
+                                "# {tag}"
+                                button { class: "p-0.5 rounded-full hover:bg-primary/20 cursor-pointer", title: t("common.remove"),
+                                    onclick: move |_| remove_tag(app, &gid, &t2),
+                                    Icon { name: "x", class: "size-3" }
+                                }
+                            }
+                        }
+                    })}
+                    input {
+                        class: "h-7 w-36 rounded-full border border-input bg-background/60 px-3 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        placeholder: t("tag.add_ph"),
+                        value: "{new_tag}",
+                        list: "maz-tags",
+                        oninput: move |e| new_tag.set(e.value()),
+                        onkeydown: move |e| {
+                            if e.key() == Key::Enter {
+                                add();
+                            }
+                        },
+                    }
+                    datalist { id: "maz-tags",
+                        {app.settings.read().all_tags().into_iter().map(|t| rsx! { option { key: "{t}", value: "{t}" } })}
+                    }
+                }
+            }
+            if !cols.is_empty() {
+                div {
+                    div { class: "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2", {t("nav.collections")} }
+                    div { class: "flex flex-wrap gap-1.5",
+                        {cols.into_iter().map(|c| {
+                            let inside = c.games.iter().any(|g| *g == id);
+                            let cls = if inside {
+                                "h-7 px-3 rounded-full text-xs font-medium bg-primary text-primary-foreground cursor-pointer flex items-center gap-1"
+                            } else {
+                                "h-7 px-3 rounded-full text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:border-primary cursor-pointer flex items-center gap-1"
+                            };
+                            let (cid, gid) = (c.id.clone(), id.clone());
+                            let name = c.name.clone();
+                            rsx! {
+                                button { key: "{cid}", class: "{cls}", onclick: move |_| toggle_in_collection(app, &cid, &gid),
+                                    if inside {
+                                        Icon { name: "check", class: "size-3" }
+                                    }
+                                    "{name}"
+                                }
+                            }
+                        })}
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Dasselbe Spiel gibt es noch in anderen Stores
+#[component]
+fn OtherStores(id: String) -> Element {
+    let app = use_app();
+    let others = app.dupes.read().get(&id).cloned().unwrap_or_default();
+    if others.is_empty() {
+        return rsx! {};
+    }
+    rsx! {
+        div { class: "mt-6 rounded-xl border border-border p-4",
+            div { class: "text-sm font-medium mb-1", {t("dupes.title")} }
+            div { class: "text-xs text-muted-foreground mb-3", {t("dupes.text")} }
+            div { class: "flex flex-col gap-2",
+                {others.into_iter().map(|g| {
+                    let gid = g.id.clone();
+                    let key = g.id.clone();
+                    let label = t(if g.installed { "game.play" } else { "game.install" });
+                    let icon = if g.installed { "play" } else { "download" };
+                    rsx! {
+                        div { key: "{key}", class: "flex items-center gap-3",
+                            SourceBadge { source: g.source }
+                            span { class: "flex-1 text-sm text-muted-foreground",
+                                {t(if g.installed { "filter.installed" } else { "game.not_installed" })}
+                            }
+                            Button { variant: ButtonVariant::Outline, size: ButtonSize::Sm,
+                                onclick: move |_| { app.close_modal(); play(app, gid.clone()); },
+                                Icon { name: icon, class: "size-3.5" }
+                                "{label}"
+                            }
+                        }
+                    }
+                })}
+            }
+        }
+    }
+}
+
 /// Details als Fenster (MAZ- und Epic-Ansicht)
 #[component]
 pub fn DetailModal(id: String) -> Element {
     let app = use_app();
+    let id_load = id.clone();
+    use_hook(move || load_metadata(app, id_load));
     let Some(game) = app.games.read().iter().find(|g| g.id == id).cloned() else {
         return rsx! {};
     };
@@ -223,6 +397,9 @@ pub fn DetailModal(id: String) -> Element {
                             "{n}"
                         }
                     })}
+                    AboutGame { id: id.clone() }
+                    OtherStores { id: id.clone() }
+                    OrganizeBox { id: id.clone() }
                     div { class: "mt-6 rounded-xl border border-border divide-y divide-border overflow-hidden",
                         {rows.into_iter().map(|r| {
                             let label = r.label;
@@ -246,6 +423,9 @@ pub fn DetailModal(id: String) -> Element {
 #[component]
 pub fn SteamDetail(game: Game) -> Element {
     let app = use_app();
+    let id_load = game.id.clone();
+    use_hook(move || load_metadata(app, id_load));
+    let gid = game.id.clone();
     let s = app.settings.read();
     let mut hero = game.art.hero.clone();
     hero.extend(game.art.header.iter().cloned());
@@ -264,7 +444,7 @@ pub fn SteamDetail(game: Game) -> Element {
     };
     let label = t(if installed { "game.play" } else { "game.install" }).to_uppercase();
     let icon = if installed { "play" } else { "download" };
-    let playtime = game.playtime_min.filter(|m| *m > 0).map(sys::format_playtime);
+    let playtime = Some(app.settings.read().playtime(&game)).filter(|m| *m > 0).map(sys::format_playtime);
     let rows = info_rows(app, &game);
     let source = game.source;
     rsx! {
@@ -304,7 +484,10 @@ pub fn SteamDetail(game: Game) -> Element {
             }
             div { class: "px-10 py-6 grid grid-cols-[1fr_260px] gap-8",
                 div { class: "rounded-sm bg-black/20 p-5",
-                    div { class: "text-[13px] uppercase tracking-wider text-muted-foreground mb-3", {t("detail.info")} }
+                    AboutGame { id: gid.clone() }
+                    OtherStores { id: gid.clone() }
+                    OrganizeBox { id: gid.clone() }
+                    div { class: "text-[13px] uppercase tracking-wider text-muted-foreground mb-3 mt-6", {t("detail.info")} }
                     {rows.into_iter().map(|r| {
                         let label = r.label;
                         let value = r.value;

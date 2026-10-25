@@ -355,6 +355,27 @@ impl Problem {
         )
     }
 
+    /// Store-Programm (GOG Galaxy, Ubisoft Connect …) fehlt
+    pub fn client_missing(store: &str, download: &str) -> Problem {
+        build(
+            "client_missing",
+            Severity::Error,
+            &[("store", store)],
+            vec![Fix::OpenUrl { label: tf("fix.client_dl", &[("store", store)]), url: download.to_string() }, Fix::Rescan],
+            format!("Protocol handler for {store} not registered."),
+        )
+    }
+
+    /// Spiel aus einem anderen Store deinstallieren: Das macht der Store selbst
+    pub fn store_uninstall(game: &str, store: &str) -> Problem {
+        let mut fixes = Vec::new();
+        if cfg!(windows) {
+            fixes.push(url("fix.apps", "ms-settings:appsfeatures"));
+        }
+        fixes.push(Fix::Rescan);
+        build("store_uninstall", Severity::Info, &[("game", game), ("store", store)], fixes, String::new())
+    }
+
     /// Linux: Epic-Spiele laufen über den Heroic Games Launcher
     pub fn heroic_missing() -> Problem {
         build(
@@ -492,7 +513,9 @@ mod tests {
             Problem::epic_uninstall("x"),
             Problem::roblox_missing(),
             Problem::heroic_missing(),
+            Problem::client_missing("GOG", "https://www.gog.com/galaxy"),
             Problem::no_uninstaller("x", None),
+            Problem::store_uninstall("x", "GOG"),
         ] {
             assert!(!p.title.starts_with("p."), "Schlüssel fehlt: {}", p.title);
             assert!(!p.steps.is_empty(), "{}", p.title);

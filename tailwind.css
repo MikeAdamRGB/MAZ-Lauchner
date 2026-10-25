@@ -280,3 +280,11 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 /* Benachrichtigungen: Balken läuft in 5 Sekunden ab */
 @keyframes toast-progress { from { width: 100% } to { width: 0% } }
 .toast-progress { animation: toast-progress 5s linear forwards; }
+
+/* Controller-Modus: deutlicher Fokus-Rahmen */
+.controller-mode :focus,
+.controller-mode :focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: calc(var(--radius) * 0.75);
+}

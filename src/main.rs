@@ -5,19 +5,25 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod appinfo;
+mod appx;
 mod config;
 mod epic;
+mod emulators;
 mod epicacct;
 mod freegames;
 mod i18n;
 mod icons;
 mod install;
 mod launch;
+mod metadata;
 mod library;
 mod model;
+mod notes;
+mod playtime;
 mod problem;
 mod roblox;
 mod steam;
+mod stores;
 mod sys;
 mod theme;
 mod ui;

@@ -5,7 +5,7 @@ use super::components::*;
 use super::icons::{Icon, MazLogo};
 use super::state::*;
 use crate::i18n::{self, t, tf};
-use crate::model::{default_checklist, layout, StoreStatus};
+use crate::model::{default_checklist, layout, Source, StoreStatus};
 use crate::theme::{self, CustomTheme, PRESETS};
 use crate::{install, sys};
 use dioxus::prelude::*;
@@ -407,6 +407,37 @@ fn ColorRow(#[props(into)] label: String, value: String, onchange: EventHandler<
     }
 }
 
+/// Design aus einer .maztheme.json-Datei laden
+fn import_theme_file(app: App) {
+    let Some(path) = rfd::FileDialog::new().set_title(t("theme.import_file")).add_filter("MAZ Theme", &["json", "maztheme"]).pick_file() else {
+        return;
+    };
+    // Design-Dateien sind klein – alles über 256 KB ist sicher keine
+    let text = std::fs::metadata(&path)
+        .ok()
+        .filter(|m| m.len() < 256 * 1024)
+        .and_then(|_| std::fs::read_to_string(&path).ok());
+    match text.and_then(|t| CustomTheme::from_file(&t)) {
+        Some(mut c) => {
+            c.id = new_custom_id();
+            if c.name.is_empty() {
+                c.name = t("theme.imported");
+            }
+            let nid = c.id.clone();
+            let lay = c.layout.clone();
+            app.update(|s| {
+                s.custom_themes.push(c);
+                s.theme = nid;
+                if !lay.is_empty() {
+                    s.layout = lay;
+                }
+            });
+            app.toast(&t("theme.import_ok"), "check-circle");
+        }
+        None => app.toast(&t("theme.import_bad"), "alert"),
+    }
+}
+
 #[component]
 fn ThemeEditor(id: String, on_done: EventHandler<()>) -> Element {
     let app = use_app();
@@ -431,7 +462,11 @@ fn ThemeEditor(id: String, on_done: EventHandler<()>) -> Element {
     }
     .to_string();
     let (id_n, id_r, id_dup, id_del, id_code) = (id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
+    let (id_f, id_d, id_l, id_file) = (id.clone(), id.clone(), id.clone(), id.clone());
     let name = th.name.clone();
+    let font = if th.font.is_empty() { "standard".to_string() } else { th.font.clone() };
+    let density = th.density.clamp(1, 3).to_string();
+    let th_layout = th.layout.clone();
     rsx! {
         Card { class: "mb-6 border-primary/50 ring-1 ring-primary/30 animate-slide-up",
             CardHeader {
@@ -472,6 +507,54 @@ fn ThemeEditor(id: String, on_done: EventHandler<()>) -> Element {
                         },
                     }
                 }
+                div { class: "flex items-center justify-between py-2",
+                    span { class: "text-sm", {t("theme.font")} }
+                    select {
+                        class: "h-9 rounded-md border border-input bg-background/60 px-3 text-sm outline-none cursor-pointer",
+                        onchange: move |e| {
+                            let v = e.value();
+                            update_theme(app, &id_f, |th| th.font = if v == "standard" { String::new() } else { v });
+                        },
+                        {theme::FONTS.iter().map(|(k, _)| {
+                            let k = k.to_string();
+                            let label = t(&format!("theme.font.{k}"));
+                            rsx! { option { key: "{k}", value: "{k}", selected: font == k, "{label}" } }
+                        })}
+                    }
+                }
+                div { class: "flex items-center justify-between py-2",
+                    span { class: "text-sm", {t("theme.density")} }
+                    Segmented {
+                        options: vec![
+                            ("1".to_string(), t("theme.d1")),
+                            ("2".to_string(), t("theme.d2")),
+                            ("3".to_string(), t("theme.d3")),
+                        ],
+                        value: density,
+                        onchange: move |v: String| {
+                            let d = v.parse::<u8>().unwrap_or(2);
+                            update_theme(app, &id_d, |th| th.density = d);
+                        },
+                    }
+                }
+                div { class: "flex items-center justify-between py-2",
+                    span { class: "text-sm", {t("theme.with_layout")} }
+                    Segmented {
+                        options: vec![
+                            ("".to_string(), t("theme.layout_keep")),
+                            ("maz".to_string(), "MAZ".to_string()),
+                            ("steam".to_string(), "Steam".to_string()),
+                            ("epic".to_string(), "Epic".to_string()),
+                        ],
+                        value: th_layout,
+                        onchange: move |v: String| {
+                            update_theme(app, &id_l, |th| th.layout = v.clone());
+                            if !v.is_empty() {
+                                app.update(|s| s.layout = v);
+                            }
+                        },
+                    }
+                }
                 div { class: "flex flex-wrap gap-2 mt-5",
                     Button { variant: ButtonVariant::Glow, onclick: move |_| on_done.call(()),
                         Icon { name: "check", class: "size-4" }
@@ -488,6 +571,22 @@ fn ThemeEditor(id: String, on_done: EventHandler<()>) -> Element {
                         },
                         Icon { name: "copy", class: "size-4" }
                         {t("theme.share")}
+                    }
+                    Button { variant: ButtonVariant::Outline,
+                        onclick: move |_| {
+                            let th = app.settings.peek().custom_themes.iter().find(|c| c.id == id_file).cloned();
+                            if let Some(th) = th {
+                                let file = format!("{}.maztheme.json", sys::safe_file_name(if th.name.is_empty() { "design" } else { &th.name }));
+                                if let Some(path) = rfd::FileDialog::new().set_title(t("theme.export")).set_file_name(&file).add_filter("MAZ Theme", &["json"]).save_file() {
+                                    match std::fs::write(&path, th.to_file()) {
+                                        Ok(()) => app.toast(&t("theme.exported"), "check-circle"),
+                                        Err(e) => app.toast(&tf("toast.save_failed", &[("error", &e.to_string())]), "alert"),
+                                    }
+                                }
+                            }
+                        },
+                        Icon { name: "download", class: "size-4" }
+                        {t("theme.export")}
                     }
                     Button { variant: ButtonVariant::Outline,
                         onclick: move |_| {
@@ -620,6 +719,11 @@ fn DesignTab() -> Element {
                     },
                     Icon { name: "download", class: "size-4" }
                     {t("theme.import")}
+                }
+                Button { variant: ButtonVariant::Outline, class: "h-10",
+                    onclick: move |_| import_theme_file(app),
+                    Icon { name: "folder", class: "size-4" }
+                    {t("theme.import_file")}
                 }
             }
         }
@@ -1090,6 +1194,10 @@ fn ConnectionsTab() -> Element {
 
         RobloxSection {}
 
+        MoreStoresSection {}
+
+        EmulatorSection {}
+
         Section { title: t("conn.images"),
             SwitchRow {
                 title: t("conn.online_art"),
@@ -1103,6 +1211,222 @@ fn ConnectionsTab() -> Element {
             Button { variant: ButtonVariant::Glow, size: ButtonSize::Lg, disabled: scanning, onclick: move |_| rescan(app),
                 if scanning { Spinner {} } else { Icon { name: "refresh", class: "size-4" } }
                 {t("conn.reload_now")}
+            }
+        }
+    }
+}
+
+/// GOG, EA, Ubisoft, Battle.net, Amazon, itch.io, Xbox
+#[component]
+fn MoreStoresSection() -> Element {
+    let app = use_app();
+    let s = app.settings.read().clone();
+    let statuses = app.stores.read().clone();
+    let libs: Vec<(Source, &'static str)> = crate::stores::all()
+        .into_iter()
+        .filter(|l| l.supported())
+        .map(|l| (l.source(), l.download_url()))
+        .collect();
+    rsx! {
+        Section { title: t("conn.more"), description: t("conn.more_text"),
+            div { class: "rounded-xl border border-border divide-y divide-border",
+                {libs.into_iter().map(|(src, dl)| {
+                    let on = s.store_on(src);
+                    let st = statuses.iter().find(|(x, _)| *x == src).map(|(_, st)| st.clone());
+                    let (dot, line) = match (&st, on) {
+                        (_, false) => ("bg-muted-foreground/40", t("conn.store_off")),
+                        (Some(st), true) if st.found => ("bg-success", tf("conn.installed", &[("n", &st.installed.to_string())])),
+                        _ => ("bg-muted-foreground/40", tf("store.client_missing", &[("store", &src.label())])),
+                    };
+                    let found = st.map(|x| x.found).unwrap_or(false);
+                    let key = src.key();
+                    let label = src.label();
+                    rsx! {
+                        div { key: "{key}", class: "flex items-center gap-4 px-4 py-3",
+                            span { class: "size-2.5 rounded-full shrink-0 {dot}" }
+                            div { class: "min-w-0 flex-1",
+                                div { class: "text-sm font-medium", "{label}" }
+                                div { class: "text-xs text-muted-foreground mt-0.5 leading-relaxed", "{line}" }
+                            }
+                            if on && !found {
+                                Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, onclick: move |_| { let _ = sys::open_url(dl); },
+                                    Icon { name: "download", class: "size-3.5" }
+                                    {t("conn.get_client")}
+                                }
+                            }
+                            Switch {
+                                checked: on,
+                                label: label.clone(),
+                                onchange: move |v: bool| {
+                                    app.update(|s| {
+                                        s.stores_off.retain(|k| k != src.key());
+                                        if !v {
+                                            s.stores_off.push(src.key().to_string());
+                                        }
+                                    });
+                                    rescan(app);
+                                },
+                            }
+                        }
+                    }
+                })}
+            }
+            p { class: "text-xs text-muted-foreground mt-3 leading-relaxed", {t("conn.more_privacy")} }
+        }
+    }
+}
+
+/// Emulator-Profile und ROM-Ordner
+#[component]
+fn EmulatorSection() -> Element {
+    let app = use_app();
+    let s = app.settings.read().clone();
+    let on = s.store_on(Source::Emulator);
+    let emus = s.emulators.clone();
+    let mut preset = use_signal(|| 0usize);
+    let other_idx = crate::emulators::PRESETS.len().to_string();
+    rsx! {
+        Section { title: t("emu.title"), description: t("emu.text"),
+            SwitchRow {
+                title: t("emu.show"),
+                checked: on,
+                onchange: move |v: bool| {
+                    app.update(|s| {
+                        s.stores_off.retain(|k| k != "emulator");
+                        if !v {
+                            s.stores_off.push("emulator".into());
+                        }
+                    });
+                    rescan(app);
+                },
+            }
+            div { class: "grid gap-4 mt-2",
+                {emus.into_iter().map(|e| {
+                    let key = e.id.clone();
+                    rsx! { EmulatorCard { key: "{key}", emu: e } }
+                })}
+            }
+            div { class: "flex flex-wrap items-center gap-2 mt-4",
+                select {
+                    class: "h-10 rounded-md border border-input bg-background/60 px-3 text-sm outline-none cursor-pointer",
+                    onchange: move |e| preset.set(e.value().parse().unwrap_or(0)),
+                    {crate::emulators::PRESETS.iter().enumerate().map(|(i, (name, _, _))| rsx! {
+                        option { key: "{i}", value: "{i}", selected: preset() == i, "{name}" }
+                    })}
+                    option { value: "{other_idx}", {t("emu.other")} }
+                }
+                Button { variant: ButtonVariant::Outline,
+                    onclick: move |_| {
+                        let i = *preset.peek();
+                        let mut e = crate::model::Emulator { id: new_custom_id(), ..Default::default() };
+                        match crate::emulators::PRESETS.get(i) {
+                            Some((name, args, exts)) => {
+                                e.name = name.to_string();
+                                e.args = args.to_string();
+                                e.extensions = exts.iter().map(|x| x.to_string()).collect();
+                            }
+                            None => {
+                                e.name = t("emu.new_name");
+                                e.args = "\"{rom}\"".into();
+                            }
+                        }
+                        app.update(|s| s.emulators.push(e));
+                    },
+                    Icon { name: "plus", class: "size-4" }
+                    {t("emu.add")}
+                }
+            }
+            p { class: "text-xs text-muted-foreground mt-3 leading-relaxed", {t("emu.legal")} }
+        }
+    }
+}
+
+fn update_emu(app: App, id: &str, f: impl FnOnce(&mut crate::model::Emulator)) {
+    let id = id.to_string();
+    app.update(|s| {
+        if let Some(e) = s.emulators.iter_mut().find(|e| e.id == id) {
+            f(e);
+        }
+    });
+}
+
+#[component]
+fn EmulatorCard(emu: crate::model::Emulator) -> Element {
+    let app = use_app();
+    let (i1, i2, i3, i4, i5, i6, i7) = (emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone());
+    let exts = emu.extensions.join(", ");
+    let emu_name = emu.name.clone();
+    let exe_ok = !emu.exe.is_empty() && std::path::Path::new(&emu.exe).exists();
+    let count = app.games.read().iter().filter(|g| g.id.starts_with(&format!("emu:{}:", emu.id))).count();
+    rsx! {
+        div { class: "rounded-xl border border-border p-4 grid gap-3",
+            div { class: "flex items-center gap-3",
+                Icon { name: "joystick", class: "size-5 text-primary" }
+                input {
+                    class: "flex-1 bg-transparent text-sm font-semibold outline-none",
+                    value: "{emu_name}",
+                    oninput: move |e| { let v = e.value(); update_emu(app, &i1, |x| x.name = v); },
+                }
+                span { class: "text-xs text-muted-foreground", {tf("emu.count", &[("n", &count.to_string())])} }
+                Button { variant: ButtonVariant::Ghost, size: ButtonSize::IconSm, class: "text-destructive", title: t("act.remove"),
+                    onclick: move |_| { let id = i2.clone(); app.update(|s| s.emulators.retain(|e| e.id != id)); rescan(app); },
+                    Icon { name: "trash", class: "size-4" }
+                }
+            }
+            div { class: "flex gap-2",
+                Input { class: "font-mono text-xs", placeholder: t("emu.exe_ph"), value: emu.exe.clone(),
+                    oninput: move |v: String| update_emu(app, &i3, |x| x.exe = v.trim().trim_matches('"').to_string()) }
+                Button { variant: ButtonVariant::Secondary, class: "h-10",
+                    onclick: move |_| { if let Some(p) = pick_game_file(None) { update_emu(app, &i4, |x| x.exe = p); } },
+                    Icon { name: "folder", class: "size-4" }
+                    {t("common.browse")}
+                }
+            }
+            if !emu.exe.is_empty() && !exe_ok {
+                div { class: "text-xs text-destructive", {t("emu.exe_missing")} }
+            }
+            div { class: "grid grid-cols-2 gap-3",
+                div { class: "grid gap-1",
+                    Label { {t("emu.args")} }
+                    Input { class: "font-mono text-xs", value: emu.args.clone(),
+                        oninput: move |v: String| update_emu(app, &i5, |x| x.args = v) }
+                }
+                div { class: "grid gap-1",
+                    Label { {t("emu.exts")} }
+                    Input { class: "font-mono text-xs", placeholder: "iso, chd, cue", value: exts,
+                        oninput: move |v: String| {
+                            let list: Vec<String> = v.split([',', ' ', ';']).map(|x| x.trim().trim_start_matches('.').to_lowercase()).filter(|x| !x.is_empty()).collect();
+                            update_emu(app, &i6, |x| x.extensions = list);
+                        } }
+                }
+            }
+            div { class: "grid gap-1",
+                Label { {t("emu.folders")} }
+                {emu.rom_dirs.iter().cloned().map(|d| {
+                    let (eid, d2) = (emu.id.clone(), d.clone());
+                    rsx! {
+                        div { key: "{d}", class: "flex items-center gap-2 text-xs font-mono",
+                            Icon { name: "folder", class: "size-3.5 text-muted-foreground" }
+                            span { class: "flex-1 truncate", title: "{d}", "{d}" }
+                            button { class: "p-1 rounded text-muted-foreground hover:text-destructive cursor-pointer", title: t("act.remove"),
+                                onclick: move |_| { let d3 = d2.clone(); update_emu(app, &eid, |x| x.rom_dirs.retain(|r| *r != d3)); rescan(app); },
+                                Icon { name: "x", class: "size-3.5" }
+                            }
+                        }
+                    }
+                })}
+                div {
+                    Button { variant: ButtonVariant::Outline, size: ButtonSize::Sm,
+                        onclick: move |_| {
+                            if let Some(p) = pick_folder(&t("emu.folders")) {
+                                update_emu(app, &i7, |x| if !x.rom_dirs.contains(&p) { x.rom_dirs.push(p) });
+                                rescan(app);
+                            }
+                        },
+                        Icon { name: "plus", class: "size-3.5" }
+                        {t("emu.add_folder")}
+                    }
+                }
             }
         }
     }
@@ -1199,10 +1523,14 @@ fn CustomTab() -> Element {
                     }
                 })}
             }
-            div { class: "mt-4",
+            div { class: "mt-4 flex flex-wrap gap-2",
                 Button { variant: ButtonVariant::Glow, onclick: move |_| app.open(Modal::EditGame(None)),
                     Icon { name: "plus", class: "size-4" }
                     {t("lib.add")}
+                }
+                Button { variant: ButtonVariant::Outline, onclick: move |_| app.open(Modal::FolderScan),
+                    Icon { name: "folder-search", class: "size-4" }
+                    {t("scan.button")}
                 }
             }
         }
@@ -1232,6 +1560,18 @@ fn GeneralTab() -> Element {
                 description: t("general.minimize_text"),
                 checked: s.minimize_on_launch,
                 onchange: move |v: bool| app.update(|s| s.minimize_on_launch = v),
+            }
+            SwitchRow {
+                title: t("general.merge"),
+                description: t("general.merge_text"),
+                checked: s.merge_duplicates,
+                onchange: move |v: bool| { app.update(|s| s.merge_duplicates = v); rescan(app); },
+            }
+            SwitchRow {
+                title: t("general.controller"),
+                description: t("general.controller_text"),
+                checked: s.controller_mode,
+                onchange: move |v: bool| app.update(|s| s.controller_mode = v),
             }
         }
 

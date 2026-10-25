@@ -21,6 +21,34 @@ pub struct CustomTheme {
     pub border: String,
     /// Eckenrundung in Pixeln (0–24)
     pub radius: u8,
+    /// Schrift: "standard", "rund", "modern", "mono", "serif"
+    pub font: String,
+    /// Abstände: 1 = kompakt, 2 = normal, 3 = großzügig
+    pub density: u8,
+    /// Ansicht, die das Design mitbringt ("" = nicht ändern, "maz", "steam", "epic")
+    pub layout: String,
+}
+
+/// Erlaubte Schriften (Name → CSS). Nur System-Schriften, nichts wird geladen.
+pub const FONTS: &[(&str, &str)] = &[
+    ("standard", "\"Segoe UI Variable Text\", \"Segoe UI\", Inter, system-ui, sans-serif"),
+    ("rund", "\"Nunito\", \"Varela Round\", \"Segoe UI\", \"Ubuntu\", system-ui, sans-serif"),
+    ("modern", "Inter, \"SF Pro Text\", \"Helvetica Neue\", Arial, system-ui, sans-serif"),
+    ("mono", "\"Cascadia Code\", \"JetBrains Mono\", \"SF Mono\", Consolas, \"DejaVu Sans Mono\", monospace"),
+    ("serif", "Georgia, \"Iowan Old Style\", \"Times New Roman\", serif"),
+];
+
+pub fn font_css(key: &str) -> Option<&'static str> {
+    FONTS.iter().find(|(k, _)| *k == key && *k != "standard").map(|(_, css)| *css)
+}
+
+/// Zoom-Faktor für die Abstände
+pub fn density_zoom(d: u8) -> Option<f32> {
+    match d {
+        1 => Some(0.9),
+        3 => Some(1.1),
+        _ => None,
+    }
 }
 
 impl Default for CustomTheme {
@@ -37,6 +65,9 @@ impl Default for CustomTheme {
             accent2: "#22d3ee".into(),
             border: "#26263b".into(),
             radius: 12,
+            font: String::new(),
+            density: 2,
+            layout: String::new(),
         })
     }
 }
@@ -74,6 +105,9 @@ pub fn preset(id: &str) -> Option<CustomTheme> {
         accent2: c[6].into(),
         border: c[7].into(),
         radius: 12,
+        font: String::new(),
+        density: 2,
+        layout: String::new(),
     })
 }
 
@@ -146,7 +180,39 @@ impl CustomTheme {
             accent2: valid(&self.accent2, &d.accent2),
             border: valid(&self.border, &d.border),
             radius: self.radius.min(24),
+            font: if FONTS.iter().any(|(k, _)| *k == self.font) { self.font.clone() } else { String::new() },
+            density: if (1..=3).contains(&self.density) { self.density } else { 2 },
+            layout: if ["maz", "steam", "epic"].contains(&self.layout.as_str()) { self.layout.clone() } else { String::new() },
         }
+    }
+
+    /// Zusätzliche Stile (Schrift, Abstände) für das Hauptfenster
+    pub fn extra_style(&self) -> String {
+        let t = self.sanitized();
+        let mut out = String::new();
+        if let Some(f) = font_css(&t.font) {
+            out.push_str(&format!("--font-sans:{f};--font-display:{f};font-family:{f};"));
+        }
+        if let Some(z) = density_zoom(t.density) {
+            out.push_str(&format!("zoom:{z};"));
+        }
+        out
+    }
+
+    /// Design als Datei (.maztheme.json) zum Teilen
+    pub fn to_file(&self) -> String {
+        let mut t = self.sanitized();
+        t.id = String::new();
+        serde_json::to_string_pretty(&ThemeFile { format: "maz-theme".into(), version: 1, theme: t }).unwrap_or_default()
+    }
+
+    pub fn from_file(text: &str) -> Option<CustomTheme> {
+        if let Ok(f) = serde_json::from_str::<ThemeFile>(text) {
+            if f.format == "maz-theme" {
+                return Some(f.theme.sanitized());
+            }
+        }
+        CustomTheme::from_code(text)
     }
 
     /// Alle CSS-Variablen für dieses Design
@@ -199,6 +265,14 @@ impl CustomTheme {
     }
 }
 
+/// Aufbau einer Design-Datei
+#[derive(Serialize, Deserialize)]
+struct ThemeFile {
+    format: String,
+    version: u32,
+    theme: CustomTheme,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -228,5 +302,16 @@ mod tests {
         assert_eq!(broken.bg, "#0a0a12");
         assert_eq!(broken.radius, 24);
         assert!(CustomTheme::from_code("Quatsch").is_none());
+        // Datei hin und zurück, ungültige Schrift wird verworfen
+        let mut t = preset("ocean").unwrap();
+        t.font = "mono".into();
+        t.density = 1;
+        let back = CustomTheme::from_file(&t.to_file()).unwrap();
+        assert_eq!(back.font, "mono");
+        assert_eq!(back.density, 1);
+        assert!(back.extra_style().contains("zoom:0.9"));
+        let bad = CustomTheme::from_file(r#"{"format":"maz-theme","version":1,"theme":{"font":"url(evil)","density":9}}"#).unwrap();
+        assert_eq!(bad.font, "");
+        assert_eq!(bad.density, 2);
     }
 }
