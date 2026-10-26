@@ -405,15 +405,15 @@ pub fn parse_game(e: &Loaded, v: &Value, installed_default: bool) -> Option<Game
             .map(|a| a.iter().filter_map(|s| s.as_str()).filter(|s| s.len() < 300 && !s.contains('\0')).take(20).map(String::from).collect())
             .unwrap_or_default();
         LaunchTarget::Exe { path: path.to_string_lossy().to_string(), args, dir: dir.to_string_lossy().to_string() }
-    } else if let Some(a) = launch.get("appx").filter(|_| cfg!(windows)) {
+    } else {
+        // Microsoft-Store-App (nur Windows)
+        let a = launch.get("appx").filter(|_| cfg!(windows))?;
         let simple = |s: &str| !s.is_empty() && s.len() < 130 && s.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'));
         let (family, app) = (text(a, "family", 130), text(a, "app", 130));
         if !simple(&family) || !simple(&app) {
             return None;
         }
         LaunchTarget::Appx { family, app }
-    } else {
-        return None;
     };
     let mut art = Art::default();
     art.cover.extend(image(e, v, "cover"));
