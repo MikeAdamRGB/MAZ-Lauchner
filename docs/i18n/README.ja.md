@@ -135,6 +135,13 @@ Microsoft WebView2 が必要です(通常は Windows 10 / 11 に含まれてい�
 
 バグ報告、アイデア、プルリクエストを歓迎します: [Issue を作成](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## 拡張機能と Minecraft
+
+**Minecraft と NoRisk Client:** 公式 Minecraft Launcher と NoRisk の各プロファイルがそれぞれタイルとして表示されます。「Minecraft」タブから Modrinth と CurseForge の Mod、リソースパック、シェーダー、データパックをインストールできます。
+
+**拡張機能**(初期設定はオフ):新しいゲームソース、情報、ボタンを追加する小さな外部プログラムです。インストール前にすべての権限とチェックサムが表示されます。正直な注意:拡張機能はあなたのユーザー権限で動作するため、信頼できるものだけを入れてください。詳細:[docs/EXTENSIONS.md](../EXTENSIONS.md)。
+
 ## ライセンス
 
 [MIT ライセンス](../../LICENSE) © MikeAdamRGB

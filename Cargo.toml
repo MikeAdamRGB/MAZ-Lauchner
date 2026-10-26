@@ -1,6 +1,6 @@
 [package]
 name = "maz-launcher"
-version = "1.6.0"
+version = "1.7.0"
 edition = "2021"
 rust-version = "1.85"
 description = "MAZ Launcher – alle deine Steam-, Epic-, Roblox- und eigenen Spiele in einem schönen Launcher (Windows, macOS, Linux)"

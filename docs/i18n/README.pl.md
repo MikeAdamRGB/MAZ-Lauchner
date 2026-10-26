@@ -135,6 +135,13 @@ Bez kont i bez telemetrii. Sieć służy tylko do pobierania okładek oraz, jeś
 
 Zgłoszenia błędów, pomysły i pull requesty są mile widziane: [otwórz issue](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## Rozszerzenia i Minecraft
+
+**Minecraft i NoRisk Client:** oficjalny Minecraft Launcher i każdy profil NoRisk to osobne kafelki. W karcie „Minecraft” zainstalujesz mody, paczki tekstur, shadery i paczki danych z Modrinth i CurseForge.
+
+**Rozszerzenia** (domyślnie wyłączone): małe zewnętrzne programy dodające źródła gier, informacje lub przyciski. Przed instalacją widzisz wszystkie uprawnienia i sumę kontrolną. Uczciwie: działają z twoimi uprawnieniami – instaluj tylko zaufane. Szczegóły: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
 ## Licencja
 
 Udostępnione na [licencji MIT](../../LICENSE) © MikeAdamRGB.

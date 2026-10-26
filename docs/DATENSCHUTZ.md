@@ -25,6 +25,7 @@ Nur für diese Dinge – und immer direkt zum jeweiligen Anbieter, nie über ein
 | Cover-Bilder | Steam-Store / Steam-CDN, Epic-CDN, Roblox-Bilder | nur die Bild-Adresse |
 | Spiel-Infos (abschaltbar mit „Bilder aus dem Internet“) | Steam-Store, Wikipedia, Wikidata | nur der Spielname bzw. die Steam-Nummer |
 | Bilder aus GOG/Amazon/itch.io-Bibliotheken | Bild-Server der Stores | nur die Bild-Adresse |
+| Minecraft-Inhalte (nur bei Suche/Installation) | Modrinth, CurseForge (mit deinem eigenen Schlüssel), Fabric-Meta (fabricmc.net) | Suchbegriff, Minecraft-Version, Loader; bei CurseForge dein Schlüssel |
 | Gratis-Spiele-Liste | Epic Games Store, Steam-Store, GamerPower | nichts Persönliches |
 | Roblox-Spiel hinzufügen | öffentliche Roblox-Schnittstellen (Name, Bild) | nur die Spiel-Nummer |
 | Update-Prüfung (abschaltbar) | GitHub | nichts Persönliches |
@@ -32,6 +33,10 @@ Nur für diese Dinge – und immer direkt zum jeweiligen Anbieter, nie über ein
 | Optional: Epic-Konto verbinden | Epic Games | Anmeldung erfolgt bei Epic im Browser |
 
 Die Bibliotheken von GOG Galaxy, Amazon Games und itch.io werden **nur lokal** aus deren Dateien auf deinem Computer gelesen (nur lesend) – dabei wird nichts gesendet.
+
+Die NoRisk-Client-Profile werden nur lokal aus einer Kopie seiner Datenbank gelesen – dabei wird nichts gesendet.
+
+**Erweiterungen** (standardmäßig aus) sind fremde Programme, die du selbst installierst. Der Launcher selbst sendet für Erweiterungen nichts ins Internet und gibt ihnen keine Passwörter, Schlüssel oder deine Einstellungsdatei. Was eine Erweiterung selbst tut, liegt beim jeweiligen Entwickler – ob sie das Internet nutzt, steht in ihren Rechten, die du vor der Installation siehst.
 
 Wie bei jeder Internetverbindung sehen diese Anbieter deine IP-Adresse. Es gelten deren Datenschutzbestimmungen.
 

@@ -7,6 +7,27 @@ Alle wichtigen Änderungen am MAZ Launcher. Jede Version hat bis zu vier Abschni
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [1.7.0] – 2026-10-26 (Test)
+
+### Neu
+- **NoRisk Client:** Jedes Profil aus dem NoRisk Launcher wird eine eigene Kachel. „Spielen“ startet genau dieses Profil über den offiziellen Startbefehl des NoRisk Launchers – dein Microsoft-Konto bleibt dort.
+- **Minecraft-Kachel:** Der offizielle Minecraft Launcher wird erkannt (Microsoft Store/Xbox-App, klassischer Launcher, macOS, Linux inkl. Flatpak).
+- **Minecraft-Inhalte:** Neuer Tab „Minecraft“ – Mods, Texturenpakete, Shader und Datenpakete von **Modrinth** (ohne Schlüssel) und **CurseForge** (mit eigenem, kostenlosem Schlüssel und Schritt-für-Schritt-Anleitung) suchen und mit einem Klick installieren. Ziel: `.minecraft` des offiziellen Launchers oder ein NoRisk-Profil. Benötigte Zusatz-Mods kommen automatisch mit.
+- **Fabric einrichten** mit einem Klick (wie der offizielle Fabric-Installer).
+- **Erweiterungen** (Einstellungen → Erweiterungen, standardmäßig aus): kleine externe Programme können neue Spielquellen, Spiel-Infos und Knöpfe liefern. Mit Rechte-Dialog, Prüfsumme, Hash-Pinning, Beispielen in Rust und Python und ausführlicher Entwickler-Doku (docs/EXTENSIONS.md).
+
+### Verbessert
+- Test-Versionen werden auf GitHub als Vorabversion veröffentlicht und in der App nicht automatisch angeboten.
+
+### Behoben
+- **Xbox/Microsoft Store:** Statt des Spiels bzw. des Minecraft Launchers öffnete sich nur der Explorer. Die richtige App-Kennung wird jetzt aus der Paketbeschreibung gelesen.
+- Einige Schritt-Anleitungen in der Fehlerhilfe (Store fehlt, Deinstallieren in anderen Stores, Wine/Proton fehlt) wurden nach dem ersten Schritt abgeschnitten.
+
+### Sicherheit
+- Minecraft-Downloads nur von den offiziellen Servern (Modrinth-CDN, CurseForge-CDN), jede Datei wird per SHA-512/SHA-1 geprüft; Dateinamen werden gesäubert, nur .jar/.zip, Größe begrenzt. CurseForge-Mods, deren Autor fremde Downloads verbietet, werden nicht geladen.
+- Erweiterungen: kein fremder Code im Launcher, minimale Umgebung, 10-Sekunden- und 1-MB-Grenzen, strenge Prüfung aller Antworten (Pfade, Link-Arten, Bilder), Schutz gegen Zip-Slip, Prozesse enden garantiert mit dem Launcher.
+- Der CurseForge-Schlüssel wird wie alle Schlüssel nur lokal gespeichert (unter Windows verschlüsselt, unter macOS/Linux nur für dich lesbar).
+
 ## [1.6.0] – 2026-10-25
 
 ### Neu

@@ -10,7 +10,7 @@
 
 use serde_json::Value;
 use std::io::{BufRead, BufReader, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError};
 use std::time::Duration;
@@ -227,11 +227,6 @@ impl Drop for ExtProcess {
     fn drop(&mut self) {
         self.stop();
     }
-}
-
-/// Programm einer Erweiterung (für Tests auch direkt nutzbar)
-pub fn program_path(dir: &Path, run: &str) -> Option<PathBuf> {
-    super::manifest::resolve_inside(dir, run)
 }
 
 #[cfg(test)]

@@ -135,6 +135,13 @@ Sin cuentas ni telemetría. La red solo se usa para las portadas y, si añades u
 
 Se agradecen informes de errores, ideas y pull requests: [abrir un issue](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## Extensiones y Minecraft
+
+**Minecraft y NoRisk Client:** el Minecraft Launcher oficial y cada perfil de NoRisk aparecen como mosaicos propios. En la pestaña «Minecraft» instalas mods, paquetes de texturas, shaders y paquetes de datos de Modrinth y CurseForge.
+
+**Extensiones** (desactivadas por defecto): pequeños programas externos que añaden fuentes de juegos, información o botones. Antes de instalar ves todos los permisos y la suma de verificación. Aviso sincero: se ejecutan con tus permisos de usuario; instala solo las de confianza. Detalles: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
 ## Licencia
 
 Publicado bajo la [licencia MIT](../../LICENSE) © MikeAdamRGB.

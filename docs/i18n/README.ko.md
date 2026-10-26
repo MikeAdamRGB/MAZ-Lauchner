@@ -135,6 +135,13 @@ Epic은 로그인한 뒤에만 구매한 게임 목록을 제공합니다. MAZ L
 
 버그 제보, 아이디어, 풀 리퀘스트 모두 환영합니다: [이슈 열기](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## 확장 기능과 Minecraft
+
+**Minecraft와 NoRisk Client:** 공식 Minecraft Launcher와 NoRisk의 모든 프로필이 각각 타일로 표시됩니다. 「Minecraft」 탭에서 Modrinth와 CurseForge의 모드, 리소스 팩, 셰이더, 데이터 팩을 설치할 수 있습니다.
+
+**확장 기능**(기본값: 꺼짐): 새로운 게임 소스, 정보, 버튼을 추가하는 작은 외부 프로그램입니다. 설치 전에 모든 권한과 체크섬을 보여 줍니다. 솔직한 안내: 확장 기능은 사용자 권한으로 실행되므로 신뢰할 수 있는 것만 설치하세요. 자세히: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
 ## 라이선스
 
 [MIT 라이선스](../../LICENSE) © MikeAdamRGB

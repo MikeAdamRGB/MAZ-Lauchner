@@ -267,6 +267,13 @@ Fehlermeldungen, Ideen und Pull Requests sind willkommen.
 - 💡 [Idee vorschlagen](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose)
 - 🛠️ Vor einem Pull Request bitte [CONTRIBUTING.md](../../CONTRIBUTING.md) lesen
 
+
+## Erweiterungen & Minecraft
+
+**Minecraft & NoRisk Client:** Der offizielle Minecraft Launcher und jedes NoRisk-Profil erscheinen als eigene Kachel. Über den Tab „Minecraft“ installierst du Mods, Texturenpakete, Shader und Datenpakete von Modrinth und CurseForge (eigener, kostenloser Schlüssel – mit Anleitung).
+
+**Erweiterungen** (standardmäßig aus): kleine externe Programme, die neue Spielquellen, Infos oder Knöpfe liefern. Vor der Installation siehst du alle Rechte und die Prüfsumme. Ehrlicher Hinweis: Erweiterungen laufen mit deinen Benutzerrechten – installiere nur, was du vertraust. Details: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
 ## Lizenz
 
 Veröffentlicht unter der [MIT-Lizenz](../../LICENSE) © MikeAdamRGB.

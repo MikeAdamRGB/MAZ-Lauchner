@@ -17,7 +17,7 @@ use manifest::{ExtKind, Manifest};
 use process::{CallError, ExtProcess, TIMEOUT};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, Mutex, OnceLock, RwLock};

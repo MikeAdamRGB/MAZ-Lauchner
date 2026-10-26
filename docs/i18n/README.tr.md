@@ -135,6 +135,13 @@ Hesap yok, telemetri yok. İnternet yalnızca kapak görselleri ve anahtar ekled
 
 Hata bildirimleri, fikirler ve pull request'ler memnuniyetle karşılanır: [issue aç](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## Uzantılar ve Minecraft
+
+**Minecraft ve NoRisk Client:** Resmi Minecraft Launcher ve her NoRisk profili ayrı kutucuk olarak görünür. "Minecraft" sekmesinden Modrinth ve CurseForge'dan mod, doku paketi, shader ve veri paketi yüklersin.
+
+**Uzantılar** (varsayılan olarak kapalı): yeni oyun kaynakları, bilgiler veya düğmeler ekleyen küçük harici programlar. Yüklemeden önce tüm izinleri ve sağlama toplamını görürsün. Dürüst not: kullanıcı haklarınla çalışırlar – yalnızca güvendiklerini yükle. Ayrıntılar: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
 ## Lisans
 
 [MIT Lisansı](../../LICENSE) ile yayınlanmıştır © MikeAdamRGB.

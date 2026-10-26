@@ -135,6 +135,13 @@ Epic 只有在登录后才提供已购游戏列表。MAZ Launcher 会显示所�
 
 欢迎提交错误报告、想法和 Pull Request:[提交 Issue](https://github.com/MikeAdamRGB/MAZ-Lauchner/issues/new/choose) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
+
+## 扩展与 Minecraft
+
+**Minecraft 与 NoRisk Client:** 官方 Minecraft Launcher 和每个 NoRisk 配置都会显示为单独的磁贴。在“Minecraft”标签页中可以安装来自 Modrinth 和 CurseForge 的模组、资源包、光影和数据包。
+
+**扩展**(默认关闭):添加新游戏来源、信息或按钮的小型外部程序。安装前会显示全部权限和校验和。如实说明:扩展以你的用户权限运行,请只安装你信任的扩展。详情:[docs/EXTENSIONS.md](../EXTENSIONS.md)。
+
 ## 许可证
 
 基于 [MIT 许可证](../../LICENSE) 发布 © MikeAdamRGB。
