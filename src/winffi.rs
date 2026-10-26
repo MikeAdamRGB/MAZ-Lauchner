@@ -567,3 +567,83 @@ pub fn system_dir() -> Option<std::path::PathBuf> {
 pub fn windows_dir() -> Option<std::path::PathBuf> {
     dir_from(GetWindowsDirectoryW)
 }
+
+// ----------------------------------------------------------------------
+// Job-Objekt: Kindprozesse (Erweiterungen) sterben garantiert mit dem Launcher
+// ----------------------------------------------------------------------
+
+#[repr(C)]
+#[derive(Default)]
+struct JobBasicLimit {
+    per_process_user_time: i64,
+    per_job_user_time: i64,
+    limit_flags: u32,
+    min_working_set: usize,
+    max_working_set: usize,
+    active_process_limit: u32,
+    affinity: usize,
+    priority_class: u32,
+    scheduling_class: u32,
+}
+
+#[repr(C)]
+#[derive(Default)]
+struct IoCounters {
+    v: [u64; 6],
+}
+
+#[repr(C)]
+#[derive(Default)]
+struct JobExtendedLimit {
+    basic: JobBasicLimit,
+    io: IoCounters,
+    process_memory_limit: usize,
+    job_memory_limit: usize,
+    peak_process_memory: usize,
+    peak_job_memory: usize,
+}
+
+#[link(name = "kernel32")]
+extern "system" {
+    fn CreateJobObjectW(attrs: *const c_void, name: *const u16) -> HANDLE;
+    fn SetInformationJobObject(job: HANDLE, class: i32, info: *const c_void, len: u32) -> BOOL;
+    fn AssignProcessToJobObject(job: HANDLE, process: HANDLE) -> BOOL;
+}
+
+pub struct Job(HANDLE);
+
+// SAFETY: Ein Job-Handle darf zwischen Threads weitergegeben werden.
+unsafe impl Send for Job {}
+
+impl Job {
+    /// Job, der beim Schließen (auch beim Absturz des Launchers) alle Prozesse beendet
+    pub fn kill_on_close() -> Option<Job> {
+        unsafe {
+            let h = CreateJobObjectW(null(), null());
+            if h.is_null() {
+                return None;
+            }
+            let mut info = JobExtendedLimit::default();
+            info.basic.limit_flags = 0x2000; // JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            let ok = SetInformationJobObject(h, 9, &info as *const _ as *const c_void, size_of::<JobExtendedLimit>() as u32);
+            if ok == 0 {
+                CloseHandle(h);
+                return None;
+            }
+            Some(Job(h))
+        }
+    }
+
+    pub fn assign(&self, child: &std::process::Child) -> bool {
+        use std::os::windows::io::AsRawHandle;
+        unsafe { AssignProcessToJobObject(self.0, child.as_raw_handle() as HANDLE) != 0 }
+    }
+}
+
+impl Drop for Job {
+    fn drop(&mut self) {
+        unsafe {
+            CloseHandle(self.0);
+        }
+    }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "hello-example",
+  "name": "Hello Extension",
+  "version": "1.0.0",
+  "author": "MAZ Launcher",
+  "description": "@description",
+  "homepage": "https://github.com/MikeAdamRGB/MAZ-Lauchner",
+  "run": {
+    "windows": "extension-hello.exe",
+    "linux": "extension-hello",
+    "macos": "extension-hello"
+  },
+  "api_version": 1,
+  "kinds": ["library", "metadata", "action"],
+  "permissions": {
+    "read_paths": [],
+    "network": false,
+    "uri_schemes": []
+  },
+  "languages": ["de", "en"]
+}

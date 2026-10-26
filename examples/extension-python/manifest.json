@@ -1,0 +1,15 @@
+{
+  "id": "python-example",
+  "name": "Python Example",
+  "version": "1.0.0",
+  "author": "MAZ Launcher",
+  "description": "Zeigt, dass Erweiterungen in jeder Sprache geschrieben werden können.",
+  "run": {
+    "windows": "run.cmd",
+    "linux": "hello.py",
+    "macos": "hello.py"
+  },
+  "api_version": 1,
+  "kinds": ["library"],
+  "permissions": { "read_paths": [], "network": false, "uri_schemes": [] }
+}

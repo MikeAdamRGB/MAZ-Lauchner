@@ -153,6 +153,14 @@ jobs:
           set -o pipefail
           cargo test --release 2>&1 | tee test-linux-${{ matrix.arch }}.log
 
+      # Clippy: der neue Code (Erweiterungen) muss ohne Warnungen sein (#![deny(clippy::all)])
+      - name: Clippy
+        if: matrix.arch == 'x86_64'
+        run: |
+          set -o pipefail
+          rustup component add clippy
+          cargo clippy --release --message-format=short 2>&1 | tee clippy-linux.log
+
       - name: Version
         id: ver
         run: echo "version=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)" >> "$GITHUB_OUTPUT"

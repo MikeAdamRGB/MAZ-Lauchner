@@ -2,6 +2,7 @@
 
 use crate::model::{normalize_name, Art, CustomGame, Game, LaunchTarget, Settings, Source, StoreStatus};
 use crate::problem::Problem;
+use crate::stores::StoreLibrary;
 use crate::{emulators, epic, icons, roblox, steam, stores, sys};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -60,6 +61,20 @@ pub fn scan(settings: &Settings) -> ScanResult {
         result.stores.push((src, sc.status));
     }
 
+    // Erweiterungen (nur wenn erlaubt; jede läuft als eigenes Programm)
+    crate::extensions::refresh(settings);
+    if settings.extensions_allowed {
+        for lib in crate::extensions::libraries() {
+            let sc = lib.scan(settings.stores_show_uninstalled);
+            for g in sc.games {
+                if !result.games.iter().any(|o| o.id == g.id) {
+                    result.games.push(g);
+                }
+            }
+            result.stores.push((lib.source(), sc.status));
+        }
+    }
+
     if settings.store_on(Source::Minecraft) {
         let (games, status) = crate::minecraft::scan();
         result.games.extend(games);
@@ -108,6 +123,11 @@ pub fn scan(settings: &Settings) -> ScanResult {
             Source::Emulator => apply_lookup(g, &settings.art_lookup),
             // Minecraft-Cover aus dem Steam-Store gibt es nicht → eigenes Bild in der Oberfläche
             Source::Minecraft => {}
+            Source::Extension(_) => {
+                if g.art.cover.is_empty() {
+                    apply_lookup(g, &settings.art_lookup);
+                }
+            }
             Source::Roblox | Source::Custom => {}
         }
     }

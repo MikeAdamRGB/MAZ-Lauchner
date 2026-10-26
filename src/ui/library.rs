@@ -89,15 +89,30 @@ pub fn all_genres(app: App) -> Vec<String> {
     v
 }
 
+/// Eindeutiger Wert für Auswahllisten (Erweiterungen haben alle denselben key())
+pub fn source_value(src: Source) -> String {
+    match src {
+        Source::Extension(i) => format!("ext-{i}"),
+        other => other.key().to_string(),
+    }
+}
+
 /// Weitere Stores/Emulatoren, in denen es Spiele gibt
 pub fn stores_with_games(app: App) -> Vec<Source> {
     let games = app.games.read();
-    Source::STORES
+    let mut list: Vec<Source> = Source::STORES
         .iter()
         .copied()
-        .chain(std::iter::once(Source::Emulator))
+        .chain([Source::Minecraft, Source::Emulator])
         .filter(|src| games.iter().any(|g| g.source == *src))
-        .collect()
+        .collect();
+    // Erweiterungen
+    for g in games.iter() {
+        if matches!(g.source, Source::Extension(_)) && !list.contains(&g.source) {
+            list.push(g.source);
+        }
+    }
+    list
 }
 
 /// Überschrift für den aktuellen Filter
@@ -536,7 +551,7 @@ pub fn MazSidebar() -> Element {
                         NavItem { filter: Filter::Roblox, count: count_for(app, Filter::Roblox) }
                     }
                     {stores_with_games(app).into_iter().map(|src| {
-                        let key = src.key();
+                        let key = source_value(src);
                         rsx! { NavItem { key: "{key}", filter: Filter::Store(src), count: count_for(app, Filter::Store(src)) } }
                     })}
                     NavItem { filter: Filter::Custom, count: count_for(app, Filter::Custom) }
@@ -829,7 +844,7 @@ fn SteamLayout() -> Element {
                                             app.set_filter(Filter::Tag, tag);
                                             return;
                                         }
-                                        stores_with_games(app).into_iter().find(|s| s.key() == other).map(Filter::Store).unwrap_or(Filter::All)
+                                        stores_with_games(app).into_iter().find(|s| source_value(*s) == other).map(Filter::Store).unwrap_or(Filter::All)
                                     }
                                 };
                                 app.set_filter(f, "");
@@ -842,7 +857,7 @@ fn SteamLayout() -> Element {
                                 option { value: "roblox", selected: filter == Filter::Roblox, "ROBLOX" }
                             }
                             {stores_with_games(app).into_iter().map(|src| {
-                                let k = src.key();
+                                let k = source_value(src);
                                 let label = src.label().to_uppercase();
                                 rsx! { option { key: "{k}", value: "{k}", selected: filter == Filter::Store(src), "{label}" } }
                             })}

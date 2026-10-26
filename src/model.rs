@@ -18,6 +18,8 @@ pub enum Source {
     Minecraft,
     Emulator,
     Custom,
+    /// Spiele aus einer Erweiterung (Nummer → Eintrag im Erweiterungs-Register)
+    Extension(u16),
 }
 
 impl Source {
@@ -34,6 +36,7 @@ impl Source {
             Source::Itch => "itch.io".into(),
             Source::Xbox => "Xbox / Microsoft Store".into(),
             Source::Minecraft => "Minecraft".into(),
+            Source::Extension(i) => crate::extensions::name_of(i),
             Source::Emulator => crate::i18n::t("source.emulator"),
             Source::Custom => crate::i18n::t("source.custom"),
         }
@@ -53,6 +56,7 @@ impl Source {
             Source::Itch => "ITCH".into(),
             Source::Xbox => "XBOX".into(),
             Source::Minecraft => "MINECRAFT".into(),
+            Source::Extension(i) => crate::extensions::name_of(i).to_uppercase().chars().take(14).collect(),
             Source::Emulator => "EMU".into(),
             Source::Custom => crate::i18n::t("badge.custom"),
         }
@@ -72,6 +76,7 @@ impl Source {
             Source::Itch => "itch",
             Source::Xbox => "xbox",
             Source::Minecraft => "minecraft",
+            Source::Extension(_) => "extension",
             Source::Emulator => "emulator",
             Source::Custom => "custom",
         }
@@ -84,6 +89,7 @@ impl Source {
             Source::Roblox => "cube",
             Source::Emulator => "monitor",
             Source::Minecraft => "cube",
+            Source::Extension(_) => "plug",
             Source::Custom => "rocket",
             _ => "package",
         }
@@ -103,6 +109,7 @@ impl Source {
             Source::Itch => 8,
             Source::Roblox => 9,
             Source::Minecraft => 9,
+            Source::Extension(_) => 10,
             Source::Emulator => 10,
             Source::Custom => 11,
         }
@@ -318,6 +325,10 @@ pub struct Settings {
     pub merge_duplicates: bool,
     /// Auch gekaufte, nicht installierte Spiele der weiteren Stores zeigen
     pub stores_show_uninstalled: bool,
+    /// Erweiterungen erlauben (Standard: aus)
+    pub extensions_allowed: bool,
+    /// Zustimmung/Status je Erweiterung (ID → Zustand)
+    pub extensions: BTreeMap<String, crate::extensions::ExtState>,
     /// Bedienung mit Controller (große Fokus-Rahmen, Steuerkreuz/Stick)
     pub controller_mode: bool,
 
@@ -388,6 +399,8 @@ impl Default for Settings {
             merge_duplicates: true,
             stores_show_uninstalled: true,
             controller_mode: false,
+            extensions_allowed: false,
+            extensions: BTreeMap::new(),
             playtime_local: BTreeMap::new(),
             first_seen: BTreeMap::new(),
             tags: BTreeMap::new(),

@@ -165,6 +165,7 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
                     {t("act.uninstall")}
                 }
             }
+            super::extensions::ExtActions { game: game.clone(), class: btn.to_string() }
             Button { variant: ButtonVariant::Ghost, class: btn, onclick: move |_| toggle_hidden(app, &id5),
                 Icon { name: hide_icon, class: "size-4" }
                 "{hide_label}"

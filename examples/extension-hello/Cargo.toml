@@ -1,0 +1,12 @@
+[package]
+name = "extension-hello"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[dependencies]
+maz-extension-sdk = { path = "../../crates/maz-extension-sdk" }
+
+# Eigenständig – gehört nicht zum Build des Launchers
+[workspace]

@@ -28,6 +28,21 @@ pub fn ModalHost() -> Element {
         Some(Modal::Update) => rsx! { UpdateDialog {} },
         Some(Modal::EditMeta(id)) => rsx! { super::manage::EditMetaDialog { id } },
         Some(Modal::FolderScan) => rsx! { super::manage::FolderScanDialog {} },
+        Some(Modal::ExtInstall(staged)) => rsx! { super::extensions::ExtInstallDialog { staged } },
+        Some(Modal::ExtMessage(title, text)) => rsx! {
+            Dialog { on_close: move |_| app.close_modal(), class: "max-w-md",
+                div { class: "p-8",
+                    div { class: "flex items-center gap-3 mb-4",
+                        div { class: "size-10 rounded-xl bg-primary/15 text-primary grid place-items-center", Icon { name: "plug", class: "size-5" } }
+                        h2 { class: "text-lg font-bold", "{title}" }
+                    }
+                    p { class: "text-sm leading-relaxed whitespace-pre-line select-text", "{text}" }
+                    div { class: "flex justify-end mt-6",
+                        Button { variant: ButtonVariant::Glow, onclick: move |_| app.close_modal(), "OK" }
+                    }
+                }
+            }
+        },
         Some(Modal::EpicConnect) => rsx! {
             Dialog { on_close: move |_| app.close_modal(), class: "max-w-xl",
                 div { class: "p-6 pt-8",
@@ -220,7 +235,7 @@ fn Checklist(items: Vec<String>) -> Element {
 #[component]
 fn ConfirmDialog(id: String) -> Element {
     let app = use_app();
-    let name = app.settings.read().custom(&id).map(|c| c.name.clone()).unwrap_or_default();
+    let name = app.settings.read().custom(&id).map(|c| c.name.clone()).or_else(|| app.game(&id).map(|g| g.name)).unwrap_or_default();
     let items = checklist_for(app, &id);
     let (id_yes, id_no) = (id.clone(), id.clone());
     rsx! {
@@ -241,7 +256,7 @@ fn ConfirmDialog(id: String) -> Element {
                         {t("common.no")}
                     }
                     Button { variant: ButtonVariant::Glow, size: ButtonSize::Lg, class: "w-full",
-                        onclick: move |_| start_custom(app, id_yes.clone(), false),
+                        onclick: move |_| start_confirmed(app, id_yes.clone()),
                         Icon { name: "check", class: "size-4" }
                         {t("confirm.yes")}
                     }
@@ -254,7 +269,7 @@ fn ConfirmDialog(id: String) -> Element {
 #[component]
 fn NotStartedDialog(id: String) -> Element {
     let app = use_app();
-    let name = app.settings.read().custom(&id).map(|c| c.name.clone()).unwrap_or_default();
+    let name = app.settings.read().custom(&id).map(|c| c.name.clone()).or_else(|| app.game(&id).map(|g| g.name)).unwrap_or_default();
     let items = checklist_for(app, &id);
     let id2 = id.clone();
     rsx! {

@@ -10,6 +10,8 @@ readme = "README.md"
 keywords = ["launcher", "games", "steam", "epic", "dioxus"]
 categories = ["games", "gui"]
 build = "build.rs"
+# examples/ enthält eigenständige Beispiel-Erweiterungen (eigene Crates), keine Cargo-Beispiele
+autoexamples = false
 
 [[bin]]
 name = "MAZ-Launcher"
@@ -37,6 +39,8 @@ winreg = "0.56"
 rfd = { version = "0.17", default-features = false, features = ["common-controls-v6"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+# PR_SET_PDEATHSIG: Erweiterungs-Prozesse enden mit dem Launcher (libc ist ohnehin schon im Build)
+libc = "0.2"
 # Dateidialoge über das XDG-Portal (das aktiviert Dioxus bereits; gtk3 + Portal gleichzeitig geht nicht)
 rfd = { version = "0.17", default-features = false }
 

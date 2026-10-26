@@ -303,7 +303,9 @@ pub fn is_safe_url(url: &str) -> bool {
 
 /// URL oder Protokoll-Link öffnen (https://, steam://, …).
 pub fn open_url(url: &str) -> Result<(), i32> {
-    if !is_safe_url(url) {
+    // Zusätzlich: Link-Arten, die der Nutzer für eine aktive Erweiterung bestätigt hat
+    let basic_ok = !url.contains(['\n', '\r', '"']) && url.len() < 4000;
+    if !is_safe_url(url) && !(basic_ok && crate::extensions::scheme_approved(url)) {
         return Err(5);
     }
     #[cfg(windows)]

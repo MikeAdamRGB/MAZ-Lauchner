@@ -84,6 +84,7 @@ pub enum SettingsTab {
     Language,
     Connections,
     Custom,
+    Extensions,
     General,
     About,
 }
@@ -120,6 +121,10 @@ pub enum Modal {
     FolderScan,
     /// Epic-Konto verbinden (Schritt für Schritt)
     EpicConnect,
+    /// Erweiterung installieren/bestätigen: Rechte anzeigen
+    ExtInstall(crate::extensions::Staged),
+    /// Meldung einer Erweiterungs-Aktion (Titel = Erweiterung, Text)
+    ExtMessage(String, String),
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -392,6 +397,15 @@ fn run_meta_job(job: MetaJob, name: String, lang: String) -> Option<crate::metad
     }
 }
 
+/// Eingebaute Quellen zuerst, danach Erweiterungen (falls dort nichts gefunden wurde)
+fn run_meta_with_ext(job: MetaJob, name: String, id: String, lang: String) -> Option<crate::metadata::Info> {
+    let info = run_meta_job(job, name.clone(), lang);
+    match info {
+        Some(i) if i.fetched > 0 => Some(i),
+        other => crate::extensions::metadata(&name, &id).or(other),
+    }
+}
+
 /// Bild aus den Spiel-Infos übernehmen, wenn das Spiel sonst kein Cover hat (z. B. ROMs)
 pub fn apply_meta_covers(app: App) {
     let cache = app.meta_cache.peek().clone();
@@ -431,7 +445,8 @@ async fn fill_metadata(app: App) {
     for (id, name, job) in todo {
         let l = lang.clone();
         // Keine Verbindung → aufhören, beim nächsten Mal weiter
-        let Ok(Some(info)) = tokio::task::spawn_blocking(move || run_meta_job(job, name, l)).await else { break };
+        let gid = id.clone();
+        let Ok(Some(info)) = tokio::task::spawn_blocking(move || run_meta_with_ext(job, name, gid, l)).await else { break };
         store_info(app, id, info);
         tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
     }
@@ -447,7 +462,8 @@ pub fn load_metadata(app: App, id: String) {
     let name = g.name.clone();
     let lang = crate::i18n::current_code();
     dioxus::core::spawn_forever(async move {
-        if let Ok(Some(info)) = tokio::task::spawn_blocking(move || run_meta_job(job, name, lang)).await {
+        let gid = id.clone();
+        if let Ok(Some(info)) = tokio::task::spawn_blocking(move || run_meta_with_ext(job, name, gid, lang)).await {
             store_info(app, id, info);
         }
     });
@@ -575,6 +591,17 @@ pub fn play(app: App, id: String) {
         }
         return;
     }
+    // Programme aus Erweiterungen: wie eigene Spiele vorher die Sicherheitsfrage
+    if matches!(game.source, Source::Extension(_)) && matches!(game.launch, LaunchTarget::Exe { .. }) {
+        app.open(Modal::Confirm(id));
+        return;
+    }
+    start_store_game(app, game);
+}
+
+/// Store-/Erweiterungs-Spiel wirklich starten
+fn start_store_game(app: App, game: Game) {
+    let id = game.id.clone();
     match launch::launch_store(&game) {
         Ok(()) => {
             let installing = !game.installed || matches!(game.launch, LaunchTarget::SteamInstall(_) | LaunchTarget::EpicInstall(_));
@@ -610,6 +637,18 @@ pub fn play(app: App, id: String) {
             }
         }
         Err(p) => app.show_problem(p, Some(id)),
+    }
+}
+
+/// Nach "Ja, alles deaktiviert" bei einem Erweiterungs-Spiel
+pub fn start_confirmed(app: App, id: String) {
+    app.close_modal();
+    if app.settings.peek().custom(&id).is_some() {
+        start_custom(app, id, false);
+        return;
+    }
+    if let Some(g) = app.game(&id) {
+        start_store_game(app, g);
     }
 }
 

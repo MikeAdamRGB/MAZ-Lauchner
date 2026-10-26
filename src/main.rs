@@ -10,6 +10,7 @@ mod config;
 mod epic;
 mod emulators;
 mod epicacct;
+mod extensions;
 mod freegames;
 mod i18n;
 mod icons;
@@ -96,6 +97,8 @@ fn main() {
     }
 
     LaunchBuilder::desktop().with_cfg(cfg).launch(ui::Root);
+    // Falls das Fenster-System zurückkehrt: Erweiterungs-Prozesse sauber beenden
+    extensions::shutdown();
 }
 
 fn window_icon() -> Option<WindowIcon> {

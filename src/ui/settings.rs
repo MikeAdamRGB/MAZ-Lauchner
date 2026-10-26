@@ -22,6 +22,7 @@ pub fn SettingsPage() -> Element {
         (SettingsTab::Language, t("set.tab.language"), "globe"),
         (SettingsTab::Connections, t("set.tab.connections"), "plug"),
         (SettingsTab::Custom, t("set.tab.custom"), "rocket"),
+        (SettingsTab::Extensions, t("set.tab.extensions"), "package"),
         (SettingsTab::General, t("set.tab.general"), "settings"),
         (SettingsTab::About, t("set.tab.about"), "info"),
     ];
@@ -55,6 +56,7 @@ pub fn SettingsPage() -> Element {
                         SettingsTab::Language => rsx! { LanguageTab {} },
                         SettingsTab::Connections => rsx! { ConnectionsTab {} },
                         SettingsTab::Custom => rsx! { CustomTab {} },
+                        SettingsTab::Extensions => rsx! { super::extensions::ExtensionsTab {} },
                         SettingsTab::General => rsx! { GeneralTab {} },
                         SettingsTab::About => rsx! { AboutTab {} },
                     }}
@@ -65,7 +67,7 @@ pub fn SettingsPage() -> Element {
 }
 
 #[component]
-fn Section(#[props(into)] title: String, #[props(into, default)] description: String, children: Element) -> Element {
+pub fn Section(#[props(into)] title: String, #[props(into, default)] description: String, children: Element) -> Element {
     rsx! {
         Card { class: "mb-6 bg-card/80 backdrop-blur",
             CardHeader {
@@ -80,7 +82,7 @@ fn Section(#[props(into)] title: String, #[props(into, default)] description: St
 }
 
 #[component]
-fn PageTitle(#[props(into)] title: String, #[props(into)] sub: String) -> Element {
+pub fn PageTitle(#[props(into)] title: String, #[props(into)] sub: String) -> Element {
     rsx! {
         h1 { class: "text-3xl font-bold font-display mb-2", "{title}" }
         p { class: "text-muted-foreground mb-8", "{sub}" }

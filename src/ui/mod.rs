@@ -4,6 +4,7 @@ pub mod art;
 pub mod components;
 pub mod detail;
 pub mod dialogs;
+pub mod extensions;
 pub mod free;
 pub mod icons;
 pub mod installer;
