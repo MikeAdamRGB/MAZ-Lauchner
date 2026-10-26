@@ -144,6 +144,16 @@ pub fn open_db(path: &Path) -> Option<rusqlite::Connection> {
     Some(conn)
 }
 
+/// Eigene Kopie einer Datenbank öffnen (darf geschrieben werden, damit ein WAL-Journal
+/// übernommen wird). Nur für Kopien in unserem eigenen Ordner verwenden!
+pub fn open_db_wal(copy: &Path) -> Option<rusqlite::Connection> {
+    use rusqlite::OpenFlags;
+    let flags = OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX;
+    let conn = rusqlite::Connection::open_with_flags(copy, flags).ok()?;
+    conn.execute_batch("PRAGMA trusted_schema = OFF;").ok()?;
+    Some(conn)
+}
+
 /// Gibt es diese Spalte in der Tabelle?
 fn has_column(conn: &rusqlite::Connection, table: &str, col: &str) -> bool {
     conn.prepare(&format!("PRAGMA table_info({table})"))
@@ -1007,6 +1017,10 @@ impl StoreLibrary for Xbox {
                 if !simple(&cfg.exe_id) || !simple(&cfg.identity) {
                     continue;
                 }
+                // Minecraft Launcher hat eine eigene Kachel (Quelle "Minecraft")
+                if cfg.identity.eq_ignore_ascii_case(crate::minecraft::STORE_PACKAGE) {
+                    continue;
+                }
                 let Some(pkg) = packages.iter().find(|p| p.name.eq_ignore_ascii_case(&cfg.identity)) else { continue };
                 let name = if !cfg.display_name.is_empty() && !cfg.display_name.starts_with("ms-resource") {
                     cfg.display_name.clone()
@@ -1018,7 +1032,7 @@ impl StoreLibrary for Xbox {
                     name,
                     Source::Xbox,
                     Some(content.to_string_lossy().to_string()),
-                    LaunchTarget::Appx { family: pkg.family.clone(), app: cfg.exe_id.clone() },
+                    LaunchTarget::Appx { family: pkg.family.clone(), app: pkg.app_id(&cfg.exe_id).unwrap_or_else(|| cfg.exe_id.clone()) },
                 );
                 if !cfg.logo.is_empty() {
                     let logo = content.join(sys::native_path(&cfg.logo));

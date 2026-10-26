@@ -45,7 +45,13 @@ pub fn packages() -> Vec<Package> {
             let Ok(k) = root.open_subkey(&full) else { continue };
             let display: String = k.get_value("DisplayName").unwrap_or_default();
             let pkg_root: String = k.get_value("PackageRootFolder").unwrap_or_default();
-            let app_ids: Vec<String> = k.enum_keys().flatten().filter(|a| !a.eq_ignore_ascii_case("Capabilities")).collect();
+            // App-Kennungen aus der Paketbeschreibung (verlässlich), sonst aus der Registry
+            let mut app_ids = std::fs::read_to_string(std::path::Path::new(&pkg_root).join("AppxManifest.xml"))
+                .map(|x| manifest_app_ids(&x))
+                .unwrap_or_default();
+            if app_ids.is_empty() {
+                app_ids = k.enum_keys().flatten().filter(|a| !a.eq_ignore_ascii_case("Capabilities")).collect();
+            }
             out.push(Package {
                 full_name: full,
                 family,
@@ -64,9 +70,47 @@ pub fn packages() -> Vec<Package> {
     }
 }
 
-/// Paket mit diesem Namen (ohne Version) suchen
+/// `<Application Id="…">` aus einer AppxManifest.xml
+pub fn manifest_app_ids(xml: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut rest = xml;
+    while let Some(i) = rest.find("<Application ") {
+        let tag_end = rest[i..].find('>').map(|e| i + e).unwrap_or(rest.len());
+        let tag = &rest[i..tag_end];
+        if let Some(a) = tag.find(" Id=\"") {
+            let v = &tag[a + 5..];
+            if let Some(end) = v.find('"') {
+                let id = &v[..end];
+                if !id.is_empty() && id.len() < 100 && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')) {
+                    out.push(id.to_string());
+                }
+            }
+        }
+        rest = &rest[tag_end.min(rest.len())..];
+        if rest.len() <= 1 {
+            break;
+        }
+    }
+    out
+}
+
+impl Package {
+    /// Richtige App-Kennung: die gewünschte, wenn es sie gibt – sonst die erste App im Paket.
+    /// (Eine falsche Kennung lässt Windows nur den Explorer öffnen.)
+    pub fn app_id(&self, preferred: &str) -> Option<String> {
+        self.app_ids
+            .iter()
+            .find(|a| a.eq_ignore_ascii_case(preferred))
+            .or_else(|| self.app_ids.first())
+            .cloned()
+    }
+}
+
+/// Paket mit diesem Namen (ohne Version) suchen – bevorzugt eins, dessen Ordner existiert
 pub fn find(name: &str) -> Option<Package> {
-    packages().into_iter().find(|p| p.name.eq_ignore_ascii_case(name))
+    let mut list: Vec<Package> = packages().into_iter().filter(|p| p.name.eq_ignore_ascii_case(name)).collect();
+    list.sort_by_key(|p| !std::path::Path::new(&p.root).is_dir());
+    list.into_iter().next()
 }
 
 /// App starten (wie aus dem Startmenü)
@@ -101,5 +145,10 @@ mod tests {
             Some(("ROBLOXCORPORATION.ROBLOX".into(), "ROBLOXCORPORATION.ROBLOX_55nm5eh3cm0pr".into()))
         );
         assert_eq!(family_of("Kaputt"), None);
+        let xml = r#"<Package><Applications><Application Id="Minecraft" Executable="Minecraft.exe" EntryPoint="x"><uap:VisualElements/></Application><Application Id="Evil&quot;" /></Applications></Package>"#;
+        assert_eq!(manifest_app_ids(xml), vec!["Minecraft".to_string()]);
+        let p = Package { full_name: String::new(), family: "F".into(), name: "N".into(), display_name: String::new(), root: String::new(), app_ids: vec!["Minecraft".into()] };
+        assert_eq!(p.app_id("Game").as_deref(), Some("Minecraft"));
+        assert_eq!(p.app_id("minecraft").as_deref(), Some("Minecraft"));
     }
 }

@@ -17,6 +17,8 @@ mod install;
 mod launch;
 mod metadata;
 mod library;
+mod mccontent;
+mod minecraft;
 mod model;
 mod notes;
 mod playtime;

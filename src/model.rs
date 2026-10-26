@@ -15,6 +15,7 @@ pub enum Source {
     Amazon,
     Itch,
     Xbox,
+    Minecraft,
     Emulator,
     Custom,
 }
@@ -32,6 +33,7 @@ impl Source {
             Source::Amazon => "Amazon Games".into(),
             Source::Itch => "itch.io".into(),
             Source::Xbox => "Xbox / Microsoft Store".into(),
+            Source::Minecraft => "Minecraft".into(),
             Source::Emulator => crate::i18n::t("source.emulator"),
             Source::Custom => crate::i18n::t("source.custom"),
         }
@@ -50,6 +52,7 @@ impl Source {
             Source::Amazon => "AMAZON".into(),
             Source::Itch => "ITCH".into(),
             Source::Xbox => "XBOX".into(),
+            Source::Minecraft => "MINECRAFT".into(),
             Source::Emulator => "EMU".into(),
             Source::Custom => crate::i18n::t("badge.custom"),
         }
@@ -68,6 +71,7 @@ impl Source {
             Source::Amazon => "amazon",
             Source::Itch => "itch",
             Source::Xbox => "xbox",
+            Source::Minecraft => "minecraft",
             Source::Emulator => "emulator",
             Source::Custom => "custom",
         }
@@ -79,6 +83,7 @@ impl Source {
             Source::Epic => "layers",
             Source::Roblox => "cube",
             Source::Emulator => "monitor",
+            Source::Minecraft => "cube",
             Source::Custom => "rocket",
             _ => "package",
         }
@@ -97,6 +102,7 @@ impl Source {
             Source::Amazon => 7,
             Source::Itch => 8,
             Source::Roblox => 9,
+            Source::Minecraft => 9,
             Source::Emulator => 10,
             Source::Custom => 11,
         }
@@ -302,6 +308,9 @@ pub struct Settings {
     /// Diese Version nicht mehr anbieten
     pub update_skip: String,
     pub online_art: bool,
+    /// Eigener CurseForge-API-Schlüssel (für Minecraft-Inhalte von CurseForge)
+    #[serde(with = "crate::util::secret")]
+    pub curseforge_key: String,
 
     // Weitere Stores: Kennung ("gog", "ea" …) → angezeigt? (fehlt = ja)
     pub stores_off: Vec<String>,
@@ -386,6 +395,7 @@ impl Default for Settings {
             meta: BTreeMap::new(),
             emulators: Vec::new(),
             online_art: true,
+            curseforge_key: String::new(),
             checklist: Vec::new(),
             custom_games: Vec::new(),
             minimize_on_launch: true,

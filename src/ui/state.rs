@@ -92,6 +92,8 @@ pub enum SettingsTab {
 pub enum Page {
     Library,
     Free,
+    /// Minecraft-Inhalte (Mods, Texturen, Shader, Datenpakete)
+    Minecraft,
     Settings(SettingsTab),
 }
 
@@ -151,6 +153,8 @@ pub struct App {
     /// Spiele, deren Spielzeit gerade gemessen wird
     pub tracking: Signal<Vec<String>>,
     pub search: Signal<String>,
+    /// Vorauswahl für Minecraft-Inhalte ("official" oder "norisk:<id>")
+    pub mc_target: Signal<String>,
     pub selected: Signal<Option<String>>,
     pub modal: Signal<Option<Modal>>,
     pub toasts: Signal<Vec<Toast>>,
@@ -364,6 +368,9 @@ enum MetaJob {
 }
 
 fn meta_job(app: App, g: &Game) -> MetaJob {
+    if g.source == Source::Minecraft {
+        return MetaJob::Wiki("Minecraft".into());
+    }
     match meta_appid(app, g) {
         Some(a) => MetaJob::Steam(a),
         None => MetaJob::Wiki(g.name.clone()),

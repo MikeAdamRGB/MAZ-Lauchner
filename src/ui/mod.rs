@@ -9,6 +9,7 @@ pub mod icons;
 pub mod installer;
 pub mod library;
 pub mod manage;
+pub mod minecraft;
 pub mod net;
 pub mod settings;
 pub mod state;
@@ -47,6 +48,7 @@ pub fn Root() -> Element {
         dupes: Signal::new(Default::default()),
         tracking: Signal::new(Vec::new()),
         search: Signal::new(String::new()),
+        mc_target: Signal::new("official".to_string()),
         selected: Signal::new(None),
         modal: Signal::new(None),
         toasts: Signal::new(Vec::new()),
@@ -184,6 +186,7 @@ fn LauncherShell() -> Element {
     match page {
         Page::Library => rsx! { library::LibraryPage {} },
         Page::Free => rsx! { free::FreePage {} },
+        Page::Minecraft => rsx! { minecraft::MinecraftPage {} },
         Page::Settings(_) => rsx! { settings::SettingsPage {} },
     }
 }
@@ -224,6 +227,8 @@ fn TitleBar(#[props(default = false)] nav: bool) -> Element {
     } else {
         (0, 0)
     };
+    // Minecraft-Tab nur, wenn Minecraft oder NoRisk installiert ist
+    let has_mc = nav && app.games.read().iter().any(|g| g.source == crate::model::Source::Minecraft);
     let go_lib = move |f: Filter| {
         let mut fl = app.filter;
         fl.set(f);
@@ -246,6 +251,9 @@ fn TitleBar(#[props(default = false)] nav: bool) -> Element {
                     NavTab { label: t("nav.library"), icon: "library", active: lib_active, badge: 0, onclick: move |_| go_lib(Filter::All) }
                     NavTab { label: t("filter.installed"), icon: "drive", active: inst_active, badge: installed, onclick: move |_| go_lib(Filter::Installed) }
                     NavTab { label: t("free.title"), icon: "gift", active: page == Page::Free, badge: free_badge, onclick: move |_| app.go(Page::Free) }
+                    if has_mc {
+                        NavTab { label: "Minecraft", icon: "cube", active: page == Page::Minecraft, badge: 0, onclick: move |_| app.go(Page::Minecraft) }
+                    }
                 }
             }
             div { class: "flex-1" }

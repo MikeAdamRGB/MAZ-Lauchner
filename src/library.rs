@@ -60,6 +60,12 @@ pub fn scan(settings: &Settings) -> ScanResult {
         result.stores.push((src, sc.status));
     }
 
+    if settings.store_on(Source::Minecraft) {
+        let (games, status) = crate::minecraft::scan();
+        result.games.extend(games);
+        result.stores.push((Source::Minecraft, status));
+    }
+
     if settings.store_on(Source::Emulator) {
         result.games.extend(emulators::scan(&settings.emulators));
     }
@@ -100,6 +106,8 @@ pub fn scan(settings: &Settings) -> ScanResult {
                 apply_lookup(g, &settings.art_lookup);
             }
             Source::Emulator => apply_lookup(g, &settings.art_lookup),
+            // Minecraft-Cover aus dem Steam-Store gibt es nicht → eigenes Bild in der Oberfläche
+            Source::Minecraft => {}
             Source::Roblox | Source::Custom => {}
         }
     }

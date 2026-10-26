@@ -1262,6 +1262,8 @@ fn ConnectionsTab() -> Element {
 
         MoreStoresSection {}
 
+        MinecraftSection {}
+
         EmulatorSection {}
 
         Section { title: t("conn.images"),
@@ -1277,6 +1279,88 @@ fn ConnectionsTab() -> Element {
             Button { variant: ButtonVariant::Glow, size: ButtonSize::Lg, disabled: scanning, onclick: move |_| rescan(app),
                 if scanning { Spinner {} } else { Icon { name: "refresh", class: "size-4" } }
                 {t("conn.reload_now")}
+            }
+        }
+    }
+}
+
+/// Minecraft Launcher, NoRisk Client und CurseForge-Schlüssel
+#[component]
+fn MinecraftSection() -> Element {
+    let app = use_app();
+    let on = app.settings.read().store_on(Source::Minecraft);
+    let has_key = !app.settings.read().curseforge_key.is_empty();
+    let games = app.games.read();
+    let official = games.iter().any(|g| g.id == "minecraft:launcher");
+    let profiles = games.iter().filter(|g| g.id.starts_with("norisk:")).count();
+    drop(games);
+    let mut show_guide = use_signal(|| false);
+    let mut key_input = use_signal(String::new);
+    rsx! {
+        Section { title: "Minecraft", description: t("mc.conn_text"),
+            div { class: "rounded-xl border border-border divide-y divide-border mb-3",
+                div { class: "flex items-center gap-4 px-4 py-3",
+                    span { class: if official { "size-2.5 rounded-full bg-success" } else { "size-2.5 rounded-full bg-muted-foreground/40" } }
+                    div { class: "flex-1 text-sm font-medium", "Minecraft Launcher" }
+                    if !official {
+                        Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, onclick: move |_| { let _ = sys::open_url(crate::minecraft::MC_DOWNLOAD); },
+                            Icon { name: "download", class: "size-3.5" } {t("conn.get_client")}
+                        }
+                    }
+                }
+                div { class: "flex items-center gap-4 px-4 py-3",
+                    span { class: if profiles > 0 { "size-2.5 rounded-full bg-success" } else { "size-2.5 rounded-full bg-muted-foreground/40" } }
+                    div { class: "flex-1 min-w-0",
+                        div { class: "text-sm font-medium", "NoRisk Client" }
+                        div { class: "text-xs text-muted-foreground mt-0.5",
+                            {if profiles > 0 { tf("mc.norisk_profiles", &[("n", &profiles.to_string())]) } else { t("mc.norisk_missing") }}
+                        }
+                    }
+                    if profiles == 0 {
+                        Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, onclick: move |_| { let _ = sys::open_url(crate::minecraft::NORISK_DOWNLOAD); },
+                            Icon { name: "download", class: "size-3.5" } {t("conn.get_client")}
+                        }
+                    }
+                }
+            }
+            SwitchRow {
+                title: t("mc.show"),
+                checked: on,
+                onchange: move |v: bool| {
+                    app.update(|s| {
+                        s.stores_off.retain(|k| k != "minecraft");
+                        if !v {
+                            s.stores_off.push("minecraft".into());
+                        }
+                    });
+                    rescan(app);
+                },
+            }
+            div { class: "mt-3",
+                if has_key {
+                    div { class: "flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm",
+                        Icon { name: "key", class: "size-4 text-success" }
+                        span { class: "flex-1", {t("mc.key_set")} }
+                        Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, class: "text-destructive",
+                            onclick: move |_| app.update(|s| s.curseforge_key.clear()),
+                            Icon { name: "trash", class: "size-3.5" } {t("act.remove")}
+                        }
+                    }
+                } else {
+                    super::minecraft::CurseForgeKeyBox { show_guide: show_guide(), on_toggle: move |_| show_guide.set(!show_guide()), key_input: key_input(),
+                        on_input: move |v: String| key_input.set(v),
+                        on_save: move |_| {
+                            let k = key_input.peek().trim().to_string();
+                            if k.len() >= 20 && k.len() < 200 && k.chars().all(|c| c.is_ascii_graphic()) {
+                                app.update(|s| s.curseforge_key = k);
+                                key_input.set(String::new());
+                                app.toast(&t("mc.key_saved"), "check-circle");
+                            } else {
+                                app.toast(&t("mc.key_invalid"), "alert");
+                            }
+                        },
+                    }
+                }
             }
         }
     }

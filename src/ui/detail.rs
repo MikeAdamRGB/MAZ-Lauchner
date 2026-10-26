@@ -86,6 +86,8 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
         _ => None,
     };
     let is_roblox_exp = rb_place.is_some();
+    let is_mc = game.source == Source::Minecraft;
+    let mc_target = game.id.strip_prefix("norisk:").map(|id| format!("norisk:{id}")).unwrap_or_else(|| "official".into());
     let rb_page = rb_place.map(crate::roblox::experience_page).unwrap_or_default();
     let dir = game.install_dir.clone();
     let appid = game.steam_appid;
@@ -131,6 +133,18 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
                     {t("fix.edit")}
                 }
             }
+            if is_mc {
+                Button { variant: ButtonVariant::Outline, class: btn,
+                    onclick: move |_| {
+                        let mut t = app.mc_target;
+                        t.set(mc_target.clone());
+                        app.close_modal();
+                        app.go(Page::Minecraft);
+                    },
+                    Icon { name: "cube", class: "size-4" }
+                    {t("mc.open_content")}
+                }
+            }
             if is_roblox_exp {
                 Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| { let _ = sys::open_url(&rb_page); },
                     Icon { name: "external", class: "size-4" }
@@ -141,7 +155,7 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
                     {t("act.remove")}
                 }
             }
-            if game.installed && game.source != Source::Roblox && (cfg!(windows) || game.source != Source::Custom) {
+            if game.installed && !matches!(game.source, Source::Roblox | Source::Minecraft) && (cfg!(windows) || game.source != Source::Custom) {
                 Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| start_help(app, id7.clone()),
                     Icon { name: "wrench", class: "size-4" }
                     {t("act.help")}
