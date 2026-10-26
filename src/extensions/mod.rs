@@ -344,13 +344,13 @@ pub fn url_ok(e_schemes: &[String], url: &str) -> bool {
         return true;
     }
     let scheme = url.split(':').next().unwrap_or("").to_ascii_lowercase();
-    e_schemes.iter().any(|s| *s == scheme)
+    e_schemes.contains(&scheme)
 }
 
 /// Von irgendeiner aktiven Erweiterung bestätigte Link-Art (für das Starten von Spielen)
 pub fn scheme_approved(url: &str) -> bool {
     let scheme = url.split(':').next().unwrap_or("").to_ascii_lowercase();
-    !scheme.is_empty() && all().iter().any(|e| e.status() == Status::Active && e.approved_schemes.iter().any(|s| *s == scheme))
+    !scheme.is_empty() && all().iter().any(|e| e.status() == Status::Active && e.approved_schemes.contains(&scheme))
 }
 
 /// Bild: https (PNG/JPEG/WebP) oder Datei im Erweiterungsordner (max. 5 MB)
@@ -405,10 +405,7 @@ pub fn parse_game(e: &Loaded, v: &Value, installed_default: bool) -> Option<Game
             .map(|a| a.iter().filter_map(|s| s.as_str()).filter(|s| s.len() < 300 && !s.contains('\0')).take(20).map(String::from).collect())
             .unwrap_or_default();
         LaunchTarget::Exe { path: path.to_string_lossy().to_string(), args, dir: dir.to_string_lossy().to_string() }
-    } else if let Some(a) = launch.get("appx") {
-        if !cfg!(windows) {
-            return None;
-        }
+    } else if let Some(a) = launch.get("appx").filter(|_| cfg!(windows)) {
         let simple = |s: &str| !s.is_empty() && s.len() < 130 && s.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'));
         let (family, app) = (text(a, "family", 130), text(a, "app", 130));
         if !simple(&family) || !simple(&app) {
