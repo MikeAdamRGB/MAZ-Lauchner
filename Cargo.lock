@@ -2378,7 +2378,7 @@ dependencies = [
 
 [[package]]
 name = "maz-launcher"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "dioxus",
  "flate2",
