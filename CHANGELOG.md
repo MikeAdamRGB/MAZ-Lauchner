@@ -7,6 +7,20 @@ Alle wichtigen Änderungen am MAZ Launcher. Jede Version hat bis zu vier Abschni
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [1.9.0] – 2026-10-27
+
+### Neu
+- **Spielstatus:** Nicht begonnen, Spiele ich, Durchgespielt oder Abgebrochen – in den Spiel-Details setzen, in der Seitenleiste filtern. Ein Spiel, das du zum ersten Mal spielst, wird automatisch zu „Spiele ich“.
+- **Statistik-Seite:** Spielzeit gesamt, der letzten 7 und 30 Tage und der letzten 12 Wochen, Spielzeit pro Store, die meistgespielten Spiele, ungespielte Spiele und Spiele je Status.
+- **„Was soll ich spielen?“:** Würfel-Knopf oben und in der Bibliothek. Schlägt ein zufälliges Spiel vor – auf Wunsch nur installierte, nur ungespielte, ohne durchgespielte oder aus einem bestimmten Store.
+- **HowLongToBeat:** In den Spiel-Details öffnet „Spieldauer“ die Suche nach dem Spiel auf HowLongToBeat.
+- **Sichern und wiederherstellen** (Einstellungen → Allgemein): alle Einstellungen – eigene Spiele, Tags, Sammlungen, Spielzeit, Status, Favoriten, Designs – als eine Datei. Schlüssel und Konten kommen nie in die Datei. Vor dem Wiederherstellen wird der aktuelle Stand automatisch gesichert.
+- **Import aus Playnite:** Tags, Kategorien (als Sammlungen), Spielzeit, Status, Favoriten, versteckte Spiele und eigene Spiele. Ergänzt nur, löscht nichts.
+- **EA app, Ubisoft Connect und Battle.net:** Auch gekaufte, nicht installierte Spiele – soweit sie lokal lesbar sind: aus GOG Galaxy 2.0 (wenn die Konten dort verbunden sind) und bei Battle.net zusätzlich aus der Battle.net-Konfiguration. Werden nur installierte Spiele gefunden, steht in den Einstellungen, wie es die ganze Bibliothek gibt.
+
+### Verbessert
+- README aufgeräumt: kürzere Funktionsübersicht, der doppelte Screenshot „Installiert“ ist raus.
+
 ## [1.8.1] – 2026-10-26
 
 Die erste fertige Version als **Open Game Launcher (OG)** – früher MAZ Launcher. Sie enthält

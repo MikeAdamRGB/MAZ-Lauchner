@@ -45,29 +45,17 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 
 | | |
 |---|---|
-| 🎮 **Steam** | Shows **all** your Steam games – installed or not – across all drives, including playtime. Install and uninstall them right from the launcher. Works on Windows, macOS and Linux (incl. Flatpak/Snap Steam). |
-| 🟦 **Epic Games** | Detects every installed Epic Games title automatically. Connect your Epic account once to see your **complete** Epic library, then install or uninstall with one click. On Linux, Epic games come from the [Heroic Games Launcher](https://heroicgameslauncher.com). |
-| 🧱 **Roblox** | Detects Roblox and starts it. Paste links of your favorite Roblox games – each becomes its own tile that starts straight into the game. On Linux via [Sober](https://flathub.org/apps/org.vinegarhq.Sober). |
-| 🏪 **7 more stores** | GOG (Windows: GOG Galaxy, Linux: Heroic), EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io and Xbox / Microsoft Store. Installed games are found automatically and always started through the official app. GOG, Amazon and itch.io also show your **whole library** (read locally from their apps), so you can install games with one click. Every store can be turned off. |
-| 🕹️ **Emulators** | Profiles for RetroArch, Dolphin, PCSX2, DuckStation, PPSSPP, mGBA, Snes9x or any other emulator. Pick your ROM folders – every ROM becomes its own game. |
-| 🗂️ **Organize your library** | Search, sort (name, last played, playtime, recently added) and filter (store, installed, favorites, genre, tags, collections). Your own tags and collections, playtime tracking, duplicates across stores merged into one tile. |
-| 📝 **Game info** | Description, genres, developer, release date, **minimum and recommended PC specs** and the **Steam Deck rating** – from the public Steam store, and from **Wikipedia/Wikidata** for everything else (e.g. ROMs, GOG or Xbox games). Cached locally; edit everything yourself. |
-| ⛏️ **Minecraft & NoRisk Client** | The official Minecraft Launcher (Store, classic, macOS, Linux) and **every NoRisk Client profile** as its own tile – Play starts that exact profile. A built-in browser for **mods, resource packs, shaders and data packs** from Modrinth (no key) and CurseForge (your own free key, with a step-by-step guide) installs them into `.minecraft` or a NoRisk profile – including required dependencies and one-click Fabric setup. |
-| 🧩 **Extensions** | Optional and off by default: add new game sources, game info or buttons through small external programs (any language, JSON over stdin/stdout). Every extension shows its permissions and checksum before you agree, is pinned by hash and is checked strictly. **Honest note:** extensions run with your user rights – only install ones you trust. See [docs/EXTENSIONS.md](docs/EXTENSIONS.md). |
-| 🐧 **Wine & Proton per game** | On Linux, pick the Wine or Proton version for each Windows game (system Wine, Steam Proton, GE-Proton, Lutris and Heroic versions). |
-| 🎁 **Free games** | A tab with every game that is currently free on Epic Games and Steam, with a countdown of how long the offer lasts. *Add to library* opens the store page – one click on *Get* and it shows up in Open Game Launcher. |
-| 🚀 **Your own games** | Add any game: an `.exe`, a shortcut or a batch file. Before **every** launch a safety checklist asks *"Have you turned off everything important?"*. If you answer **No**, the game does not start. |
-| 🖼️ **Original icons & covers** | Real game icons (taken straight from the EXE or from Steam) and original cover art. You can set a custom cover for any game. |
-| 🎨 **3 library layouts** | Looks like **the Steam library**, like **Epic Games**, or uses the launcher's own **OG style**. |
-| 🌈 **16 designs + your own** | 16 ready-made color themes, a design editor for your own themes with font, spacing and layout, shareable as a code or a `.maztheme.json` file, a custom accent color and your own background image. |
-| 🎮 **Controller mode** | Optional: navigate the whole launcher with a gamepad (D-pad/stick, A, B, LB/RB). |
-| 🌍 **9 languages** | English, Deutsch, Español, Français, Italiano, Português, Polski, Türkçe and Русский – including every error explanation. |
-| 🛟 **Errors explained in plain words** | If a game won't start or crashes right after launch (Steam, Epic or your own), the launcher explains **step by step** what happened and how to fix it, with buttons that fix it directly (for example *Verify game files*, *Run as administrator* or *Download Visual C++*). Every game also has a *Won't start? Help* button. |
-| 🔄 **Updates in the app** | You get a message when a new version is out. *Update now* downloads it, checks the SHA256 checksum and installs it – no trip to GitHub needed. |
-| 🔒 **Everything local** | No OG account, no server, no tracking. Passwords stay with Steam, Epic and Roblox. |
-| 📦 **Built-in installer (Windows)** | One single EXE: double-click it to get an install menu with a desktop shortcut, a Start menu entry, *Open now* and *Open app folder*. No admin rights required. |
-| 🐧 **Every platform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) as AppImage, .deb, .rpm, .pkg.tar.zst, Flatpak and Snap. |
-| 🪶 **Tiny footprint** | One size-optimized program with no extra files. |
+| 🎮 **One library for everything** | Steam, Epic Games, GOG, EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io, Xbox / Microsoft Store, Roblox, Minecraft & NoRisk Client, emulators and your own games. Installed games **and** your whole library where the store keeps it locally. Games always start through the official app. |
+| 🗂️ **Organize** | Search, sort and filter, tags, collections, **game status** (not started, playing, finished, dropped), duplicates across stores merged into one tile. Import tags, playtime and more from **Playnite**. |
+| 📊 **Stats & ideas** | Playtime per week, month and store, most played, unplayed games, a **"What should I play?"** button and a HowLongToBeat link for every game. |
+| 📝 **Game info** | Description, genres, PC requirements and the Steam Deck rating – from the Steam store and Wikipedia. Edit everything yourself. |
+| ⛏️ **Minecraft mods** | Mods, resource packs, shaders and data packs from Modrinth and CurseForge, installed with one click into the official launcher or a NoRisk profile. Already installed content is marked. |
+| 🎨 **Your look** | Steam, Epic or OG layout, 16 designs plus your own, background image, controller mode and 9 languages. |
+| 🛟 **Help when things break** | If a game won't start, the launcher explains step by step what happened – with buttons that fix it. |
+| 🔒 **Local and safe** | No account, no tracking. Updates inside the app (checksum-verified), backup of all settings as one file, optional extensions that are off by default. |
+| 🐧 **Every platform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) as AppImage, .deb, .rpm, Pacman, Flatpak and Snap – with Wine/Proton per game. |
+
+Everything that changed in each version: [CHANGELOG.md](CHANGELOG.md).
 
 ## Screenshots
 
@@ -75,7 +63,7 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
   <tr>
     <td width="50%" align="center">
       <img src="docs/screenshots/library-maz.webp" alt="OG style"><br>
-      <sub><b>OG style</b>: its own look with a "Continue playing" banner and all games in a grid</sub>
+      <sub><b>OG style</b>: "Continue playing" banner and all games in a grid</sub>
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/installed.webp" alt="Installed"><br>
@@ -108,18 +96,8 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
       <sub><b>Free games</b>: what is free on Epic and Steam right now, with a countdown</sub>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/installed.webp" alt="Installed"><br>
-      <sub><b>Installed</b>: only the games that are on your computer</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
       <img src="docs/screenshots/settings-design.webp" alt="Design settings"><br>
-      <sub><b>Design settings</b>: 16 ready-made designs, your own designs and a custom accent color</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/settings-language.webp" alt="Languages"><br>
-      <sub><b>Languages</b>: the whole launcher in 9 languages</sub>
+      <sub><b>Designs</b>: 16 ready-made designs, your own designs and a custom accent color</sub>
     </td>
   </tr>
 </table>

@@ -250,6 +250,41 @@ pub struct Emulator {
     pub rom_dirs: Vec<String>,
 }
 
+/// Spielstatus (vom Nutzer gesetzt)
+pub mod status {
+    pub const NOT_STARTED: &str = "not_started";
+    pub const PLAYING: &str = "playing";
+    pub const FINISHED: &str = "finished";
+    pub const DROPPED: &str = "dropped";
+    pub const ALL: [&str; 4] = [NOT_STARTED, PLAYING, FINISHED, DROPPED];
+
+    pub fn valid(s: &str) -> bool {
+        ALL.contains(&s)
+    }
+
+    pub fn icon(s: &str) -> &'static str {
+        match s {
+            PLAYING => "play",
+            FINISHED => "check-circle",
+            DROPPED => "x-circle",
+            _ => "flag",
+        }
+    }
+}
+
+/// Eine gemessene Spielsitzung (für die Statistik)
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct Session {
+    pub id: String,
+    /// Start (Unix-Sekunden)
+    pub start: u64,
+    pub minutes: u64,
+}
+
+/// Höchstens so viele Sitzungen merken (älteste fallen weg)
+pub const MAX_SESSIONS: usize = 5000;
+
 pub mod layout {
     pub const MAZ: &str = "maz";
     pub const STEAM: &str = "steam";
@@ -344,6 +379,10 @@ pub struct Settings {
     pub collections: Vec<Collection>,
     /// Selbst bearbeitete Spiel-Infos
     pub meta: BTreeMap<String, GameMeta>,
+    /// Spielstatus je Spiel (siehe `status`)
+    pub status: BTreeMap<String, String>,
+    /// Gemessene Spielsitzungen (für Statistik pro Woche/Monat)
+    pub sessions: Vec<Session>,
 
     // Emulatoren
     pub emulators: Vec<Emulator>,
@@ -409,6 +448,8 @@ impl Default for Settings {
             tags: BTreeMap::new(),
             collections: Vec::new(),
             meta: BTreeMap::new(),
+            status: BTreeMap::new(),
+            sessions: Vec::new(),
             emulators: Vec::new(),
             online_art: true,
             curseforge_key: String::new(),
@@ -469,6 +510,24 @@ impl Settings {
     pub fn first_seen(&self, id: &str) -> u64 {
         self.first_seen.get(id).copied().unwrap_or(0)
     }
+    /// Spielstatus ("" = nicht gesetzt)
+    pub fn status_of(&self, id: &str) -> &str {
+        self.status.get(id).map(|s| s.as_str()).unwrap_or("")
+    }
+    /// Spielsitzung merken; beim ersten Spielen wird „Nicht begonnen“ zu „Spiele ich“
+    pub fn add_session(&mut self, id: &str, start: u64, minutes: u64) {
+        if minutes == 0 {
+            return;
+        }
+        self.sessions.push(Session { id: id.to_string(), start, minutes });
+        if self.sessions.len() > MAX_SESSIONS {
+            let extra = self.sessions.len() - MAX_SESSIONS;
+            self.sessions.drain(..extra);
+        }
+        if matches!(self.status_of(id), "" | status::NOT_STARTED) {
+            self.status.insert(id.to_string(), status::PLAYING.to_string());
+        }
+    }
     pub fn in_collection(&self, coll: &str, id: &str) -> bool {
         self.collections.iter().any(|c| c.id == coll && c.games.iter().any(|g| g == id))
     }
@@ -483,6 +542,30 @@ pub struct StoreStatus {
     pub owned: usize,
     pub account: Option<String>,
     pub note: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sessions_and_status() {
+        let mut s = Settings::default();
+        s.add_session("a", 100, 0);
+        assert!(s.sessions.is_empty());
+        s.add_session("a", 100, 30);
+        assert_eq!(s.status_of("a"), status::PLAYING);
+        s.status.insert("b".into(), status::FINISHED.into());
+        s.add_session("b", 200, 10);
+        assert_eq!(s.status_of("b"), status::FINISHED, "durchgespielt bleibt durchgespielt");
+        for i in 0..(MAX_SESSIONS + 10) {
+            s.add_session("c", i as u64, 1);
+        }
+        assert_eq!(s.sessions.len(), MAX_SESSIONS);
+        // Alte config.json ohne neue Felder lädt weiter
+        let old: Settings = serde_json::from_str(r#"{"theme":"oled"}"#).unwrap();
+        assert!(old.status.is_empty() && old.sessions.is_empty());
+    }
 }
 
 /// Normalisierter Name für Vergleiche ("The Witcher® 3: Wild Hunt" → "thewitcher3wildhunt").

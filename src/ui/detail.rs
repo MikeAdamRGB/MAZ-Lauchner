@@ -62,6 +62,13 @@ fn info_rows(app: App, g: &Game) -> Vec<InfoRow> {
     rows
 }
 
+/// Suche nach dem Spiel auf HowLongToBeat (wird im Browser geöffnet)
+pub fn hltb_url(name: &str) -> String {
+    // Zeichen wie ™ ® weglassen, damit die Suche etwas findet
+    let clean: String = name.chars().filter(|c| c.is_alphanumeric() || c.is_whitespace() || matches!(c, '-' | ':' | '\'' | '&')).collect();
+    format!("https://howlongtobeat.com/?q={}", sys::url_encode(clean.trim()))
+}
+
 #[component]
 fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Element {
     let app = use_app();
@@ -95,6 +102,7 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
     let star_cls = if fav { "size-4 text-yellow-400" } else { "size-4" };
     let hide_icon = if hidden { "eye" } else { "eye-off" };
     let hide_label = t(if hidden { "act.unhide" } else { "act.hide" });
+    let hltb_name = app.settings.read().meta.get(&game.id).map(|m| m.name.clone()).filter(|n| !n.trim().is_empty()).unwrap_or_else(|| game.name.clone());
     rsx! {
         div { class: "flex flex-col gap-2",
             Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| toggle_favorite(app, &id1),
@@ -127,6 +135,13 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
                     {t("act.store")}
                 }
             })}
+            if !matches!(game.source, Source::Roblox | Source::Minecraft) {
+                Button { variant: ButtonVariant::Outline, class: btn, title: t("hltb.tip"),
+                    onclick: move |_| { let _ = sys::open_url(&hltb_url(&hltb_name)); },
+                    Icon { name: "hourglass", class: "size-4" }
+                    {t("hltb.button")}
+                }
+            }
             if is_custom {
                 Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::EditGame(Some(id4.clone()))),
                     Icon { name: "pencil", class: "size-4" }
@@ -303,8 +318,41 @@ pub fn OrganizeBox(id: String) -> Element {
         add_tag(app, &id_add, &v);
         new_tag.set(String::new());
     };
+    let cur_status = app.settings.read().status_of(&id).to_string();
     rsx! {
         div { class: "mt-6 grid gap-4",
+            div {
+                div { class: "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2", {t("nav.status")} }
+                div { class: "flex flex-wrap gap-1.5", role: "radiogroup", "aria-label": t("nav.status"),
+                    {crate::model::status::ALL.iter().map(|st| {
+                        let st = *st;
+                        let on = cur_status == st;
+                        let cls = if on {
+                            "h-7 px-3 rounded-full text-xs font-semibold bg-primary text-primary-foreground cursor-pointer flex items-center gap-1.5"
+                        } else {
+                            "h-7 px-3 rounded-full text-xs font-medium border border-border text-foreground/80 hover:text-foreground hover:border-primary cursor-pointer flex items-center gap-1.5"
+                        };
+                        let gid = id.clone();
+                        rsx! {
+                            button { key: "{st}", class: "{cls}", role: "radio", "aria-checked": "{on}",
+                                onclick: move |_| {
+                                    let gid = gid.clone();
+                                    // Nochmal klicken = Status entfernen
+                                    app.update(move |s| {
+                                        if s.status_of(&gid) == st {
+                                            s.status.remove(&gid);
+                                        } else {
+                                            s.status.insert(gid.clone(), st.to_string());
+                                        }
+                                    });
+                                },
+                                Icon { name: crate::model::status::icon(st), class: "size-3.5" }
+                                {t(&format!("status.{st}"))}
+                            }
+                        }
+                    })}
+                }
+            }
             div {
                 div { class: "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2", {t("nav.tags")} }
                 div { class: "flex flex-wrap items-center gap-1.5",

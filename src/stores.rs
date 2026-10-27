@@ -31,6 +31,10 @@ pub trait StoreLibrary {
     fn has_library(&self) -> bool {
         false
     }
+    /// Hinweis, wenn keine gekauften Spiele gefunden wurden (z. B. „über GOG Galaxy verbinden“)
+    fn library_hint(&self) -> Option<String> {
+        None
+    }
     /// Gibt es diesen Store auf diesem Betriebssystem?
     fn supported(&self) -> bool {
         cfg!(windows)
@@ -52,13 +56,15 @@ pub trait StoreLibrary {
             }
         }
         let client = self.client_installed();
-        let status = StoreStatus {
-            found: client || !games.is_empty(),
-            installed,
-            owned: games.len(),
-            note: (!client && games.is_empty()).then(|| crate::i18n::tf("store.client_missing", &[("store", &self.source().label())])),
-            ..Default::default()
+        let note = if !client && games.is_empty() {
+            Some(crate::i18n::tf("store.client_missing", &[("store", &self.source().label())]))
+        } else if with_owned && games.len() == installed {
+            // Nur installierte Spiele gefunden → sagen, wie es die ganze Bibliothek gibt
+            self.library_hint()
+        } else {
+            None
         };
+        let status = StoreStatus { found: client || !games.is_empty(), installed, owned: games.len(), note, ..Default::default() };
         StoreScan { games, status }
     }
 }
@@ -166,20 +172,38 @@ fn has_column(conn: &rusqlite::Connection, table: &str, col: &str) -> bool {
 
 /// GOG Galaxy: alle gekauften GOG-Spiele aus galaxy-2.0.db
 pub fn galaxy_owned(conn: &rusqlite::Connection) -> Vec<(String, String, Option<String>)> {
-    let sql = "SELECT lr.releaseKey, gp.value FROM LibraryReleases lr \
-               JOIN GamePieces gp ON gp.releaseKey = lr.releaseKey \
-               JOIN GamePieceTypes t ON t.id = gp.gamePieceTypeId \
-               WHERE lr.releaseKey LIKE 'gog\\_%' ESCAPE '\\' AND t.type IN ('originalTitle', 'title', 'originalImages') \
-               LIMIT 20000";
-    let Ok(mut st) = conn.prepare(sql) else { return Vec::new() };
+    galaxy_releases(conn, "gog")
+}
+
+/// GOG Galaxy kennt auch die Bibliotheken anderer Stores, wenn sie in Galaxy verbunden sind
+/// ("origin_…" = EA, "uplay_…" = Ubisoft, "battlenet_…" = Battle.net).
+pub fn galaxy_releases(conn: &rusqlite::Connection, platform: &str) -> Vec<(String, String, Option<String>)> {
+    // Nur feste Kennungen – nichts von außen landet in der Abfrage
+    if !matches!(platform, "gog" | "origin" | "uplay" | "battlenet") {
+        return Vec::new();
+    }
+    let sql = format!(
+        "SELECT lr.releaseKey, gp.value FROM LibraryReleases lr \
+         JOIN GamePieces gp ON gp.releaseKey = lr.releaseKey \
+         JOIN GamePieceTypes t ON t.id = gp.gamePieceTypeId \
+         WHERE lr.releaseKey LIKE '{platform}\\_%' ESCAPE '\\' AND t.type IN ('originalTitle', 'title', 'originalImages') \
+         LIMIT 20000"
+    );
+    let prefix = format!("{platform}_");
+    let Ok(mut st) = conn.prepare(&sql) else { return Vec::new() };
     let rows: Vec<(String, String)> = st
         .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))
         .map(|it| it.flatten().collect())
         .unwrap_or_default();
     let mut out: Vec<(String, String, Option<String>)> = Vec::new();
     for (key, value) in rows {
-        let Some(id) = key.strip_prefix("gog_") else { continue };
-        if !id.chars().all(|c| c.is_ascii_digit()) {
+        let Some(id) = key.strip_prefix(&prefix) else { continue };
+        let ok = if platform == "gog" {
+            id.chars().all(|c| c.is_ascii_digit())
+        } else {
+            id.len() <= 80 && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-' | ':'))
+        };
+        if id.is_empty() || !ok {
             continue;
         }
         let v: serde_json::Value = serde_json::from_str(&value).unwrap_or(serde_json::Value::Null);
@@ -504,6 +528,61 @@ impl StoreLibrary for Gog {
     }
 }
 
+/// Gekaufte Spiele eines anderen Stores aus GOG Galaxy (Windows)
+#[cfg(windows)]
+fn galaxy_store_owned(platform: &str, source: Source, launch: impl Fn(&str) -> LaunchTarget) -> Vec<Game> {
+    let Some(conn) = galaxy_db().and_then(|p| open_db(&p)) else { return Vec::new() };
+    galaxy_releases(&conn, platform)
+        .into_iter()
+        .map(|(id, title, cover)| {
+            let mut g = owned_game(format!("{}:galaxy-{id}", source.key()), title, source, launch(&id));
+            g.art.cover.extend(cover);
+            g
+        })
+        .collect()
+}
+
+/// Battle.net merkt sich in „Battle.net.config“ die Spiele des Kontos (auch nicht installierte)
+pub fn battlenet_config_games(json: &str) -> Vec<String> {
+    let v: serde_json::Value = serde_json::from_str(json).unwrap_or(serde_json::Value::Null);
+    let mut out: Vec<String> = v
+        .get("Games")
+        .and_then(|g| g.as_object())
+        .map(|m| m.keys().filter(|k| battlenet_code(k).is_some()).map(|k| k.to_ascii_lowercase()).collect())
+        .unwrap_or_default();
+    out.sort();
+    out.dedup();
+    out
+}
+
+/// Anzeigename zu einer Battle.net-Kennung
+pub fn battlenet_name(uid: &str) -> Option<&'static str> {
+    Some(match battlenet_code(uid)? {
+        "WoW" => "World of Warcraft",
+        "WoWC" => "World of Warcraft Classic",
+        "Pro" => "Overwatch 2",
+        "WTCG" => "Hearthstone",
+        "D3" => "Diablo III",
+        "Fen" => "Diablo IV",
+        "OSI" => "Diablo II: Resurrected",
+        "S2" => "StarCraft II",
+        "S1" => "StarCraft Remastered",
+        "Hero" => "Heroes of the Storm",
+        "W3" => "Warcraft III: Reforged",
+        "ODIN" => "Call of Duty: Modern Warfare",
+        "VIPR" => "Call of Duty: Black Ops 4",
+        "ZEUS" => "Call of Duty: Black Ops Cold War",
+        "LAZR" => "Call of Duty: Modern Warfare 2 Campaign Remastered",
+        "FORE" => "Call of Duty: Vanguard",
+        "AUKS" => "Call of Duty",
+        "ANBS" => "Diablo Immortal",
+        "RTRO" => "Blizzard Arcade Collection",
+        "WLBY" => "Crash Bandicoot 4",
+        "GRY" => "Warcraft Rumble",
+        _ => return None,
+    })
+}
+
 // ----------------------------------------------------------------------
 // EA app (Windows)
 // ----------------------------------------------------------------------
@@ -519,6 +598,22 @@ pub fn ea_content_id(xml: &str) -> Option<String> {
 }
 
 impl StoreLibrary for Ea {
+    fn has_library(&self) -> bool {
+        true
+    }
+    fn library_hint(&self) -> Option<String> {
+        Some(crate::i18n::t("store.galaxy_hint"))
+    }
+    fn owned(&self) -> Vec<Game> {
+        #[cfg(windows)]
+        {
+            galaxy_store_owned("origin", Source::Ea, |id| LaunchTarget::Uri(format!("origin2://game/launch?offerIds={}&autoDownload=1", sys::url_encode(id))))
+        }
+        #[cfg(not(windows))]
+        {
+            Vec::new()
+        }
+    }
     fn client_uri(&self) -> Option<&'static str> {
         Some("origin2://")
     }
@@ -569,6 +664,25 @@ impl StoreLibrary for Ea {
 pub struct Ubisoft;
 
 impl StoreLibrary for Ubisoft {
+    fn has_library(&self) -> bool {
+        true
+    }
+    fn library_hint(&self) -> Option<String> {
+        Some(crate::i18n::t("store.galaxy_hint"))
+    }
+    fn owned(&self) -> Vec<Game> {
+        #[cfg(windows)]
+        {
+            galaxy_store_owned("uplay", Source::Ubisoft, |id| {
+                let num: String = id.chars().take_while(|c| c.is_ascii_digit()).collect();
+                LaunchTarget::Uri(if num.is_empty() { "uplay://".to_string() } else { format!("uplay://launch/{num}/0") })
+            })
+        }
+        #[cfg(not(windows))]
+        {
+            Vec::new()
+        }
+    }
     fn client_uri(&self) -> Option<&'static str> {
         Some("uplay://")
     }
@@ -624,25 +738,25 @@ pub fn battlenet_code(uid: &str) -> Option<&'static str> {
     let code = match uid.as_str() {
         "wow" => "WoW",
         "wow_classic" | "wow_classic_era" => "WoWC",
-        "overwatch" | "prometheus" => "Pro",
-        "hs_beta" | "hearthstone" => "WTCG",
-        "diablo3" => "D3",
+        "overwatch" | "prometheus" | "pro" => "Pro",
+        "hs_beta" | "hearthstone" | "wtcg" => "WTCG",
+        "diablo3" | "d3" => "D3",
         "fenris" => "Fen",
         "osi" => "OSI",
         "s2" | "sc2" => "S2",
         "s1" | "starcraft" => "S1",
-        "heroes" => "Hero",
+        "heroes" | "hero" => "Hero",
         "w3" => "W3",
         "odin" => "ODIN",
-        "viper" => "VIPR",
+        "viper" | "vipr" => "VIPR",
         "zeus" => "ZEUS",
-        "lazarus" => "LAZR",
+        "lazarus" | "lazr" => "LAZR",
         "fore" => "FORE",
         "auks" => "AUKS",
         "anbs" => "ANBS",
         "rtro" => "RTRO",
         "wlby" => "WLBY",
-        "gryphon" => "GRY",
+        "gryphon" | "gry" => "GRY",
         _ => return None,
     };
     Some(code)
@@ -665,6 +779,52 @@ fn battlenet_exe() -> Option<PathBuf> {
 }
 
 impl StoreLibrary for BattleNet {
+    fn has_library(&self) -> bool {
+        true
+    }
+    fn library_hint(&self) -> Option<String> {
+        Some(crate::i18n::t("store.galaxy_hint"))
+    }
+    fn owned(&self) -> Vec<Game> {
+        #[cfg(windows)]
+        {
+            let client = battlenet_exe();
+            let launch = |uid: &str| match (battlenet_code(uid), &client) {
+                (Some(code), Some(c)) => LaunchTarget::Exe { path: c.to_string_lossy().to_string(), args: vec![format!("--exec=launch {code}")], dir: String::new() },
+                _ => LaunchTarget::Uri("battlenet://".into()),
+            };
+            // 1. Battle.net selbst (Spiele des Kontos, die Battle.net auf diesem PC kennt)
+            let mut out: Vec<Game> = Vec::new();
+            if let Some(cfg) = sys::env_path("APPDATA").map(|p| p.join("Battle.net").join("Battle.net.config")) {
+                let text = std::fs::read_to_string(cfg).unwrap_or_default();
+                // Schon installierte Spiele (gleicher Startcode) nicht doppelt zeigen
+                let installed: Vec<&'static str> = self
+                    .games()
+                    .iter()
+                    .filter_map(|g| g.id.strip_prefix("battlenet:").and_then(battlenet_code))
+                    .collect();
+                for uid in battlenet_config_games(&text) {
+                    if battlenet_code(&uid).map(|c| installed.contains(&c)).unwrap_or(false) {
+                        continue;
+                    }
+                    if let Some(name) = battlenet_name(&uid) {
+                        out.push(owned_game(format!("battlenet:{uid}"), name.to_string(), Source::BattleNet, launch(&uid)));
+                    }
+                }
+            }
+            // 2. GOG Galaxy (wenn Battle.net dort verbunden ist)
+            for g in galaxy_store_owned("battlenet", Source::BattleNet, &launch) {
+                if !out.iter().any(|o| crate::model::normalize_name(&o.name) == crate::model::normalize_name(&g.name)) {
+                    out.push(g);
+                }
+            }
+            out
+        }
+        #[cfg(not(windows))]
+        {
+            Vec::new()
+        }
+    }
     fn client_uri(&self) -> Option<&'static str> {
         Some("battlenet://")
     }
@@ -1049,6 +1209,17 @@ impl StoreLibrary for Xbox {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn battlenet_config() {
+        let cfg = r#"{"Client":{},"Games":{"osi":{"Resumable":"false"},"pro":{"LastPlayed":"1"},"battle_net":{},"unbekannt":{}}}"#;
+        let list = battlenet_config_games(cfg);
+        assert_eq!(list, vec!["osi".to_string(), "pro".to_string()]);
+        assert_eq!(battlenet_name("osi"), Some("Diablo II: Resurrected"));
+        assert_eq!(battlenet_name("overwatch"), Some("Overwatch 2"));
+        assert!(battlenet_config_games("kaputt").is_empty());
+    }
+
     use super::*;
 
     #[test]

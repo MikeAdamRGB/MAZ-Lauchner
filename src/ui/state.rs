@@ -23,6 +23,8 @@ pub enum Filter {
     Tag,
     /// Eigene Sammlung (ID steht in `App::filter_arg`)
     Collection,
+    /// Spielstatus (Kennung steht in `App::filter_arg`)
+    Status,
 }
 
 impl Filter {
@@ -41,6 +43,7 @@ impl Filter {
                 Filter::Hidden => "filter.hidden",
                 Filter::Tag => "filter.tag",
                 Filter::Collection | Filter::Store(_) => "filter.collection",
+                Filter::Status => "filter.status",
             }),
         }
     }
@@ -58,6 +61,7 @@ impl Filter {
             Filter::Store(src) => src.icon(),
             Filter::Tag => "tag",
             Filter::Collection => "folder",
+            Filter::Status => "flag",
         }
     }
     /// Passt das Spiel zu diesem Filter? (versteckte Spiele prüft der Aufrufer)
@@ -74,6 +78,7 @@ impl Filter {
             Filter::Recent => s.last_played(&g.id) > 0,
             Filter::Tag => s.tags.get(&g.id).map(|t| t.iter().any(|x| x.eq_ignore_ascii_case(arg))).unwrap_or(false),
             Filter::Collection => s.in_collection(arg, &g.id),
+            Filter::Status => s.status_of(&g.id) == arg,
         }
     }
 }
@@ -95,6 +100,8 @@ pub enum Page {
     Free,
     /// Minecraft-Inhalte (Mods, Texturen, Shader, Datenpakete)
     Minecraft,
+    /// Statistik: Spielzeit, meistgespielt, ungespielt
+    Stats,
     Settings(SettingsTab),
 }
 
@@ -125,6 +132,12 @@ pub enum Modal {
     ExtInstall(crate::extensions::Staged),
     /// Meldung einer Erweiterungs-Aktion (Titel = Erweiterung, Text)
     ExtMessage(String, String),
+    /// „Was soll ich spielen?“ – Zufallsspiel
+    Random,
+    /// Sicherung wiederherstellen: Vorschau + Bestätigung
+    Restore(Box<Settings>),
+    /// Import aus Playnite
+    PlayniteImport,
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -574,7 +587,11 @@ pub fn track_playtime(app: App, game: &Game) {
         let mut tr = app.tracking;
         tr.write().retain(|x| *x != id);
         if minutes > 0 {
-            app.update(|s| *s.playtime_local.entry(id).or_insert(0) += minutes);
+            let start = sys::now_secs().saturating_sub(minutes * 60);
+            app.update(|s| {
+                *s.playtime_local.entry(id.clone()).or_insert(0) += minutes;
+                s.add_session(&id, start, minutes);
+            });
         }
     });
 }

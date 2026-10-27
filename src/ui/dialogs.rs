@@ -43,6 +43,9 @@ pub fn ModalHost() -> Element {
                 }
             }
         },
+        Some(Modal::Random) => rsx! { super::tools::RandomDialog {} },
+        Some(Modal::Restore(settings)) => rsx! { super::tools::RestoreDialog { settings } },
+        Some(Modal::PlayniteImport) => rsx! { super::tools::PlayniteDialog {} },
         Some(Modal::EpicConnect) => rsx! {
             Dialog { on_close: move |_| app.close_modal(), class: "max-w-xl",
                 div { class: "p-6 pt-8",

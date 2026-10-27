@@ -14,6 +14,8 @@ pub mod minecraft;
 pub mod net;
 pub mod settings;
 pub mod state;
+pub mod stats;
+pub mod tools;
 
 use crate::install::StartMode;
 use crate::model::{layout, StoreStatus};
@@ -196,6 +198,7 @@ fn LauncherShell() -> Element {
         Page::Library => rsx! { library::LibraryPage {} },
         Page::Free => rsx! { free::FreePage {} },
         Page::Minecraft => rsx! { minecraft::MinecraftPage {} },
+        Page::Stats => rsx! { stats::StatsPage {} },
         Page::Settings(_) => rsx! { settings::SettingsPage {} },
     }
 }
@@ -260,12 +263,23 @@ fn TitleBar(#[props(default = false)] nav: bool) -> Element {
                     NavTab { label: t("nav.library"), icon: "library", active: lib_active, badge: 0, onclick: move |_| go_lib(Filter::All) }
                     NavTab { label: t("filter.installed"), icon: "drive", active: inst_active, badge: installed, onclick: move |_| go_lib(Filter::Installed) }
                     NavTab { label: t("free.title"), icon: "gift", active: page == Page::Free, badge: free_badge, onclick: move |_| app.go(Page::Free) }
+                    NavTab { label: t("stats.title"), icon: "chart", active: page == Page::Stats, badge: 0, onclick: move |_| app.go(Page::Stats) }
                     if has_mc {
                         NavTab { label: "Minecraft", icon: "cube", active: page == Page::Minecraft, badge: 0, onclick: move |_| app.go(Page::Minecraft) }
                     }
                 }
             }
             div { class: "flex-1" }
+            if nav {
+                button {
+                    class: "mr-2 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-white/10 flex items-center gap-1.5 cursor-pointer",
+                    title: t("random.tip"),
+                    onmousedown: move |e| e.stop_propagation(),
+                    onclick: move |_| app.open(Modal::Random),
+                    Icon { name: "dice", class: "size-4" }
+                    span { class: "sr-only", {t("random.button")} }
+                }
+            }
             if let Some(v) = app.update_avail.read().as_ref().map(|r| r.version.clone()) {
                 button {
                     class: "mr-2 h-7 px-3 rounded-full text-[12px] font-semibold maz-gradient-bg text-glow-fg flex items-center gap-1.5 shadow cursor-pointer animate-pop-in",

@@ -1739,6 +1739,8 @@ fn GeneralTab() -> Element {
 
         UpdateSection {}
 
+        super::tools::BackupSection {}
+
         Section { title: t("general.install"),
             div { class: "rounded-xl bg-muted p-4 mb-4",
                 div { class: "text-xs text-muted-foreground", {t(if installed { "general.installed_in" } else { "general.portable" })} }

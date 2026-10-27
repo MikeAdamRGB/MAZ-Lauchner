@@ -43,80 +43,36 @@ Steam, Epic Games, Roblox und deine eigenen Spiele in einer schnellen, schlanken
 
 | | |
 |---|---|
-| 🎮 **Steam** | Zeigt **alle** deine Steam-Spiele – installiert oder nicht – auf allen Festplatten, inklusive Spielzeit. Installieren und deinstallieren direkt im Launcher. |
-| 🟦 **Epic Games** | Findet alle installierten Epic-Spiele automatisch. Einmal das Epic-Konto verbinden und die **komplette** Epic-Bibliothek erscheint – installieren oder deinstallieren mit einem Klick. Unter Linux über den [Heroic Games Launcher](https://heroicgameslauncher.com). |
-| 🧱 **Roblox** | Erkennt und startet Roblox. Füg Links deiner Lieblings-Roblox-Spiele ein – jedes wird eine eigene Kachel, die direkt ins Spiel startet. Unter Linux über [Sober](https://flathub.org/apps/org.vinegarhq.Sober). |
-| 🏪 **7 weitere Stores** | GOG (Windows: GOG Galaxy, Linux: Heroic), EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io und Xbox / Microsoft Store. Installierte Spiele werden automatisch gefunden und immer über das offizielle Programm gestartet. GOG, Amazon und itch.io zeigen auch die **komplette Bibliothek** (lokal aus deren Programmen gelesen) – installieren mit einem Klick. Jeder Store lässt sich ausschalten. |
-| 🕹️ **Emulatoren** | Profile für RetroArch, Dolphin, PCSX2, DuckStation, PPSSPP, mGBA, Snes9x oder jeden anderen Emulator. ROM-Ordner wählen – jede ROM wird ein eigenes Spiel. |
-| 🗂️ **Bibliothek ordnen** | Suchen, sortieren (Name, zuletzt gespielt, Spielzeit, zuletzt hinzugefügt) und filtern (Store, installiert, Favoriten, Genre, Tags, Sammlungen). Eigene Tags und Sammlungen, Spielzeit-Messung, doppelte Spiele aus mehreren Stores werden zusammengefasst. |
-| 📝 **Spiel-Infos** | Beschreibung, Genres, Entwickler, Erscheinungsdatum, **Mindest- und empfohlene PC-Anforderungen** und die **Steam-Deck-Bewertung** – aus dem öffentlichen Steam-Store und für alles andere (z. B. ROMs, GOG- oder Xbox-Spiele) aus **Wikipedia/Wikidata**. Lokal zwischengespeichert, alles selbst bearbeitbar. |
-| 🐧 **Wine & Proton pro Spiel** | Unter Linux für jedes Windows-Spiel die Wine- oder Proton-Version wählen (System-Wine, Steam-Proton, GE-Proton, Lutris- und Heroic-Versionen). |
-| 🎁 **Gratis-Spiele** | Ein Tab mit allen Spielen, die es gerade bei Epic Games und Steam kostenlos gibt, mit Countdown, wie lange noch. „Zur Bibliothek hinzufügen“ öffnet den Store – ein Klick auf „Holen“ und das Spiel ist im Open Game Launcher. |
-| 🚀 **Eigene Spiele** | Füge jedes Spiel hinzu: EXE, Verknüpfung oder Batch-Datei. Vor **jedem** Start fragt eine Checkliste: *„Hast du alles Wichtige deaktiviert?“* Bei **Nein** startet das Spiel nicht. |
-| 🖼️ **Original-Icons & Cover** | Echte Spiel-Icons (direkt aus der EXE bzw. aus Steam) und Original-Cover. Für jedes Spiel kannst du ein eigenes Cover setzen. |
-| 🎨 **3 Ansichten** | Sieht aus **wie die Steam-Bibliothek**, **wie Epic Games** oder im **eigenen OG-Stil**. |
-| 🌈 **16 Designs + eigene** | 16 fertige Farbschemata, ein Design-Editor für eigene Designs mit Schrift, Abständen und Ansicht – teilbar als Code oder `.maztheme.json`-Datei –, eigene Akzentfarbe und eigenes Hintergrundbild. |
-| 🎮 **Controller-Modus** | Optional: den ganzen Launcher mit dem Gamepad bedienen (Steuerkreuz/Stick, A, B, LB/RB). |
-| 🌍 **9 Sprachen** | Deutsch, English, Español, Français, Italiano, Português, Polski, Türkçe und Русский – inklusive aller Fehlererklärungen. |
-| 🛟 **Fehler einfach erklärt** | Startet ein Spiel nicht oder stürzt es direkt nach dem Start ab (Steam, Epic oder eigenes), erklärt der Launcher **Schritt für Schritt** in einfachen Worten, was los ist und wie man es behebt, mit Knöpfen, die direkt helfen (z. B. „Spieldateien überprüfen“, „Als Administrator starten“ oder „Visual C++ herunterladen“). Jedes Spiel hat außerdem einen Knopf „Startet nicht? Hilfe“. |
-| 🔄 **Updates in der App** | Du bekommst Bescheid, wenn es eine neue Version gibt. „Jetzt updaten“ lädt sie, prüft die SHA256-Prüfsumme und installiert sie – ohne Umweg über GitHub. |
-| 🔒 **Alles lokal** | Kein OG-Konto, kein Server, kein Tracking. Passwörter bleiben bei Steam, Epic und Roblox. |
-| 🐧 **Alle Systeme** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) als AppImage, .deb, .rpm, .pkg.tar.zst, Flatpak und Snap. |
-| 📦 **Eingebauter Installer (Windows)** | Eine einzige EXE: Doppelklick öffnet ein Installationsmenü mit Desktop-Verknüpfung, Startmenü-Eintrag, „Jetzt öffnen“ und „App-Ordner öffnen“. Keine Admin-Rechte nötig. |
-| 🪶 **Winzig** | Eine einzige, auf Größe optimierte EXE ohne Zusatzdateien. |
+| 🎮 **Eine Bibliothek für alles** | Steam, Epic Games, GOG, EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io, Xbox / Microsoft Store, Roblox, Minecraft & NoRisk Client, Emulatoren und eigene Spiele. Installierte Spiele **und** die ganze Bibliothek, soweit der Store sie lokal speichert. Gestartet wird immer über das offizielle Programm. |
+| 🗂️ **Ordnung** | Suche, Sortierung und Filter, Tags, Sammlungen, **Spielstatus** (nicht begonnen, spiele ich, durchgespielt, abgebrochen), doppelte Spiele zu einer Kachel zusammengefasst. Import von Tags, Spielzeit und mehr aus **Playnite**. |
+| 📊 **Statistik & Ideen** | Spielzeit pro Woche, Monat und Store, meistgespielte und ungespielte Spiele, ein **„Was soll ich spielen?“**-Knopf und ein HowLongToBeat-Link für jedes Spiel. |
+| 📝 **Spiel-Infos** | Beschreibung, Genres, PC-Anforderungen und Steam-Deck-Bewertung – aus dem Steam-Store und von Wikipedia. Alles selbst bearbeitbar. |
+| ⛏️ **Minecraft-Mods** | Mods, Texturenpakete, Shader und Datenpakete von Modrinth und CurseForge mit einem Klick installieren – in den offiziellen Launcher oder ein NoRisk-Profil. Schon Installiertes wird angezeigt. |
+| 🎨 **Dein Look** | Steam-, Epic- oder OG-Ansicht, 16 Designs plus eigene, Hintergrundbild, Controller-Modus und 9 Sprachen. |
+| 🛟 **Hilfe bei Fehlern** | Startet ein Spiel nicht, erklärt der Launcher Schritt für Schritt, was los ist – mit Knöpfen, die es direkt beheben. |
+| 🔒 **Lokal und sicher** | Kein Konto, kein Tracking. Updates in der App (mit Prüfsumme), Sicherung aller Einstellungen als eine Datei, Erweiterungen nur auf Wunsch. |
+| 🐧 **Jede Plattform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) als AppImage, .deb, .rpm, Pacman, Flatpak und Snap – mit Wine/Proton pro Spiel. |
+
+Alle Änderungen je Version: [CHANGELOG.md](../../CHANGELOG.md).
 
 ## Screenshots
 
 <table>
   <tr>
-    <td width="50%" align="center">
-      <img src="../screenshots/library-maz.webp" alt="OG-Stil"><br>
-      <sub><b>OG-Stil</b>: eigener Look mit „Weiterspielen“-Banner und allen Spielen als Raster</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="../screenshots/installed.webp" alt="Installiert"><br>
-      <sub><b>Installiert</b>: nur die Spiele, die auf deinem PC sind</sub>
-    </td>
+    <td width="50%" align="center"><img src="../screenshots/library-maz.webp" alt="OG-Stil"><br><sub><b>OG-Stil</b>: „Weiterspielen“ und alle Spiele im Raster</sub></td>
+    <td width="50%" align="center"><img src="../screenshots/installed.webp" alt="Installiert"><br><sub><b>Installiert</b>: nur die Spiele auf deinem PC</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Steam-Stil"><br>
-      <sub><b>Steam-Stil</b>: Spieleliste links und alle Spiele als Raster</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="../screenshots/details-steam-style.webp" alt="Details im Steam-Stil"><br>
-      <sub><b>Details im Steam-Stil</b>: installieren, Spielzeit, Store-Seite und mehr</sub>
-    </td>
+    <td width="50%" align="center"><img src="../screenshots/library-steam-style.webp" alt="Steam-Stil"><br><sub><b>Steam-Stil</b>: Liste links, alle Spiele im Raster</sub></td>
+    <td width="50%" align="center"><img src="../screenshots/details-steam-style.webp" alt="Details im Steam-Stil"><br><sub><b>Details im Steam-Stil</b>: Installieren, Spielzeit, Store-Seite</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Epic-Games-Stil"><br>
-      <sub><b>Epic-Games-Stil</b>: große Karten, Filter oben</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="Spieldetails"><br>
-      <sub><b>Spieldetails</b>: spielen oder installieren, Favorit, eigenes Cover, Hilfe und Deinstallieren</sub>
-    </td>
+    <td width="50%" align="center"><img src="../screenshots/library-epic-style.webp" alt="Epic-Stil"><br><sub><b>Epic-Games-Stil</b>: große Karten mit Filtern oben</sub></td>
+    <td width="50%" align="center"><img src="../screenshots/game-details.webp" alt="Spiel-Details"><br><sub><b>Spiel-Details</b>: Spielen, Favorit, Cover, Hilfe, Deinstallieren</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <img src="../screenshots/free-games.webp" alt="Gratis-Spiele"><br>
-      <sub><b>Gratis-Spiele</b>: was es gerade bei Epic und Steam gratis gibt, mit Countdown</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="../screenshots/installed.webp" alt="Installiert"><br>
-      <sub><b>Installiert</b>: nur die Spiele, die auf deinem Computer sind</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="Design"><br>
-      <sub><b>Design</b>: 16 fertige Designs, eigene Designs und eigene Akzentfarbe</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="../screenshots/settings-language.webp" alt="Sprachen"><br>
-      <sub><b>Sprachen</b>: der ganze Launcher in 9 Sprachen</sub>
-    </td>
+    <td width="50%" align="center"><img src="../screenshots/free-games.webp" alt="Gratis-Spiele"><br><sub><b>Gratis-Spiele</b>: was es gerade bei Epic und Steam gratis gibt</sub></td>
+    <td width="50%" align="center"><img src="../screenshots/settings-design.webp" alt="Designs"><br><sub><b>Designs</b>: 16 fertige, eigene Designs und Akzentfarbe</sub></td>
   </tr>
 </table>
 

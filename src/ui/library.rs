@@ -121,6 +121,7 @@ pub fn filter_title(app: App) -> String {
     let arg = app.filter_arg.read().clone();
     match f {
         Filter::Tag => format!("# {arg}"),
+        Filter::Status => t(&format!("status.{arg}")),
         Filter::Collection => app
             .settings
             .read()
@@ -198,6 +199,14 @@ fn Toolbar(#[props(into)] title: String, count: usize) -> Element {
             }
             GenreSelect {}
             SortSelect { value: sort }
+            Button {
+                variant: ButtonVariant::Outline,
+                class: "h-9",
+                title: t("random.tip"),
+                onclick: move |_| app.open(Modal::Random),
+                Icon { name: "dice", class: "size-4" }
+                {t("random.button")}
+            }
             Segmented {
                 options: vec![("1".to_string(), "S".to_string()), ("2".to_string(), "M".to_string()), ("3".to_string(), "L".to_string())],
                 value: size,
@@ -370,7 +379,7 @@ fn EmptyState() -> Element {
             Filter::Steam => (t("empty.steam.title"), t("empty.steam.text")),
             Filter::Epic => (t("empty.epic.title"), t("empty.epic.text")),
             Filter::Roblox => (t("empty.roblox.title"), t("empty.roblox.text")),
-            Filter::Tag | Filter::Collection => (t("empty.group.title"), t("empty.group.text")),
+            Filter::Tag | Filter::Collection | Filter::Status => (t("empty.group.title"), t("empty.group.text")),
             Filter::Store(Source::Emulator) => (t("empty.emu.title"), t("empty.emu.text")),
             Filter::Store(src) => (tf("empty.store.title", &[("store", &src.label())]), tf("store.client_missing", &[("store", &src.label())])),
             _ => (t("empty.all.title"), t("empty.all.text")),
@@ -556,6 +565,7 @@ pub fn MazSidebar() -> Element {
                     })}
                     NavItem { filter: Filter::Custom, count: count_for(app, Filter::Custom) }
                 }
+                StatusNav {}
                 CollectionsNav {}
                 TagsNav {}
                 if count_for(app, Filter::Hidden) > 0 {
@@ -574,6 +584,25 @@ pub fn MazSidebar() -> Element {
                     {t("nav.settings")}
                 }
             }
+        }
+    }
+}
+
+/// Spielstatus in der Seitenleiste (nur Einträge mit Spielen)
+#[component]
+fn StatusNav() -> Element {
+    let app = use_app();
+    let items: Vec<(&'static str, usize)> =
+        crate::model::status::ALL.iter().map(|st| (*st, count_with(app, Filter::Status, st))).filter(|(_, n)| *n > 0).collect();
+    if items.is_empty() {
+        return rsx! {};
+    }
+    rsx! {
+        div { class: "space-y-0.5",
+            div { class: "px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", {t("nav.status")} }
+            {items.into_iter().map(|(st, n)| rsx! {
+                NavItem { key: "{st}", filter: Filter::Status, count: n, arg: st, label: t(&format!("status.{st}")) }
+            })}
         }
     }
 }

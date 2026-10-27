@@ -1,6 +1,6 @@
 [package]
 name = "maz-launcher"
-version = "1.8.1"
+version = "1.9.0"
 edition = "2021"
 rust-version = "1.85"
 description = "Open Game Launcher (OG) – alle deine Steam-, Epic-, Roblox- und eigenen Spiele in einem schönen Launcher (Windows, macOS, Linux)"

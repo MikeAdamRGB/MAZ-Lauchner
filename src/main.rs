@@ -5,6 +5,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod appinfo;
+mod backup;
 mod appx;
 mod config;
 mod epic;
@@ -22,11 +23,13 @@ mod mccontent;
 mod minecraft;
 mod model;
 mod notes;
+mod playnite;
 mod playtime;
 mod problem;
 mod roblox;
 mod runners;
 mod steam;
+mod stats;
 mod stores;
 mod sys;
 mod theme;
