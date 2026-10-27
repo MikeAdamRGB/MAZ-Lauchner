@@ -33,6 +33,10 @@ pub fn parse(text: &str) -> Option<Settings> {
     if s.checklist.iter().map(|x| x.as_str()).eq(crate::model::OLD_GERMAN_CHECKLIST.iter().copied()) {
         s.checklist.clear();
     }
+    // Designs aus 2.1.0 wurden umbenannt
+    if let Some(new) = crate::theme::renamed(&s.theme) {
+        s.theme = new.to_string();
+    }
     // Unsinnige Werte aus Handarbeit an der Datei abfangen
     if !(1..=3).contains(&s.card_size) {
         s.card_size = 2;

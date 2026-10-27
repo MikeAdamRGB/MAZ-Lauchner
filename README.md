@@ -53,7 +53,7 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 | 🛋️ **Big Picture & Steam Deck** | Fullscreen mode with big tiles for TV and couch, controller support, starts by itself in Steam Deck Gaming Mode, plus a **Decky plugin** to start games from the Quick Access menu. Add any game (or the launcher) to Steam as a non-Steam game. |
 | 🚀 **Launch helpers** | Run a program before or after a game. On Linux: GameMode, MangoHud and DXVK/VKD3D options per game. Optional tray icon with recently played games and optional Discord status. |
 | 🖼️ **Artwork & news** | Logos instead of text, trailers, a **screenshot gallery** per game, Steam **news & patch notes**, Steam achievements and missing covers from SteamGridDB (with your own free key). |
-| 🎨 **Your look** | Steam, Epic or OG layout, 20 designs (incl. 4 in Minecraft-skin style) plus your own, background image, controller mode and 9 languages. |
+| 🎨 **Your look** | Steam, Epic or OG layout, 20 designs (incl. 4 pixel designs) plus your own, background image, controller mode and 9 languages. |
 | 🛟 **Help when things break** | If a game won't start, the launcher explains step by step what happened – with buttons that fix it. |
 | 🔒 **Local and safe** | No account, no tracking, crash reports only when you click "Report". Updates inside the app (checksum-verified), backup of all settings as one file, optional extensions that are off by default. |
 | 🐧 **Every platform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) as AppImage, .deb, .rpm, Pacman, Flatpak and Snap – with Wine/Proton per game. |

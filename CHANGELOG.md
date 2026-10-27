@@ -7,6 +7,11 @@ Alle wichtigen Änderungen am Open Game Launcher (OG, bis 1.7 „MAZ Launcher“
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [2.1.2] – 2026-10-27
+
+### Verbessert
+- Die vier Pixel-Designs aus 2.1.0 haben neutrale Namen: **Lila Pixel**, **Flamme**, **Regenbogen** und **Dschungel**. Wer eines davon gewählt hatte, behält es automatisch.
+
 ## [2.1.1] – 2026-10-27
 
 ### Behoben
@@ -19,7 +24,7 @@ und für das Update-Fenster in der App verwendet.
 - **Speicherplatz-Übersicht** (Statistik-Seite): Wie viel Platz belegen deine Spiele – pro Laufwerk, mit freiem Platz und „Deinstallieren“-Knopf.
 - **Screenshot-Galerie** pro Spiel: Steam-Screenshots (F12) automatisch, dazu ein eigener Ordner je Spiel. Großansicht mit Pfeiltasten und „Im Ordner zeigen“.
 - **Steam-Deck-Plugin (Decky):** Spiele aus dem Open Game Launcher direkt im Schnellzugriffsmenü des Gaming-Modus starten. `Open-Game-Launcher-Decky.zip` hängt am Release.
-- **4 neue Designs im Minecraft-Skin-Stil:** Wemmbu (Lila), Flamefrags (Rot-Schwarz mit Flammen), Spoke (Schwarz-Bunt) und Parrot (Grün) – mit kantigen Ecken und einem Pixel-Streifen in den Skin-Farben.
+- **4 neue Pixel-Designs:** Lila Pixel, Flamme, Regenbogen und Dschungel – mit kantigen Ecken und einem Pixel-Streifen in den Designfarben.
 
 ### Verbessert
 - Überall „Open Game Launcher“ statt „MAZ Launcher“ (Begrüßung, Über-Seite, Changelog). Das Erweiterungs-SDK heißt jetzt `og-extension-sdk`, Erweiterungen bekommen zusätzlich `OG_*`-Umgebungsvariablen.

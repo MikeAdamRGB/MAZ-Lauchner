@@ -45,7 +45,10 @@ pub fn read(text: &str) -> Result<(Settings, u64), String> {
     if f.format != FORMAT || f.version == 0 || f.version > 1 {
         return Err(crate::i18n::t("backup.err_format"));
     }
-    let s: Settings = serde_json::from_value(f.settings).map_err(|_| crate::i18n::t("backup.err_format"))?;
+    let mut s: Settings = serde_json::from_value(f.settings).map_err(|_| crate::i18n::t("backup.err_format"))?;
+    if let Some(new) = crate::theme::renamed(&s.theme) {
+        s.theme = new.to_string();
+    }
     Ok((without_secrets(&s), f.created))
 }
 

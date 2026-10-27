@@ -90,22 +90,33 @@ pub const PRESETS: &[(&str, [&str; 8])] = &[
     ("oled", ["#000000", "#0b0b0b", "#000000", "#f5f5f5", "#8f8f8f", "#ffffff", "#d4d4d4", "#1f1f1f"]),
     ("light", ["#f4f5fa", "#ffffff", "#ffffff", "#14142b", "#34364a", "#6d28d9", "#0ea5e9", "#dfe1ee"]),
     ("mint", ["#f3fbf7", "#ffffff", "#ffffff", "#0f2a1f", "#2f4a3e", "#10b981", "#06b6d4", "#d6ebe1"]),
-    // Im Stil von Minecraft-Skins: kantige Ecken und ein Pixel-Streifen in den Skin-Farben
-    ("wemmbu", ["#11001d", "#1d0331", "#160027", "#f7edff", "#c8a9e0", "#9a00dc", "#d07bff", "#3b0b5e"]),
-    ("flamefrags", ["#0c0505", "#1a0a07", "#130705", "#fff2e8", "#d6a592", "#ff3b00", "#ffc400", "#401510"]),
-    ("spoke", ["#090909", "#151515", "#0f0f0f", "#f3f3f3", "#a9a9a9", "#00d9ff", "#ff9100", "#2b2b2b"]),
-    ("parrot", ["#04140f", "#0b241a", "#071b13", "#ecfff5", "#9ccbb3", "#35d65a", "#ffd21f", "#174633"]),
+    // Pixel-Designs: kantige Ecken (wie Blöcke) und ein Pixel-Streifen in den Designfarben
+    ("pixel_violet", ["#11001d", "#1d0331", "#160027", "#f7edff", "#c8a9e0", "#9a00dc", "#d07bff", "#3b0b5e"]),
+    ("pixel_flame", ["#0c0505", "#1a0a07", "#130705", "#fff2e8", "#d6a592", "#ff3b00", "#ffc400", "#401510"]),
+    ("pixel_rainbow", ["#090909", "#151515", "#0f0f0f", "#f3f3f3", "#a9a9a9", "#00d9ff", "#ff9100", "#2b2b2b"]),
+    ("pixel_jungle", ["#04140f", "#0b241a", "#071b13", "#ecfff5", "#9ccbb3", "#35d65a", "#ffd21f", "#174633"]),
 ];
 
-/// Pixel-Streifen (Skin-Farben) für die Skin-Designs – harte Übergänge wie Minecraft-Pixel
+/// Pixel-Streifen für die Pixel-Designs – harte Farbübergänge wie Pixel
 const SKIN_STRIPES: &[(&str, &[&str])] = &[
-    ("wemmbu", &["#8b00c9", "#1a0030", "#8b00c9", "#b44dff", "#8b00c9", "#1a0030", "#8b00c9", "#b44dff"]),
-    ("flamefrags", &["#2a0a05", "#ff1a00", "#ff5a00", "#ff9a00", "#ffd000", "#ff9a00", "#ff5a00", "#ff1a00", "#2a0a05"]),
-    ("spoke", &["#ff1f1f", "#ff8a00", "#ffd400", "#a6e22e", "#22c55e", "#00e0c6", "#00b7ff", "#1d1d1d"]),
-    ("parrot", &["#2e9e47", "#35d65a", "#ffd21f", "#ff8a1a", "#ff5a1f", "#22d3ee", "#7ee0ff", "#2e9e47"]),
+    ("pixel_violet", &["#8b00c9", "#1a0030", "#8b00c9", "#b44dff", "#8b00c9", "#1a0030", "#8b00c9", "#b44dff"]),
+    ("pixel_flame", &["#2a0a05", "#ff1a00", "#ff5a00", "#ff9a00", "#ffd000", "#ff9a00", "#ff5a00", "#ff1a00", "#2a0a05"]),
+    ("pixel_rainbow", &["#ff1f1f", "#ff8a00", "#ffd400", "#a6e22e", "#22c55e", "#00e0c6", "#00b7ff", "#1d1d1d"]),
+    ("pixel_jungle", &["#2e9e47", "#35d65a", "#ffd21f", "#ff8a1a", "#ff5a1f", "#22d3ee", "#7ee0ff", "#2e9e47"]),
 ];
 
-/// CSS für den Pixel-Streifen eines Designs (nur Skin-Designs)
+/// Frühere Kennungen (2.1.0) → neue, neutrale Kennungen
+pub fn renamed(id: &str) -> Option<&'static str> {
+    match id {
+        "wemmbu" => Some("pixel_violet"),
+        "flamefrags" => Some("pixel_flame"),
+        "spoke" => Some("pixel_rainbow"),
+        "parrot" => Some("pixel_jungle"),
+        _ => None,
+    }
+}
+
+/// CSS für den Pixel-Streifen eines Designs (nur Pixel-Designs)
 pub fn stripe_css(id: &str) -> Option<String> {
     let colors = SKIN_STRIPES.iter().find(|(k, _)| *k == id)?.1;
     let n = colors.len() as f32;
@@ -117,7 +128,7 @@ pub fn stripe_css(id: &str) -> Option<String> {
     Some(format!("linear-gradient(90deg,{})", stops.join(",")))
 }
 
-/// Skin-Designs sind kantig (Minecraft-Blöcke)
+/// Pixel-Designs sind kantig
 fn preset_radius(id: &str) -> u8 {
     if SKIN_STRIPES.iter().any(|(k, _)| *k == id) {
         3
@@ -384,8 +395,8 @@ mod tests {
             let t = preset(id).unwrap();
             assert!(t.css_vars().contains("--background:"));
         }
-        // Skin-Designs: gut lesbar, kantig, mit Pixel-Streifen
-        for id in ["wemmbu", "flamefrags", "spoke", "parrot"] {
+        // Pixel-Designs: gut lesbar, kantig, mit Pixel-Streifen
+        for id in ["pixel_violet", "pixel_flame", "pixel_rainbow", "pixel_jungle"] {
             let t = preset(id).unwrap();
             assert!(contrast(&t.text, &t.bg) >= 7.0, "{id}");
             assert!(contrast(&t.text, &t.card) >= 7.0, "{id}");
@@ -393,6 +404,8 @@ mod tests {
             assert!(stripe_css(id).unwrap().starts_with("linear-gradient(90deg,"));
         }
         assert!(stripe_css("neon").is_none());
+        assert_eq!(renamed("wemmbu"), Some("pixel_violet"));
+        assert!(preset(renamed("parrot").unwrap()).is_some());
         let mut t = preset("neon").unwrap();
         t.name = "Mein Design".into();
         let code = t.to_code();

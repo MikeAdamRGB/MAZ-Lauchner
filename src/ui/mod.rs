@@ -132,7 +132,7 @@ pub fn Root() -> Element {
             ));
         }
     }
-    // Skin-Designs: Pixel-Streifen unter der Titelleiste
+    // Pixel-Designs: Pixel-Streifen unter der Titelleiste
     let stripe = if authentic.is_empty() && custom.is_none() { theme::stripe_css(&s.theme) } else { None };
     let anim = if s.animations { "" } else { "no-anim" };
     let wallpaper = if s.wallpaper.is_empty() || !is_launcher {
