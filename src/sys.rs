@@ -349,7 +349,19 @@ pub fn is_safe_url(url: &str) -> bool {
         "mailto:",
         "ms-windows-store:",
     ];
-    ALLOWED.iter().any(|p| u.starts_with(p))
+    if !ALLOWED.iter().any(|p| u.starts_with(p)) {
+        return false;
+    }
+    // SICHERHEIT: Steam-Links mit angehängten Startparametern („steam://run/123//-befehl“)
+    // werden abgelehnt – darüber ließen sich in manchen Spielen gefährliche Optionen setzen.
+    if let Some(rest) = u.strip_prefix("steam://") {
+        // Ausnahme: „steam://openurl/https://…“ öffnet nur eine Seite im Steam-Browser
+        let rest = rest.strip_prefix("openurl/https://").unwrap_or(rest);
+        if rest.contains("//") || rest.contains("%2f%2f") || rest.contains(' ') || rest.contains("%20") {
+            return false;
+        }
+    }
+    true
 }
 
 /// URL oder Protokoll-Link öffnen (https://, steam://, …).
@@ -648,6 +660,10 @@ mod safety_tests {
     fn only_safe_links_and_images() {
         assert!(is_safe_url("https://store.epicgames.com/p/x"));
         assert!(is_safe_url("steam://rungameid/1"));
+        assert!(is_safe_url("steam://openurl/https://store.steampowered.com/app/1/"));
+        assert!(!is_safe_url("steam://run/440//+exec evil.cfg"));
+        assert!(!is_safe_url("steam://run/440/%2F%2F-x"));
+        assert!(!is_safe_url("steam://openurl/https://x//y z"));
         assert!(!is_safe_url("C:\\Windows\\System32\\cmd.exe"));
         assert!(!is_safe_url("\\\\evil\\share\\x.exe"));
         assert!(!is_safe_url("file:///C:/x.exe"));

@@ -71,6 +71,14 @@ fn connect() -> Option<Box<dyn Pipe>> {
             for s in subs {
                 for i in 0..10 {
                     let p = b.join(s).join(format!("discord-ipc-{i}"));
+                    // SICHERHEIT: Nur Sockets des eigenen Benutzers (in /tmp könnte ein anderer
+                    // Benutzer einen falschen „Discord“ anbieten und Spielnamen mitlesen)
+                    use std::os::unix::fs::MetadataExt;
+                    // SAFETY: getuid hat keine Vorbedingungen.
+                    let me = unsafe { libc::getuid() };
+                    if std::fs::symlink_metadata(&p).map(|m| m.uid() != me).unwrap_or(true) {
+                        continue;
+                    }
                     if let Ok(sock) = std::os::unix::net::UnixStream::connect(&p) {
                         let _ = sock.set_read_timeout(Some(std::time::Duration::from_secs(3)));
                         let _ = sock.set_write_timeout(Some(std::time::Duration::from_secs(3)));

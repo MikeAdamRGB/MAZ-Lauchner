@@ -153,6 +153,10 @@ pub enum Modal {
     AddToSteam(String),
     /// Absturzbericht vom letzten Start (Text)
     CrashReport(String),
+    /// Flatpak: alte App (alte App-ID) entfernen?
+    OldFlatpak,
+    /// Großansicht eines Screenshots (Spiel-ID, Index)
+    Screenshot(String, usize),
 }
 
 #[derive(Clone, PartialEq, Debug)]

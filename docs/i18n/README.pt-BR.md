@@ -85,7 +85,6 @@ Steam, Epic Games e seus próprios jogos em um app para Windows rápido, leve e 
 > [!TIP]
 > **Prefere a versão portátil?** Clique em **“Ohne Installation starten”** (*Iniciar sem instalar*) no menu de instalação ou coloque um arquivo vazio chamado `portable.txt` ao lado do EXE.
 
-**`Open-Game-Launcher-mini.exe`** é o mesmo app compactado com UPX. Alguns antivírus acusam EXEs compactados por engano; nesse caso, use a versão normal.
 
 **Desinstalar:** Configurações do Windows → Aplicativos → “Open Game Launcher” → Desinstalar, ou no launcher em **Einstellungen → Allgemein** (*Configurações → Geral*). Seus jogos não são afetados.
 

@@ -366,6 +366,12 @@ pub struct Settings {
     pub discord_enabled: bool,
     /// Eigene Discord-Anwendungs-ID (Discord Developer Portal)
     pub discord_app_id: String,
+    /// Flatpak: Frage zur alten App-ID schon beantwortet
+    pub old_flatpak_asked: bool,
+    /// Eigener Screenshot-Ordner je Spiel (Spiel-ID → Ordner)
+    pub shot_dirs: BTreeMap<String, String>,
+    /// Spiel-Liste für das Steam-Deck-Plugin (Decky) bereitstellen
+    pub decky_export: bool,
 
 
     // Weitere Stores: Kennung ("gog", "ea" …) → angezeigt? (fehlt = ja)
@@ -476,6 +482,9 @@ impl Default for Settings {
             tray_icon: true,
             discord_enabled: false,
             discord_app_id: String::new(),
+            old_flatpak_asked: false,
+            shot_dirs: BTreeMap::new(),
+            decky_export: true,
 
             checklist: Vec::new(),
             custom_games: Vec::new(),

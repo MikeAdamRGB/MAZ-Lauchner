@@ -85,7 +85,6 @@ Steam, Epic Games ve kendi oyunların; tamamen Rust ile yazılmış hızlı, haf
 > [!TIP]
 > **Taşınabilir sürüm mü istiyorsun?** Kurulum menüsünde **„Ohne Installation starten“** (*Kurmadan başlat*) düğmesine tıkla ya da EXE'nin yanına `portable.txt` adlı boş bir dosya koy.
 
-**`Open-Game-Launcher-mini.exe`**, UPX ile sıkıştırılmış aynı uygulamadır. Bazı antivirüs programları sıkıştırılmış EXE'leri yanlışlıkla işaretleyebilir; bu durumda normal sürümü kullan.
 
 **Kaldırma:** Windows Ayarları → Uygulamalar → “Open Game Launcher” → Kaldır, veya launcher'da **Einstellungen → Allgemein** (*Ayarlar → Genel*). Oyunlarına dokunulmaz.
 

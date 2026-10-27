@@ -225,8 +225,10 @@ pub fn add_to_file(file: &Path, sc: &Shortcut) -> Result<AddResult, String> {
 
 /// Wie Steam den Open Game Launcher starten soll (Programm, Startordner, Parameter davor)
 pub fn self_command() -> Option<(String, String, String)> {
-    if std::env::var_os("FLATPAK_ID").is_some() {
-        return Some(("flatpak".into(), String::new(), "run io.github.mikeadamrgb.MAZLauncher".into()));
+    if let Ok(id) = std::env::var("FLATPAK_ID") {
+        // Nur bekannte IDs (die Startoptionen landen in Steam)
+        let id = if id == crate::flatpakid::OLD_ID { crate::flatpakid::OLD_ID } else { crate::flatpakid::NEW_ID };
+        return Some(("flatpak".into(), String::new(), format!("run {id}")));
     }
     let exe = crate::sys::env_path("APPIMAGE").or_else(|| std::env::current_exe().ok())?;
     let dir = exe.parent().map(|d| d.to_string_lossy().to_string()).unwrap_or_default();

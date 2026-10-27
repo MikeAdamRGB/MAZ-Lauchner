@@ -4,7 +4,7 @@
 //! (JSON) auf stdin, die Erweiterung antwortet pro Zeile auf stdout. Siehe docs/EXTENSIONS.md.
 //!
 //! ```no_run
-//! use maz_extension_sdk::*;
+//! use og_extension_sdk::*;
 //! struct Mine;
 //! impl Extension for Mine {
 //!     fn hello(&mut self, _h: &Hello) -> HelloReply {

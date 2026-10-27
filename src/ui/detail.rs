@@ -597,6 +597,8 @@ pub fn DetailModal(id: String) -> Element {
                     })}
                     AboutGame { id: id.clone() }
                     super::media::Achievements { id: id.clone() }
+                    super::gallery::Gallery { id: id.clone() }
+                    super::media::NewsFor { id: id.clone() }
                     OtherStores { id: id.clone() }
                     OrganizeBox { id: id.clone() }
                     div { class: "mt-6 rounded-xl border border-border divide-y divide-border overflow-hidden",
@@ -685,6 +687,8 @@ pub fn SteamDetail(game: Game) -> Element {
                 div { class: "rounded-sm bg-black/20 p-5",
                     AboutGame { id: gid.clone() }
                     super::media::Achievements { id: gid.clone() }
+                    super::gallery::Gallery { id: gid.clone() }
+                    super::media::NewsFor { id: gid.clone() }
                     OtherStores { id: gid.clone() }
                     OrganizeBox { id: gid.clone() }
                     div { class: "text-[13px] uppercase tracking-wider text-muted-foreground mb-3 mt-6", {t("detail.info")} }

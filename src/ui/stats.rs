@@ -157,7 +157,105 @@ pub fn StatsPage() -> Element {
                     }
                     p { class: "mt-3 text-xs text-muted-foreground", {t("stats.status_hint")} }
                 }
+                StoragePanel {}
                 p { class: "mt-6 text-xs text-muted-foreground leading-relaxed", {t("stats.note")} }
+            }
+        }
+    }
+}
+
+/// Speicherplatz: installierte Spiele pro Laufwerk, mit „Deinstallieren“
+#[component]
+fn StoragePanel() -> Element {
+    let app = use_app();
+    let mut drives = use_signal(|| None::<Vec<crate::storage::Drive>>);
+    let mut busy = use_signal(|| false);
+    let mut load = move |fresh: bool| {
+        if busy() {
+            return;
+        }
+        busy.set(true);
+        let games = app.games.peek().clone();
+        spawn(async move {
+            let res = tokio::task::spawn_blocking(move || {
+                if fresh {
+                    crate::storage::forget_cache();
+                }
+                crate::storage::overview(&games)
+            })
+            .await
+            .unwrap_or_default();
+            drives.set(Some(res));
+            busy.set(false);
+        });
+    };
+    let fmt = crate::storage::fmt_bytes;
+    let is_busy = busy();
+    let spin: &'static str = if is_busy { "size-3.5 animate-spin" } else { "size-3.5" };
+    rsx! {
+        section { class: "mt-6 rounded-xl border border-border bg-card/70 p-5", "aria-busy": "{is_busy}",
+            div { class: "flex flex-wrap items-center gap-3 mb-4",
+                Icon { name: "hard-drive", class: "size-5 text-primary" }
+                h2 { class: "font-semibold flex-1", {t("storage.title")} }
+                Button { variant: ButtonVariant::Outline, size: ButtonSize::Sm, disabled: is_busy,
+                    onclick: move |_| load(drives.peek().is_some()),
+                    Icon { name: "refresh", class: spin }
+                    {t(if drives().is_some() { "storage.refresh" } else { "storage.calc" })}
+                }
+            }
+            match drives() {
+                None => rsx! { p { class: "text-sm text-muted-foreground", {t("storage.hint")} } },
+                Some(list) if list.is_empty() => rsx! { p { class: "text-sm text-muted-foreground", {t("storage.none")} } },
+                Some(list) => rsx! {
+                    div { class: "space-y-6",
+                        {list.into_iter().map(|d| {
+                            let used = d.used_by_games();
+                            let (bar_games, bar_other, space_text) = match (d.free, d.total) {
+                                (Some(free), Some(total)) if total > 0 => {
+                                    let g = (used as f64 / total as f64 * 100.0).clamp(0.0, 100.0);
+                                    let other = ((total.saturating_sub(free)) as f64 / total as f64 * 100.0 - g).clamp(0.0, 100.0 - g);
+                                    (g, other, tf("storage.free", &[("free", &fmt(free)), ("total", &fmt(total))]))
+                                }
+                                _ => (0.0, 0.0, String::new()),
+                            };
+                            let root = d.root.clone();
+                            let w_games = format!("width:{bar_games:.1}%");
+                            let w_other = format!("width:{bar_other:.1}%");
+                            rsx! {
+                                div { key: "{root}",
+                                    div { class: "flex flex-wrap items-baseline gap-x-3 gap-y-1",
+                                        span { class: "font-mono text-sm font-semibold", "{root}" }
+                                        span { class: "text-sm text-muted-foreground", {tf("storage.games_use", &[("size", &fmt(used)), ("n", &d.games.len().to_string())])} }
+                                        span { class: "ml-auto text-xs text-muted-foreground", "{space_text}" }
+                                    }
+                                    if !space_text.is_empty() {
+                                        div { class: "mt-2 h-2.5 rounded-full bg-muted overflow-hidden flex", role: "img", "aria-label": "{space_text}",
+                                            div { class: "h-full bg-primary", style: "{w_games}" }
+                                            div { class: "h-full bg-foreground/25", style: "{w_other}" }
+                                        }
+                                    }
+                                    ul { class: "mt-3 divide-y divide-border rounded-lg border border-border",
+                                        {d.games.into_iter().map(|g| {
+                                            let (id1, id2) = (g.id.clone(), g.id.clone());
+                                            let size = fmt(g.bytes);
+                                            let (gkey, gname) = (g.id.clone(), g.name.clone());
+                                            rsx! {
+                                                li { key: "{gkey}", class: "flex items-center gap-3 px-3 py-2 text-sm",
+                                                    button { class: "flex-1 min-w-0 truncate text-left hover:underline cursor-pointer",
+                                                        onclick: move |_| app.open(Modal::Detail(id1.clone())), "{gname}" }
+                                                    span { class: "tabular-nums text-muted-foreground", "{size}" }
+                                                    Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, class: "hover:text-destructive",
+                                                        onclick: move |_| uninstall(app, id2.clone()),
+                                                        Icon { name: "trash", class: "size-3.5" } {t("storage.uninstall")} }
+                                                }
+                                            }
+                                        })}
+                                    }
+                                }
+                            }
+                        })}
+                    }
+                },
             }
         }
     }

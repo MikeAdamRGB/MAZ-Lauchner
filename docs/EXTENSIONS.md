@@ -10,7 +10,7 @@ Beispiele im Projekt:
 |---|---|
 | `examples/extension-hello/` | Rust: zwei Test-Spiele, Spiel-Infos und eine Aktion „Ordner öffnen“ |
 | `examples/extension-python/` | Python (nur Standardbibliothek): ein Test-Spiel |
-| `crates/maz-extension-sdk/` | Rust-SDK mit allen Protokoll-Typen und einer fertigen Hauptschleife |
+| `crates/og-extension-sdk/` | Rust-SDK mit allen Protokoll-Typen und einer fertigen Hauptschleife |
 
 ## Verfügbare Erweiterungen
 

@@ -1848,7 +1848,7 @@ fn AboutTab() -> Element {
     rsx! {
         div { class: "flex flex-col items-center text-center pt-6",
             MazLogo { class: "size-24 text-2xl rounded-3xl" }
-            h1 { class: "text-4xl font-black font-display mt-6", span { class: "maz-gradient-text", "MAZ Launcher" } }
+            h1 { class: "text-4xl font-black font-display mt-6", span { class: "maz-gradient-text", {crate::sys::APP_NAME} } }
             p { class: "text-muted-foreground mt-2", "{version}" }
             p { class: "text-sm text-muted-foreground mt-6 max-w-md leading-relaxed", {t("about.text")} }
             div { class: "flex gap-3 mt-8",

@@ -1,7 +1,8 @@
 # C-Laufzeit fest in die EXE einbauen: keine vcruntime140.dll nötig (läuft auch ohne
 # Visual-C++-Paket) und keine DLL, die jemand neben die EXE legen könnte.
+# SICHERHEIT: Control Flow Guard – erschwert das Umlenken von Sprüngen bei Speicherfehlern.
 [target.x86_64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "control-flow-guard"]
 
 [target.aarch64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "control-flow-guard"]

@@ -48,7 +48,7 @@ Steam, Epic Games, Roblox und deine eigenen Spiele in einer schnellen, schlanken
 | 📊 **Statistik & Ideen** | Spielzeit pro Woche, Monat und Store, meistgespielte und ungespielte Spiele, ein **„Was soll ich spielen?“**-Knopf und ein HowLongToBeat-Link für jedes Spiel. |
 | 📝 **Spiel-Infos** | Beschreibung, Genres, PC-Anforderungen und Steam-Deck-Bewertung – aus dem Steam-Store und von Wikipedia. Alles selbst bearbeitbar. |
 | ⛏️ **Minecraft-Mods** | Mods, Texturenpakete, Shader und Datenpakete von Modrinth und CurseForge mit einem Klick installieren – in den offiziellen Launcher oder ein NoRisk-Profil. Schon Installiertes wird angezeigt. |
-| 🎨 **Dein Look** | Steam-, Epic- oder OG-Ansicht, 16 Designs plus eigene, Hintergrundbild, Controller-Modus und 9 Sprachen. |
+| 🎨 **Dein Look** | Steam-, Epic- oder OG-Ansicht, 20 Designs plus eigene, Hintergrundbild, Controller-Modus und 9 Sprachen. |
 | 🛟 **Hilfe bei Fehlern** | Startet ein Spiel nicht, erklärt der Launcher Schritt für Schritt, was los ist – mit Knöpfen, die es direkt beheben. |
 | 🔒 **Lokal und sicher** | Kein Konto, kein Tracking. Updates in der App (mit Prüfsumme), Sicherung aller Einstellungen als eine Datei, Erweiterungen nur auf Wunsch. |
 | 🐧 **Jede Plattform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) als AppImage, .deb, .rpm, Pacman, Flatpak und Snap – mit Wine/Proton pro Spiel. |
@@ -171,7 +171,6 @@ Das fertige CSS (`assets/maz.css`) liegt schon im Repo und wird in die EXE einge
 - Windows-Funktionen über direkte API-Aufrufe statt großer Binding-Crates
 - TLS über das in Windows eingebaute SChannel
 - Bilder nur PNG/JPEG, CSS minifiziert und eingebettet
-- Optional: mit UPX gepackte `Open-Game-Launcher-mini.exe`
 
 </details>
 

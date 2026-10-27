@@ -47,13 +47,13 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 |---|---|
 | 🎮 **One library for everything** | Steam, Epic Games, GOG, EA app, Ubisoft Connect, Battle.net, Amazon Games, itch.io, Xbox / Microsoft Store, Roblox, Minecraft & NoRisk Client, emulators and your own games. Installed games **and** your whole library where the store keeps it locally. Games always start through the official app. |
 | 🗂️ **Organize** | Search, sort and filter, tags, collections, **game status** (not started, playing, finished, dropped), duplicates across stores merged into one tile. Import tags, playtime and more from **Playnite**. |
-| 📊 **Stats & ideas** | Playtime per week, month and store, most played, unplayed games, a **"What should I play?"** button and a HowLongToBeat link for every game. |
+| 📊 **Stats & ideas** | Playtime per week, month and store, most played, unplayed games, **storage per drive** with uninstall buttons, a **"What should I play?"** button and a HowLongToBeat link for every game. |
 | 📝 **Game info** | Description, genres, PC requirements and the Steam Deck rating – from the Steam store and Wikipedia. Edit everything yourself. |
 | ⛏️ **Minecraft mods** | Mods, resource packs, shaders and data packs from Modrinth and CurseForge, installed with one click into the official launcher or a NoRisk profile. Already installed content is marked. |
-| 🛋️ **Big Picture & Steam Deck** | Fullscreen mode with big tiles for TV and couch, controller support, starts by itself in Steam Deck Gaming Mode. Add any game (or the launcher) to Steam as a non-Steam game. |
+| 🛋️ **Big Picture & Steam Deck** | Fullscreen mode with big tiles for TV and couch, controller support, starts by itself in Steam Deck Gaming Mode, plus a **Decky plugin** to start games from the Quick Access menu. Add any game (or the launcher) to Steam as a non-Steam game. |
 | 🚀 **Launch helpers** | Run a program before or after a game. On Linux: GameMode, MangoHud and DXVK/VKD3D options per game. Optional tray icon with recently played games and optional Discord status. |
-| 🖼️ **Artwork** | Logos instead of text, trailers, Steam achievements and missing covers from SteamGridDB (with your own free key). |
-| 🎨 **Your look** | Steam, Epic or OG layout, 16 designs plus your own, background image, controller mode and 9 languages. |
+| 🖼️ **Artwork & news** | Logos instead of text, trailers, a **screenshot gallery** per game, Steam **news & patch notes**, Steam achievements and missing covers from SteamGridDB (with your own free key). |
+| 🎨 **Your look** | Steam, Epic or OG layout, 20 designs (incl. 4 in Minecraft-skin style) plus your own, background image, controller mode and 9 languages. |
 | 🛟 **Help when things break** | If a game won't start, the launcher explains step by step what happened – with buttons that fix it. |
 | 🔒 **Local and safe** | No account, no tracking, crash reports only when you click "Report". Updates inside the app (checksum-verified), backup of all settings as one file, optional extensions that are off by default. |
 | 🐧 **Every platform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) as AppImage, .deb, .rpm, Pacman, Flatpak and Snap – with Wine/Proton per game. |
@@ -117,7 +117,7 @@ All files are on the [**Releases**](https://github.com/MikeAdamRGB/Open-Game-Lau
 > [!TIP]
 > **Windows shows "Windows protected your PC"?** This happens with new programs that aren't signed with a paid certificate. Click **More info**, then **Run anyway**.
 
-Prefer a portable version? Click **Start without installing**, or put an empty file named `portable.txt` next to the EXE. `Open-Game-Launcher-mini.exe` is the same app packed with UPX.
+Prefer a portable version? Click **Start without installing**, or put an empty file named `portable.txt` next to the EXE.
 
 ### macOS 11 or newer (Apple Silicon + Intel)
 
@@ -178,7 +178,7 @@ Game crashed right after launch (Steam, Epic or own games) · missing game file 
 
 ```powershell
 git clone https://github.com/MikeAdamRGB/Open-Game-Launcher.git
-cd MAZ-Lauchner
+cd Open-Game-Launcher
 cargo run                 # development build
 cargo build --release     # release build: target/release/Open-Game-Launcher(.exe)
 ```
@@ -219,7 +219,6 @@ The compiled stylesheet (`assets/maz.css`) is checked into the repository and em
 - Windows functionality through direct API calls instead of large binding crates
 - TLS through the SChannel stack built into Windows
 - Only PNG/JPEG image decoding; CSS minified and embedded
-- Optional UPX-packed `Open-Game-Launcher-mini.exe`
 
 </details>
 

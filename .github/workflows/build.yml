@@ -55,7 +55,7 @@ jobs:
         run: |
           set -o pipefail
           # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
-          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npm install --no-save --no-audit --no-fund --ignore-scripts tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
           npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build
@@ -86,10 +86,9 @@ jobs:
           Copy-Item target/${{ matrix.target }}/release/Open-Game-Launcher.exe dist/${{ matrix.exe }}
           # Gleiche Datei unter dem alten Namen: Launcher bis 1.7 suchen beim Update genau diesen Namen
           Copy-Item target/${{ matrix.target }}/release/Open-Game-Launcher.exe dist/${{ matrix.legacy }}
+          # Keine mit UPX gepackte Variante mehr: gepackte EXEs werden oft fälschlich als Virus
+          # gemeldet und vertragen sich nicht mit Control Flow Guard.
           if ("${{ matrix.arch }}" -eq "x86_64") {
-            choco install upx --version=4.2.4 -y --no-progress
-            if ($LASTEXITCODE -eq 0) { upx --best --lzma -o dist/Open-Game-Launcher-mini.exe dist/Open-Game-Launcher.exe }
-            $global:LASTEXITCODE = 0
             Copy-Item Cargo.lock dist/Cargo.lock
           }
 
@@ -186,7 +185,7 @@ jobs:
         run: |
           set -o pipefail
           # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
-          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npm install --no-save --no-audit --no-fund --ignore-scripts tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
           npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build
@@ -212,6 +211,22 @@ jobs:
         run: |
           set -o pipefail
           for d in extensions/*/; do cargo test --release --manifest-path "$d/Cargo.toml" 2>&1 | tee -a extensions-linux.log; done
+
+      - name: Steam-Deck-Plugin (Decky) testen und bauen
+        if: matrix.arch == 'x86_64'
+        run: |
+          set -o pipefail
+          cd decky-plugin
+          python3 -m unittest test_main 2>&1 | tee ../decky-linux.log
+          # Feste Versionen, keine Installations-Skripte aus Paketen
+          npm install --no-audit --no-fund --ignore-scripts 2>&1 | tee -a ../decky-linux.log
+          npm run build 2>&1 | tee -a ../decky-linux.log
+          test -s dist/index.js
+          rm -rf ../decky-stage && mkdir -p ../decky-stage/Open-Game-Launcher/dist
+          cp plugin.json package.json main.py LICENSE README.md ../decky-stage/Open-Game-Launcher/
+          cp dist/index.js ../decky-stage/Open-Game-Launcher/dist/
+          mkdir -p ../dist
+          (cd ../decky-stage && zip -qr ../dist/Open-Game-Launcher-Decky.zip Open-Game-Launcher)
 
       - name: Oberflächen-Test (Bildschirmfoto)
         if: matrix.arch == 'x86_64'
@@ -277,7 +292,7 @@ jobs:
         run: |
           set -o pipefail
           # Tailwind braucht das Paket "tailwindcss" neben der CSS-Datei (für @import)
-          npm install --no-save --no-audit --no-fund tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
+          npm install --no-save --no-audit --no-fund --ignore-scripts tailwindcss@4.3.3 @tailwindcss/cli@4.3.3 2>&1 | tee css-${{ runner.os }}-${{ runner.arch }}.log
           npx @tailwindcss/cli -i tailwind.css -o assets/maz.css --minify 2>&1 | tee -a css-${{ runner.os }}-${{ runner.arch }}.log
 
       - name: Build (Apple Silicon + Intel)
@@ -352,6 +367,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # Herkunftsnachweis (Sigstore): belegt, dass die Dateien genau in dieser CI gebaut wurden
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -421,6 +439,22 @@ jobs:
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Herkunftsnachweis erstellen (prüfbar mit „gh attestation verify“)
+        if: steps.exists.outputs.skip == 'false'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.pkg.tar.zst
+            dist/*.flatpak
+            dist/*.snap
+            dist/*.dmg
+            dist/*.zip
+            dist/*.ogext
+
       - name: GitHub-Release erstellen
         if: steps.exists.outputs.skip == 'false'
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -480,6 +514,8 @@ jobs:
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
         with:
           enablement: true
+      - name: Schriften selbst ausliefern (keine Verbindung zu Google für Besucher)
+        run: python3 -I scripts/selfhost-fonts.py site
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: site

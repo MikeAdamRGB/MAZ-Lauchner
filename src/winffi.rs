@@ -656,3 +656,31 @@ impl Drop for Job {
         }
     }
 }
+
+#[link(name = "kernel32")]
+extern "system" {
+    fn GetDiskFreeSpaceExW(dir: *const u16, free_caller: *mut u64, total: *mut u64, free_total: *mut u64) -> BOOL;
+}
+
+/// Freier und gesamter Platz auf dem Laufwerk von `dir` (Bytes)
+pub fn disk_space(dir: &str) -> Option<(u64, u64)> {
+    let w = wide(dir);
+    let (mut free, mut total, mut free_all) = (0u64, 0u64, 0u64);
+    // SAFETY: w ist nullterminiert; die Zeiger zeigen auf lokale Variablen.
+    let ok = unsafe { GetDiskFreeSpaceExW(w.as_ptr(), &mut free, &mut total, &mut free_all) };
+    (ok != 0 && total > 0).then_some((free, total))
+}
+
+#[link(name = "kernel32")]
+extern "system" {
+    fn SetDllDirectoryW(path: *const u16) -> BOOL;
+}
+
+/// SICHERHEIT: Den aktuellen Arbeitsordner aus der DLL-Suche entfernen (DLL-Unterschieben)
+pub fn harden_dll_search() {
+    let empty = [0u16];
+    // SAFETY: Zeiger auf einen gültigen, nullterminierten (leeren) String.
+    unsafe {
+        SetDllDirectoryW(empty.as_ptr());
+    }
+}

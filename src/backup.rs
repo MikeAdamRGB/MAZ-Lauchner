@@ -56,6 +56,23 @@ pub fn restore(current: &Settings, from_backup: &Settings) -> Settings {
     s.curseforge_key = current.curseforge_key.clone();
     s.sgdb_key = current.sgdb_key.clone();
     s.epic_auth = current.epic_auth.clone();
+    // SICHERHEIT: Zustimmungen zu Erweiterungen gelten nur für diesen PC
+    s.extensions_allowed = current.extensions_allowed;
+    s.extensions = current.extensions.clone();
+    // SICHERHEIT: Programme vor/nach dem Spiel nie aus einer Datei übernehmen – eine fremde
+    // Sicherung könnte sonst beliebige Befehle beim nächsten Spielstart ausführen lassen.
+    for (id, o) in s.launch_opts.iter_mut() {
+        let cur = current.launch_opts.get(id);
+        o.pre = cur.map(|c| c.pre.clone()).unwrap_or_default();
+        o.post = cur.map(|c| c.post.clone()).unwrap_or_default();
+    }
+    for (id, cur) in &current.launch_opts {
+        if !cur.pre.is_empty() || !cur.post.is_empty() {
+            let e = s.launch_opts.entry(id.clone()).or_default();
+            e.pre = cur.pre.clone();
+            e.post = cur.post.clone();
+        }
+    }
     s
 }
 
@@ -104,5 +121,21 @@ mod tests {
         assert!(read("{}").is_err());
         assert!(read(r#"{"format":"anders","version":1,"created":0,"app_version":"","settings":{}}"#).is_err());
         assert!(file_name(0).starts_with("open-game-launcher-1970-01-01"));
+    }
+
+    #[test]
+    fn restore_never_takes_commands_or_consent() {
+        let mut cur = Settings::default();
+        cur.extensions_allowed = false;
+        cur.launch_opts.insert("a".into(), crate::launchopts::LaunchOpts { pre: "/mein/tool".into(), ..Default::default() });
+        let mut evil = Settings::default();
+        evil.extensions_allowed = true;
+        evil.launch_opts.insert("a".into(), crate::launchopts::LaunchOpts { pre: "cmd /c böse".into(), gamemode: true, ..Default::default() });
+        evil.launch_opts.insert("b".into(), crate::launchopts::LaunchOpts { post: "/bin/sh -c x".into(), ..Default::default() });
+        let r = restore(&cur, &evil);
+        assert!(!r.extensions_allowed);
+        assert_eq!(r.launch_opts["a"].pre, "/mein/tool");
+        assert!(r.launch_opts["a"].gamemode);
+        assert!(r.launch_opts["b"].post.is_empty());
     }
 }

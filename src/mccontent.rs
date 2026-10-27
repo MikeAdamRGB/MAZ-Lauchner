@@ -148,6 +148,7 @@ fn agent() -> ureq::Agent {
             use ureq::tls::{RootCerts, TlsConfig, TlsProvider};
             let tls = TlsConfig::builder().provider(TlsProvider::NativeTls).root_certs(RootCerts::PlatformVerifier).build();
             ureq::Agent::config_builder()
+                .https_only(true)
                 .tls_config(tls)
                 .timeout_global(Some(Duration::from_secs(60)))
                 .http_status_as_error(false)

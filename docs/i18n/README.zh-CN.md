@@ -85,7 +85,6 @@
 > [!TIP]
 > **想用便携版?** 在安装菜单中点击 **“Ohne Installation starten”**(*免安装启动*),或在 EXE 旁边放一个名为 `portable.txt` 的空文件。
 
-**`Open-Game-Launcher-mini.exe`** 是用 UPX 压缩的同一应用。部分杀毒软件可能误报压缩过的 EXE,此时请使用普通版本。
 
 **卸载:** Windows 设置 → 应用 → “Open Game Launcher” → 卸载,或在启动器的 **Einstellungen → Allgemein**(*设置 → 常规*)中卸载。你的游戏不会受到影响。
 

@@ -1,12 +1,12 @@
 //! Beispiel-Erweiterung für den Open Game Launcher: zwei Test-Spiele, Infos und eine Aktion.
-use maz_extension_sdk::*;
+use og_extension_sdk::*;
 
 struct Hello {
     dir: String,
 }
 
 impl Extension for Hello {
-    fn hello(&mut self, _h: &maz_extension_sdk::Hello) -> HelloReply {
+    fn hello(&mut self, _h: &og_extension_sdk::Hello) -> HelloReply {
         HelloReply { name: "Hello Extension".into(), version: "1.0.0".into(), kinds: vec!["library".into(), "metadata".into(), "action".into()] }
     }
 
@@ -60,6 +60,6 @@ impl Extension for Hello {
 }
 
 fn main() {
-    let dir = std::env::var("MAZ_EXTENSION_DIR").unwrap_or_else(|_| ".".into());
+    let dir = std::env::var("OG_EXTENSION_DIR").or_else(|_| std::env::var("MAZ_EXTENSION_DIR")).unwrap_or_else(|_| ".".into());
     run(Hello { dir })
 }

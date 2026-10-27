@@ -1,0 +1,18 @@
+# Sicherheits-Updates für Bibliotheken und CI-Aktionen automatisch vorschlagen (als Pull-Request)
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: /decky-plugin
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

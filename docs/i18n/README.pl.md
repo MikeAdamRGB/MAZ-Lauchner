@@ -85,7 +85,6 @@ Steam, Epic Games i Twoje własne gry w jednej szybkiej, lekkiej i ładnej aplik
 > [!TIP]
 > **Wolisz wersję przenośną?** W menu instalacji kliknij **„Ohne Installation starten”** (*Uruchom bez instalacji*) albo umieść obok pliku EXE pusty plik o nazwie `portable.txt`.
 
-**`Open-Game-Launcher-mini.exe`** to ta sama aplikacja spakowana UPX. Niektóre antywirusy błędnie zgłaszają spakowane pliki EXE; wtedy użyj zwykłej wersji.
 
 **Odinstalowanie:** Ustawienia Windows → Aplikacje → „Open Game Launcher” → Odinstaluj, albo w launcherze w **Einstellungen → Allgemein** (*Ustawienia → Ogólne*). Twoje gry pozostają nienaruszone.
 
