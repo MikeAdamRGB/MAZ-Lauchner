@@ -7,6 +7,11 @@ Alle wichtigen Änderungen am Open Game Launcher (OG, bis 1.7 „MAZ Launcher“
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [2.1.1] – 2026-10-27
+
+### Behoben
+- **Steam-Familie:** Spiele aus der Familienbibliothek fehlten, sobald ein Steam-Web-API-Schlüssel eingetragen war (die Steam-API liefert nur selbst gekaufte Spiele). Jetzt werden zusätzlich immer die Spiele aus Steams eigenen Dateien auf dem PC gelesen – so sind Familien-Spiele, installierte geteilte Spiele und früher gespielte Spiele wieder da.
+
 ## [2.1.0] – 2026-10-27
 
 ### Neu

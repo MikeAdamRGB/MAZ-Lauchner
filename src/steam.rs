@@ -296,16 +296,18 @@ pub fn scan(api_key: &str, steam_id_setting: &str, show_uninstalled: bool) -> St
         }
     }
 
-    // Ohne API-Schlüssel (oder wenn die API nicht erreichbar ist):
-    // Bibliothek aus Steams eigenen Dateien auf dem PC zusammensetzen.
-    if status.owned == 0 {
+    // Immer zusätzlich: Bibliothek aus Steams eigenen Dateien auf dem PC. Die Web-API kennt nur
+    // selbst gekaufte Spiele – Spiele aus der Steam-Familie (Familienbibliothek) stehen nur
+    // lokal (Bild-Cache der Bibliothek, gespielte Spiele). Ohne Schlüssel ist das die einzige Quelle.
+    {
+        let api_owned = status.owned;
         let local = local_library(&root, user.as_ref().map(|(id, _)| id.as_str()));
         let by_id: HashMap<u32, usize> = games
             .iter()
             .enumerate()
             .filter_map(|(i, g)| g.steam_appid.map(|a| (a, i)))
             .collect();
-        let mut owned = games.len();
+        let mut owned = if api_owned > 0 { api_owned } else { games.len() };
         for (appid, name, playtime) in local {
             if let Some(&i) = by_id.get(&appid) {
                 if games[i].playtime_min.is_none() && playtime > 0 {
