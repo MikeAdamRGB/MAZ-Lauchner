@@ -7,6 +7,25 @@ Alle wichtigen Änderungen am MAZ Launcher. Jede Version hat bis zu vier Abschni
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [2.0.0] – 2026-10-27
+
+### Neu
+- **Starthilfen pro Spiel** (Knopf „Starthilfen“ in den Spiel-Details): ein Programm vor dem Start und eins nach dem Spiel ausführen – z. B. Lüftersteuerung, Mod-Manager oder ein Backup-Skript.
+- **Linux: GameMode und MangoHud** als Schalter pro Spiel (wenn installiert).
+- **Linux: DXVK/VKD3D-Optionen** für Spiele mit Wine oder Proton: DXVK bzw. VKD3D-Proton abschaltbar, FPS-Anzeige, NVIDIA DLSS (NVAPI).
+- **Steam Deck Gaming-Modus:** Wird der Launcher im Gaming-Modus gestartet, öffnet er direkt Big Picture.
+- **Zu Steam hinzufügen:** Spiele aus dem Launcher (oder den Launcher selbst) als Nicht-Steam-Spiel in Steam eintragen – ideal für Steam Deck und Big Picture. Spielzeit und Starthilfen funktionieren weiter. Vorher wird eine Sicherung der Steam-Datei angelegt.
+- **Symbol im Infobereich** mit „Zuletzt gespielt“ zum Schnellstart (Einstellungen → Allgemein → Verbindungen).
+- **Discord-Status** „Spielt gerade …“ – nur auf Wunsch, mit eigener Discord-Anwendungs-ID (Anleitung im Launcher).
+- **Absturzberichte nur auf Wunsch:** Nach einem Absturz zeigt der Launcher beim nächsten Start den Bericht. Er kann als vorausgefülltes GitHub-Issue gemeldet werden – Benutzername und persönliche Pfade sind vorher unkenntlich gemacht. Nichts wird automatisch gesendet.
+- **11 neue Emulator-Profile:** RPCS3, xemu, Cemu, Flycast, melonDS, Mupen64Plus, Mesen, ares, Stella, ScummVM und DOSBox-X.
+- **Plattformen für ROMs:** Jeder Emulator hat eine Plattform (z. B. „PlayStation 2“). In der Seitenleiste gibt es den Bereich „Konsolen (ROMs)“ zum Filtern.
+- **Erste Erweiterungen:** „Humble App“ und „Legacy Games“ (Windows) als `.ogext` am Release – Liste in [docs/EXTENSIONS.md](docs/EXTENSIONS.md).
+- **Paketmanager:** Fertige Paketquellen für winget, Scoop, Homebrew, AUR und Flathub hängen an jedem Release (siehe [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)).
+
+### Verbessert
+- Automatischer Oberflächen-Test in der CI: Der Launcher startet auf Windows, Linux und macOS mit Beispielspielen, wird geprüft und fotografiert.
+
 ## [1.10.0] – 2026-10-27
 
 ### Neu

@@ -1,0 +1,33 @@
+app-id: io.github.mikeadamrgb.MAZLauncher
+runtime: org.gnome.Platform
+runtime-version: '49'
+sdk: org.gnome.Sdk
+command: maz-launcher
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --filesystem=host:ro
+  - --talk-name=org.freedesktop.Flatpak
+  - --filesystem=xdg-run/discord-ipc-0
+  - --talk-name=org.kde.StatusNotifierWatcher
+modules:
+  - name: open-game-launcher
+    buildsystem: simple
+    build-commands:
+      - bsdtar -xf og.deb
+      - mkdir -p usr-root && bsdtar -xf data.tar.* -C usr-root
+      - cp -a usr-root/usr/. /app/
+    sources:
+      - type: file
+        only-arches: [x86_64]
+        url: https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/maz-launcher_{VERSION}_amd64.deb
+        sha256: {SHA_maz-launcher_{VERSION}_amd64.deb}
+        dest-filename: og.deb
+      - type: file
+        only-arches: [aarch64]
+        url: https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/maz-launcher_{VERSION}_arm64.deb
+        sha256: {SHA_maz-launcher_{VERSION}_arm64.deb}
+        dest-filename: og.deb

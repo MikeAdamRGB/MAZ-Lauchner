@@ -1,0 +1,2 @@
+description = Shows your installed Legacy Games titles (from the Windows program list) and – where stored – owned games from the Legacy Games Launcher.
+open_folder = Open game folder

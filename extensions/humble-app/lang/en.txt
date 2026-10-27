@@ -1,0 +1,3 @@
+description = Shows your games from the Humble App (installed and owned). Only reads the Humble App game list – never any sign-in data.
+open_folder = Open game folder
+open_app = Open in the Humble App

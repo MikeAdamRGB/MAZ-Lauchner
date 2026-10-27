@@ -1,5 +1,6 @@
 //! Spiele starten – und bei Problemen genau erklären, was los ist.
 
+use crate::launchopts::LaunchOpts;
 use crate::model::{CustomGame, Game, LaunchTarget};
 use crate::problem::Problem;
 use crate::{epic, sys};
@@ -8,7 +9,7 @@ use std::process::{Child, Command};
 use std::time::{Duration, Instant};
 
 /// Steam- oder Epic-Spiel über den jeweiligen Launcher starten.
-pub fn launch_store(game: &Game) -> Result<(), Problem> {
+pub fn launch_store(game: &Game, opts: &LaunchOpts) -> Result<(), Problem> {
     match &game.launch {
         LaunchTarget::SteamRun(id) | LaunchTarget::SteamInstall(id) => {
             if !sys::protocol_registered("steam") {
@@ -39,12 +40,11 @@ pub fn launch_store(game: &Game) -> Result<(), Problem> {
             if path.is_empty() || !Path::new(path).exists() {
                 return Err(Problem::exe_missing(&game.name, path, sys::drive_exists(path)));
             }
-            let mut cmd = sys::host_command(path);
-            cmd.args(args);
             let wd = if dir.is_empty() { Path::new(path).parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_default() } else { dir.clone() };
-            if !wd.is_empty() && Path::new(&wd).is_dir() {
-                cmd.current_dir(&wd);
-            }
+            let wd_path = (!wd.is_empty() && Path::new(&wd).is_dir()).then(|| Path::new(&wd));
+            // Linux: GameMode/MangoHud davor (z. B. für Emulatoren)
+            let mut cmd = crate::launchopts::command(opts, path, &[], wd_path);
+            cmd.args(args);
             cmd.spawn().map(|_| ()).map_err(|e| Problem::from_os_error(&game.name, path, e.raw_os_error(), &e.to_string()))
         }
         LaunchTarget::Appx { family, app } => crate::appx::launch(family, app).map_err(|e| Problem::unknown(&game.name, &e)),
@@ -76,7 +76,7 @@ pub fn precheck_custom(c: &CustomGame) -> Result<(), Problem> {
 
 /// Eigenes Spiel starten. Gibt bei normalen EXEs den Prozess zurück, damit wir
 /// einen Absturz direkt nach dem Start erkennen und erklären können.
-pub fn launch_custom(c: &CustomGame, force_admin: bool) -> Result<Option<Child>, Problem> {
+pub fn launch_custom(c: &CustomGame, force_admin: bool, opts: &LaunchOpts) -> Result<Option<Child>, Problem> {
     precheck_custom(c)?;
     let exe = c.exe.trim().trim_matches('"').to_string();
     let path = Path::new(&exe);
@@ -96,7 +96,7 @@ pub fn launch_custom(c: &CustomGame, force_admin: bool) -> Result<Option<Child>,
     let as_admin = c.admin || force_admin;
 
     if as_admin || !is_exe {
-        return shell_start(c, &exe, &workdir, as_admin).map(|_| None);
+        return shell_start(c, &exe, &workdir, as_admin, opts).map(|_| None);
     }
 
     let mut cmd = Command::new(path);
@@ -121,9 +121,10 @@ pub fn launch_custom(c: &CustomGame, force_admin: bool) -> Result<Option<Child>,
     }
 }
 
-fn shell_start(c: &CustomGame, exe: &str, workdir: &str, as_admin: bool) -> Result<(), Problem> {
+fn shell_start(c: &CustomGame, exe: &str, workdir: &str, as_admin: bool, opts: &LaunchOpts) -> Result<(), Problem> {
     #[cfg(windows)]
     {
+        let _ = opts;
         let verb = if as_admin { "runas" } else { "open" };
         crate::winffi::shell_execute(Some(verb), exe, Some(c.args.trim()), Some(workdir))
             .map_err(|code| Problem::from_shell_code(&c.name, exe, code, as_admin))
@@ -146,16 +147,17 @@ fn shell_start(c: &CustomGame, exe: &str, workdir: &str, as_admin: bool) -> Resu
                     if let Some(root) = crate::runners::steam_root() {
                         env.push(("STEAM_COMPAT_CLIENT_INSTALL_PATH".into(), root.to_string_lossy().to_string()));
                     }
-                    let mut cmd = sys::host_command_env(&r.path, &env, wd);
+                    env.extend(opts.wine_env(true));
+                    let mut cmd = crate::launchopts::command(opts, &r.path, &env, wd);
                     cmd.arg("run");
                     cmd
                 }
-                Some(r) => sys::host_command_env(&r.path, &[], wd),
+                Some(r) => crate::launchopts::command(opts, &r.path, &opts.wine_env(false), wd),
                 None if !c.runner.trim().is_empty() => {
                     // Gewählte Version gibt es nicht mehr
                     return Err(Problem::runner_missing(&c.name, c.runner.trim()));
                 }
-                None => sys::host_command_env("wine", &[], wd),
+                None => crate::launchopts::command(opts, "wine", &opts.wine_env(false), wd),
             };
             cmd.arg(p);
             if !c.args.trim().is_empty() {
@@ -166,7 +168,7 @@ fn shell_start(c: &CustomGame, exe: &str, workdir: &str, as_admin: bool) -> Resu
                 .map(|_| ())
                 .map_err(|e| Problem::from_os_error(&c.name, exe, e.raw_os_error(), &e.to_string()));
         } else if executable && ext != "desktop" {
-            let mut cmd = sys::host_command(p);
+            let mut cmd = crate::launchopts::command(opts, &p.to_string_lossy(), &[], None);
             let args = c.args.trim();
             if !args.is_empty() {
                 cmd.args(args.split_whitespace());

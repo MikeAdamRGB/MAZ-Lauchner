@@ -80,6 +80,7 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
     let has_sgdb = !s.sgdb_key.trim().is_empty() && game.source != Source::Roblox;
     drop(s);
     let id11 = game.id.clone();
+    let (id12, id13) = (game.id.clone(), game.id.clone());
     let btn = if steam_style { "w-full justify-start rounded-sm" } else { "w-full justify-start" };
     let (id1, id2, id3, id4, id5, id6) = (
         game.id.clone(),
@@ -186,6 +187,18 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
                 Button { variant: ButtonVariant::Outline, class: "{btn} hover:text-destructive", onclick: move |_| uninstall(app, id8.clone()),
                     Icon { name: "package", class: "size-4" }
                     {t("act.uninstall")}
+                }
+            }
+            if !matches!(game.source, Source::Roblox) {
+                Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::LaunchOpts(id12.clone())),
+                    Icon { name: "wrench", class: "size-4" }
+                    {t("opts.button")}
+                }
+            }
+            if game.source != Source::Steam && !matches!(game.source, Source::Roblox) {
+                Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::AddToSteam(id13.clone())),
+                    Icon { name: "gamepad", class: "size-4" }
+                    {t("steamsc.button")}
                 }
             }
             super::extensions::ExtActions { game: game.clone(), class: btn.to_string() }

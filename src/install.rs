@@ -99,7 +99,7 @@ pub fn decide(args: &[String]) -> StartMode {
             existing: installed_location().map(|p| p.to_string_lossy().to_string()),
         };
     }
-    if has("--portable") {
+    if has("--portable") || crate::uitest::active() {
         return StartMode::Launcher;
     }
     let Some(dir) = exe_dir else { return StartMode::Launcher };

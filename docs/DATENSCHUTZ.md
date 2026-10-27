@@ -33,6 +33,8 @@ Nur für diese Dinge – und immer direkt zum jeweiligen Anbieter, nie über ein
 | Trailer in den Spiel-Details (nur wenn du auf Abspielen klickst) | Steam-Video-Server | nichts Persönliches |
 | Optional: SteamGridDB-Schlüssel | SteamGridDB | dein Schlüssel und der Spielname bzw. die Steam-Nummer |
 | Optional: Epic-Konto verbinden | Epic Games | Anmeldung erfolgt bei Epic im Browser |
+| Optional: Discord-Status | Discord-App auf diesem Computer (lokal, kein Internet durch den Launcher) | Spielname und Startzeit, solange du spielst – Discord zeigt das deinen Kontakten |
+| Optional: Absturzbericht melden (nur auf Knopfdruck) | GitHub (im Browser) | der Bericht, den du vorher siehst; Benutzername und persönliche Pfade sind unkenntlich gemacht |
 
 Die Bibliotheken von GOG Galaxy, Amazon Games und itch.io werden **nur lokal** aus deren Dateien auf deinem Computer gelesen (nur lesend) – dabei wird nichts gesendet.
 

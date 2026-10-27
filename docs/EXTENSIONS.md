@@ -12,6 +12,23 @@ Beispiele im Projekt:
 | `examples/extension-python/` | Python (nur Standardbibliothek): ein Test-Spiel |
 | `crates/maz-extension-sdk/` | Rust-SDK mit allen Protokoll-Typen und einer fertigen Hauptschleife |
 
+## Verfügbare Erweiterungen
+
+Fertige Pakete (`.ogext`) hängen an jedem [Release](https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/latest).
+Installieren: **Einstellungen → Erweiterungen → Installieren** und die heruntergeladene Datei wählen.
+Der Launcher zeigt vorher an, was die Erweiterung lesen darf, und fragt nach deiner Zustimmung.
+Es gibt bewusst **keinen** Online-Katalog im Launcher.
+
+| Erweiterung | System | Was sie macht | Rechte | Stand |
+|---|---|---|---|---|
+| **Humble App** (`Humble-App.ogext`, Quelltext `extensions/humble-app/`) | Windows | Liest die Spieleliste der Humble App (installierte und gekaufte Spiele) und startet Spiele über `humble://` | liest `%APPDATA%\Humble App`, kein Netzwerk | neu – mit echten Installationen noch wenig getestet |
+| **Legacy Games** (`Legacy-Games.ogext`, Quelltext `extensions/legacy-games/`) | Windows | Findet installierte Spiele des Legacy Games Launchers (Windows-Programmliste) und gekaufte Spiele aus dessen Speicher | liest `%APPDATA%\legacy-games-launcher`, kein Netzwerk | neu – mit echten Installationen noch wenig getestet |
+
+Beide lesen **keine** Anmeldedaten: Felder wie `token`, `auth`, `user`, `password` werden übersprungen.
+
+Eigene Erweiterung veröffentlicht? Gern per Issue oder Pull-Request in diese Liste eintragen lassen
+(Quelltext öffentlich, Rechte im Manifest so klein wie möglich).
+
 ## Grundregeln
 
 1. **Kein fremder Code im Launcher.** Keine DLL/.so/.dylib, kein Skripting im Launcher-Prozess.

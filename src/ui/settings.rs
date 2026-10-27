@@ -1515,6 +1515,7 @@ fn EmulatorSection() -> Element {
                                 e.name = name.to_string();
                                 e.args = args.to_string();
                                 e.extensions = exts.iter().map(|x| x.to_string()).collect();
+                                e.platform = crate::emulators::preset_platform(name).to_string();
                             }
                             None => {
                                 e.name = t("emu.new_name");
@@ -1545,6 +1546,7 @@ fn update_emu(app: App, id: &str, f: impl FnOnce(&mut crate::model::Emulator)) {
 fn EmulatorCard(emu: crate::model::Emulator) -> Element {
     let app = use_app();
     let (i1, i2, i3, i4, i5, i6, i7) = (emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone(), emu.id.clone());
+    let i_plat = emu.id.clone();
     let exts = emu.extensions.join(", ");
     let emu_name = emu.name.clone();
     let exe_ok = !emu.exe.is_empty() && std::path::Path::new(&emu.exe).exists();
@@ -1592,8 +1594,13 @@ fn EmulatorCard(emu: crate::model::Emulator) -> Element {
                 }
             }
             div { class: "grid gap-1",
+                Label { {t("emu.platform")} }
+                Input { placeholder: crate::emulators::preset_platform(&emu.name).to_string(), value: emu.platform.clone(),
+                    oninput: move |v: String| update_emu(app, &i_plat, |x| x.platform = v.chars().take(40).collect()) }
+            }
+            div { class: "grid gap-1",
                 Label { {t("emu.folders")} }
-                {emu.rom_dirs.iter().cloned().map(|d| {
+                {emu.rom_dirs.iter().map(|d| {
                     let (eid, d2) = (emu.id.clone(), d.clone());
                     rsx! {
                         div { key: "{d}", class: "flex items-center gap-2 text-xs font-mono",
@@ -1769,6 +1776,8 @@ fn GeneralTab() -> Element {
         UpdateSection {}
 
         super::tools::BackupSection {}
+
+        super::opts::IntegrationSection {}
 
         Section { title: t("general.install"),
             div { class: "rounded-xl bg-muted p-4 mb-4",

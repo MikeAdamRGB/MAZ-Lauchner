@@ -1,0 +1,17 @@
+{
+  "id": "humble-app",
+  "name": "Humble App",
+  "version": "1.0.0",
+  "author": "Open Game Launcher",
+  "description": "@description",
+  "homepage": "https://github.com/MikeAdamRGB/Open-Game-Launcher/blob/main/docs/EXTENSIONS.md",
+  "run": { "windows": "og-ext-humble-app.exe" },
+  "api_version": 1,
+  "kinds": ["library", "action"],
+  "permissions": {
+    "read_paths": ["%APPDATA%\\Humble App"],
+    "network": false,
+    "uri_schemes": ["humble"]
+  },
+  "languages": ["de", "en"]
+}

@@ -14,10 +14,12 @@ pub mod manage;
 pub mod media;
 pub mod minecraft;
 pub mod net;
+pub mod opts;
 pub mod settings;
 pub mod state;
 pub mod stats;
 pub mod tools;
+pub mod tray;
 
 use crate::install::StartMode;
 use crate::model::{layout, StoreStatus};
@@ -36,7 +38,14 @@ pub fn Root() -> Element {
     let mut mode = use_signal(|| start);
 
     let app = use_context_provider(|| App {
-        settings: Signal::new(config::load()),
+        settings: Signal::new({
+            let mut s = config::load();
+            // Oberflächen-Test: immer gleiche Ausgangslage
+            if crate::uitest::active() {
+                s = crate::model::Settings { welcome_done: true, animations: false, theme: "oled".into(), update_check: false, online_art: false, tray_icon: false, ..Default::default() };
+            }
+            s
+        }),
         games: Signal::new(Vec::new()),
         steam: Signal::new(StoreStatus::default()),
         epic: Signal::new(StoreStatus::default()),
@@ -69,6 +78,11 @@ pub fn Root() -> Element {
     // Lokale Bilder (Steam-Cache, Icons, eigene Cover) für das Fenster bereitstellen
     use_asset_handler("maz", move |req, responder| {
         let path = req.uri().path().to_string();
+        if path.ends_with("/uitest") && crate::uitest::active() {
+            crate::uitest::write_result(req.uri().query().unwrap_or(""));
+            responder.respond(Response::builder().status(204).body(Vec::new()).unwrap_or_else(|_| Response::new(Vec::new())));
+            return;
+        }
         std::thread::spawn(move || {
             let found = sys::decode_file_url(&path).and_then(|p| std::fs::read(&p).ok().map(|b| (p, b)));
             let resp = match found {
@@ -196,6 +210,24 @@ fn LauncherShell() -> Element {
         let on = app.settings.read().controller_mode;
         apply_controller(on);
     });
+    // Absturz beim letzten Mal? Bericht anbieten (nur auf Wunsch senden)
+    use_hook(move || {
+        if let Some(text) = crate::crashreport::pending() {
+            app.open(Modal::CrashReport(text));
+        }
+    });
+    // `--play <id>`: Spiel starten, sobald die Bibliothek geladen ist
+    let mut play_done = use_signal(|| false);
+    use_effect(move || {
+        if *app.loaded.read() && !*play_done.peek() {
+            play_done.set(true);
+            if let Some(id) = crate::PLAY_ON_START.get() {
+                if app.game(id).is_some() {
+                    play(app, id.clone());
+                }
+            }
+        }
+    });
     use_effect(move || {
         if !*app.loaded.peek() {
             rescan(app);
@@ -203,19 +235,32 @@ fn LauncherShell() -> Element {
         if !app.settings.peek().welcome_done {
             app.open(Modal::Welcome);
         }
+        if crate::uitest::active() {
+            return;
+        }
         // Gratis-Spiele im Hintergrund laden (für die Zahl im Tab)
         net::load_free(app, false);
         net::sync_epic(app, false);
         net::update_loop(app);
     });
+    // Steam Deck im Gaming-Modus: direkt Big Picture
+    use_hook(move || {
+        if crate::sys::gaming_mode() {
+            app.go(Page::BigPicture);
+        }
+    });
     let page = *app.page.read();
-    match page {
+    let body = match page {
         Page::Library => rsx! { library::LibraryPage {} },
         Page::Free => rsx! { free::FreePage {} },
         Page::Minecraft => rsx! { minecraft::MinecraftPage {} },
         Page::Stats => rsx! { stats::StatsPage {} },
         Page::BigPicture => rsx! { bigpicture::BigPicture {} },
         Page::Settings(_) => rsx! { settings::SettingsPage {} },
+    };
+    rsx! {
+        tray::TrayHost {}
+        {body}
     }
 }
 

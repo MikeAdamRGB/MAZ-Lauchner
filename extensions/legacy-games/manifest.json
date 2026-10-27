@@ -1,0 +1,17 @@
+{
+  "id": "legacy-games",
+  "name": "Legacy Games",
+  "version": "1.0.0",
+  "author": "Open Game Launcher",
+  "description": "@description",
+  "homepage": "https://github.com/MikeAdamRGB/Open-Game-Launcher/blob/main/docs/EXTENSIONS.md",
+  "run": { "windows": "og-ext-legacy-games.exe" },
+  "api_version": 1,
+  "kinds": ["library", "action"],
+  "permissions": {
+    "read_paths": ["%APPDATA%\\legacy-games-launcher"],
+    "network": false,
+    "uri_schemes": []
+  },
+  "languages": ["de", "en"]
+}

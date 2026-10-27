@@ -50,9 +50,12 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 | 📊 **Stats & ideas** | Playtime per week, month and store, most played, unplayed games, a **"What should I play?"** button and a HowLongToBeat link for every game. |
 | 📝 **Game info** | Description, genres, PC requirements and the Steam Deck rating – from the Steam store and Wikipedia. Edit everything yourself. |
 | ⛏️ **Minecraft mods** | Mods, resource packs, shaders and data packs from Modrinth and CurseForge, installed with one click into the official launcher or a NoRisk profile. Already installed content is marked. |
+| 🛋️ **Big Picture & Steam Deck** | Fullscreen mode with big tiles for TV and couch, controller support, starts by itself in Steam Deck Gaming Mode. Add any game (or the launcher) to Steam as a non-Steam game. |
+| 🚀 **Launch helpers** | Run a program before or after a game. On Linux: GameMode, MangoHud and DXVK/VKD3D options per game. Optional tray icon with recently played games and optional Discord status. |
+| 🖼️ **Artwork** | Logos instead of text, trailers, Steam achievements and missing covers from SteamGridDB (with your own free key). |
 | 🎨 **Your look** | Steam, Epic or OG layout, 16 designs plus your own, background image, controller mode and 9 languages. |
 | 🛟 **Help when things break** | If a game won't start, the launcher explains step by step what happened – with buttons that fix it. |
-| 🔒 **Local and safe** | No account, no tracking. Updates inside the app (checksum-verified), backup of all settings as one file, optional extensions that are off by default. |
+| 🔒 **Local and safe** | No account, no tracking, crash reports only when you click "Report". Updates inside the app (checksum-verified), backup of all settings as one file, optional extensions that are off by default. |
 | 🐧 **Every platform** | Windows (x86_64, ARM64), macOS (Apple Silicon + Intel), Linux (x86_64, ARM64) as AppImage, .deb, .rpm, Pacman, Flatpak and Snap – with Wine/Proton per game. |
 
 Everything that changed in each version: [CHANGELOG.md](CHANGELOG.md).
@@ -133,6 +136,8 @@ Prefer a portable version? Click **Start without installing**, or put an empty f
 | Ubuntu & Snap | `maz-launcher_…_amd64.snap` | `sudo snap install --dangerous --classic maz-launcher_*.snap` |
 
 The launcher uses the system's **webkit2gtk-4.1** (preinstalled on most desktops; otherwise e.g. `sudo apt install libwebkit2gtk-4.1-0`). Epic games run through the [Heroic Games Launcher](https://heroicgameslauncher.com), Roblox through [Sober](https://flathub.org/apps/org.vinegarhq.Sober).
+
+Package managers (winget, Scoop, Homebrew, AUR, Flathub): ready-made manifests are attached to every release – see [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md).
 
 ### Updates
 
