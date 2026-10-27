@@ -69,7 +69,7 @@ pub fn BigPicture() -> Element {
                 }
             },
             // Hintergrund: Bild des ausgewählten Spiels
-            div { class: "absolute inset-0 pointer-events-none", key: "{cur_id}",
+            div { class: "absolute inset-0 pointer-events-none",
                 ArtImage { srcs: hero, class: "absolute inset-0 size-full object-cover opacity-50 animate-fade-in", fallback: rsx! {} }
                 div { class: "absolute inset-0 bg-linear-to-t from-black via-black/70 to-black/20" }
             }
