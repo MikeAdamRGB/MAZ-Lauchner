@@ -275,7 +275,9 @@ jobs:
   # --------------------------------------------------------------------------
   macos:
     name: macOS (Universal)
-    runs-on: macos-latest
+    # Intel-Runner: Die Apple-Silicon-Runner sind bei GitHub gerade oft ausgelastet. Gebaut wird
+    # trotzdem für beide Prozessoren (Apple Silicon wird quer-kompiliert).
+    runs-on: macos-15-intel
     permissions:
       contents: read
     steps:
@@ -304,13 +306,13 @@ jobs:
       - name: Tests
         run: |
           set -o pipefail
-          cargo test --release --target aarch64-apple-darwin 2>&1 | tee test-macos.log
+          cargo test --release --target "$(uname -m | sed s/arm64/aarch64/)-apple-darwin" 2>&1 | tee test-macos.log
 
       - name: Oberflächen-Test (Bildschirmfoto, ohne Gewähr)
         continue-on-error: true
         run: |
           python3 -m pip install --quiet --break-system-packages pillow || true
-          scripts/ui-test.sh target/aarch64-apple-darwin/release/Open-Game-Launcher macos
+          scripts/ui-test.sh "target/$(uname -m | sed s/arm64/aarch64/)-apple-darwin/release/Open-Game-Launcher" macos
 
       - name: App, .dmg und .zip
         run: |
