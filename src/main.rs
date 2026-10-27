@@ -10,11 +10,13 @@ mod backup;
 mod appx;
 mod config;
 mod crashreport;
+mod decky;
 mod epic;
 mod emulators;
 mod discord;
 mod epicacct;
 mod extensions;
+mod flatpakid;
 mod freegames;
 mod i18n;
 mod icons;
@@ -26,6 +28,7 @@ mod library;
 mod mccontent;
 mod minecraft;
 mod model;
+mod news;
 mod notes;
 mod playnite;
 mod playtime;
@@ -33,7 +36,9 @@ mod problem;
 mod roblox;
 mod runners;
 mod steam;
+mod storage;
 mod steamshortcut;
+mod screenshots;
 mod sgdb;
 mod stats;
 mod stores;
@@ -61,9 +66,26 @@ pub static PLAY_ON_START: OnceLock<String> = OnceLock::new();
 const CSS: &str = include_str!("../assets/maz.css");
 const ICON_PNG: &[u8] = include_bytes!("../assets/icon-256.png");
 
+/// SICHERHEIT: Inhaltsrichtlinie für das Fenster. Selbst wenn je fremder Text als HTML landen
+/// sollte, darf das Fenster nichts von fremden Servern nachladen oder Daten dorthin schicken
+/// (nur Bilder/Videos über https), keine Formulare abschicken und keine fremden Seiten einbetten.
+const CSP: &str = "<meta http-equiv=\"Content-Security-Policy\" content=\"\
+default-src 'self' dioxus: http://dioxus.localhost https://dioxus.localhost; \
+script-src 'self' 'unsafe-inline' 'unsafe-eval' dioxus: http://dioxus.localhost https://dioxus.localhost; \
+style-src 'self' 'unsafe-inline'; \
+img-src 'self' dioxus: http://dioxus.localhost https://dioxus.localhost https: data: blob:; \
+media-src 'self' https: blob:; \
+font-src 'self' data:; \
+connect-src 'self' dioxus: ipc: http://ipc.localhost http://dioxus.localhost https://dioxus.localhost ws://127.0.0.1:* ws://localhost:*; \
+frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'\">";
+
 fn main() {
+    #[cfg(windows)]
+    winffi::harden_dll_search();
     let args: Vec<String> = std::env::args().skip(1).collect();
     install_panic_hook();
+    // Flatpak mit neuer App-ID: Einstellungen der alten App übernehmen (vor dem Laden!)
+    flatpakid::migrate();
     i18n::set_language(&config::load().language);
 
     if args.iter().any(|a| a.eq_ignore_ascii_case("--uninstall")) {
@@ -119,9 +141,7 @@ fn main() {
         .with_window(window)
         .with_disable_context_menu(!cfg!(debug_assertions))
         .with_background_color((10, 10, 18, 255))
-        .with_custom_head(format!(
-            "<meta name=\"color-scheme\" content=\"dark light\"><style>{CSS}</style>"
-        ))
+        .with_custom_head(format!("<meta name=\"color-scheme\" content=\"dark light\">{CSP}<style>{CSS}</style>"))
         .with_data_directory(sys::local_dir().join("webview"));
     if let Some(icon) = window_icon() {
         cfg = cfg.with_icon(icon);

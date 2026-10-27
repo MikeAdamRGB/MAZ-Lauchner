@@ -1,4 +1,4 @@
-//! Einstellungen laden und speichern (%APPDATA%\MAZ Launcher\config.json).
+//! Einstellungen laden und speichern (%APPDATA%\Open Game Launcher\config.json).
 
 use crate::model::Settings;
 use crate::sys;

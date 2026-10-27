@@ -1,7 +1,7 @@
 //! Erweiterung „Humble App“: liest die Spieleliste der Humble App
 //! (%APPDATA%\Humble App\config.json, Eintrag "game-collection-4").
 //! Es werden nur Spielname, Ordner, Startdatei und Bild gelesen – nie Anmeldedaten.
-use maz_extension_sdk::*;
+use og_extension_sdk::*;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 

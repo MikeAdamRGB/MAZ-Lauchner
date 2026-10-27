@@ -172,6 +172,7 @@ fn agent(timeout: u64) -> ureq::Agent {
         .root_certs(RootCerts::PlatformVerifier)
         .build();
     ureq::Agent::config_builder()
+        .https_only(true)
         .tls_config(tls)
         .timeout_global(Some(Duration::from_secs(timeout)))
         .user_agent(format!("Open-Game-Launcher/{}", sys::VERSION))

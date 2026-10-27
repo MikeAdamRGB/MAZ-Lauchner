@@ -101,9 +101,14 @@ fn minimal_env(cmd: &mut Command, ext_dir: &Path, network: bool) {
             cmd.env(k, v);
         }
     }
-    cmd.env("MAZ_EXTENSION_DIR", ext_dir);
-    cmd.env("MAZ_API_VERSION", super::manifest::API_VERSION.to_string());
-    cmd.env("MAZ_NETWORK_ALLOWED", if network { "1" } else { "0" });
+    // OG_*: neue Namen; MAZ_*: gleiche Werte für ältere Erweiterungen
+    let api = super::manifest::API_VERSION.to_string();
+    let net = if network { "1" } else { "0" };
+    for prefix in ["OG", "MAZ"] {
+        cmd.env(format!("{prefix}_EXTENSION_DIR"), ext_dir);
+        cmd.env(format!("{prefix}_API_VERSION"), &api);
+        cmd.env(format!("{prefix}_NETWORK_ALLOWED"), net);
+    }
 }
 
 impl ExtProcess {

@@ -90,7 +90,41 @@ pub const PRESETS: &[(&str, [&str; 8])] = &[
     ("oled", ["#000000", "#0b0b0b", "#000000", "#f5f5f5", "#8f8f8f", "#ffffff", "#d4d4d4", "#1f1f1f"]),
     ("light", ["#f4f5fa", "#ffffff", "#ffffff", "#14142b", "#34364a", "#6d28d9", "#0ea5e9", "#dfe1ee"]),
     ("mint", ["#f3fbf7", "#ffffff", "#ffffff", "#0f2a1f", "#2f4a3e", "#10b981", "#06b6d4", "#d6ebe1"]),
+    // Im Stil von Minecraft-Skins: kantige Ecken und ein Pixel-Streifen in den Skin-Farben
+    ("wemmbu", ["#11001d", "#1d0331", "#160027", "#f7edff", "#c8a9e0", "#9a00dc", "#d07bff", "#3b0b5e"]),
+    ("flamefrags", ["#0c0505", "#1a0a07", "#130705", "#fff2e8", "#d6a592", "#ff3b00", "#ffc400", "#401510"]),
+    ("spoke", ["#090909", "#151515", "#0f0f0f", "#f3f3f3", "#a9a9a9", "#00d9ff", "#ff9100", "#2b2b2b"]),
+    ("parrot", ["#04140f", "#0b241a", "#071b13", "#ecfff5", "#9ccbb3", "#35d65a", "#ffd21f", "#174633"]),
 ];
+
+/// Pixel-Streifen (Skin-Farben) für die Skin-Designs – harte Übergänge wie Minecraft-Pixel
+const SKIN_STRIPES: &[(&str, &[&str])] = &[
+    ("wemmbu", &["#8b00c9", "#1a0030", "#8b00c9", "#b44dff", "#8b00c9", "#1a0030", "#8b00c9", "#b44dff"]),
+    ("flamefrags", &["#2a0a05", "#ff1a00", "#ff5a00", "#ff9a00", "#ffd000", "#ff9a00", "#ff5a00", "#ff1a00", "#2a0a05"]),
+    ("spoke", &["#ff1f1f", "#ff8a00", "#ffd400", "#a6e22e", "#22c55e", "#00e0c6", "#00b7ff", "#1d1d1d"]),
+    ("parrot", &["#2e9e47", "#35d65a", "#ffd21f", "#ff8a1a", "#ff5a1f", "#22d3ee", "#7ee0ff", "#2e9e47"]),
+];
+
+/// CSS für den Pixel-Streifen eines Designs (nur Skin-Designs)
+pub fn stripe_css(id: &str) -> Option<String> {
+    let colors = SKIN_STRIPES.iter().find(|(k, _)| *k == id)?.1;
+    let n = colors.len() as f32;
+    let stops: Vec<String> = colors
+        .iter()
+        .enumerate()
+        .map(|(i, c)| format!("{c} {:.2}% {:.2}%", i as f32 / n * 100.0, (i + 1) as f32 / n * 100.0))
+        .collect();
+    Some(format!("linear-gradient(90deg,{})", stops.join(",")))
+}
+
+/// Skin-Designs sind kantig (Minecraft-Blöcke)
+fn preset_radius(id: &str) -> u8 {
+    if SKIN_STRIPES.iter().any(|(k, _)| *k == id) {
+        3
+    } else {
+        12
+    }
+}
 
 pub fn preset(id: &str) -> Option<CustomTheme> {
     PRESETS.iter().find(|(p, _)| *p == id).map(|(p, c)| CustomTheme {
@@ -104,7 +138,7 @@ pub fn preset(id: &str) -> Option<CustomTheme> {
         accent: c[5].into(),
         accent2: c[6].into(),
         border: c[7].into(),
-        radius: 12,
+        radius: preset_radius(p),
         font: String::new(),
         density: 2,
         layout: String::new(),
@@ -350,6 +384,15 @@ mod tests {
             let t = preset(id).unwrap();
             assert!(t.css_vars().contains("--background:"));
         }
+        // Skin-Designs: gut lesbar, kantig, mit Pixel-Streifen
+        for id in ["wemmbu", "flamefrags", "spoke", "parrot"] {
+            let t = preset(id).unwrap();
+            assert!(contrast(&t.text, &t.bg) >= 7.0, "{id}");
+            assert!(contrast(&t.text, &t.card) >= 7.0, "{id}");
+            assert_eq!(t.radius, 3);
+            assert!(stripe_css(id).unwrap().starts_with("linear-gradient(90deg,"));
+        }
+        assert!(stripe_css("neon").is_none());
         let mut t = preset("neon").unwrap();
         t.name = "Mein Design".into();
         let code = t.to_code();

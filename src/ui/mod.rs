@@ -9,6 +9,7 @@ pub mod extensions;
 pub mod free;
 pub mod icons;
 pub mod installer;
+pub mod gallery;
 pub mod library;
 pub mod manage;
 pub mod media;
@@ -131,6 +132,8 @@ pub fn Root() -> Element {
             ));
         }
     }
+    // Skin-Designs: Pixel-Streifen unter der Titelleiste
+    let stripe = if authentic.is_empty() && custom.is_none() { theme::stripe_css(&s.theme) } else { None };
     let anim = if s.animations { "" } else { "no-anim" };
     let wallpaper = if s.wallpaper.is_empty() || !is_launcher {
         None
@@ -164,6 +167,9 @@ pub fn Root() -> Element {
                 div { key: "{lang}", class: "relative z-[1] flex-1 min-h-0 flex flex-col",
                     if *app.page.read() != Page::BigPicture {
                         TitleBar { nav: matches!(mode(), StartMode::Launcher) }
+                        if let Some(st) = stripe.clone() {
+                            div { class: "h-1 shrink-0", style: "background:{st}; image-rendering: pixelated;", "aria-hidden": "true" }
+                        }
                     }
                     div { class: "flex-1 min-h-0 relative",
                         {match mode() {
@@ -214,6 +220,14 @@ fn LauncherShell() -> Element {
     use_hook(move || {
         if let Some(text) = crate::crashreport::pending() {
             app.open(Modal::CrashReport(text));
+        } else if crate::flatpakid::is_new_flatpak() && !app.settings.peek().old_flatpak_asked {
+            // Flatpak mit neuer App-ID: Ist die alte App noch da? (im Hintergrund prüfen)
+            spawn(async move {
+                let old = tokio::task::spawn_blocking(crate::flatpakid::old_installed).await.unwrap_or(false);
+                if old && app.modal.peek().is_none() {
+                    app.open(Modal::OldFlatpak);
+                }
+            });
         }
     });
     // `--play <id>`: Spiel starten, sobald die Bibliothek geladen ist
@@ -242,6 +256,17 @@ fn LauncherShell() -> Element {
         net::load_free(app, false);
         net::sync_epic(app, false);
         net::update_loop(app);
+    });
+    // Steam Deck: Spieleliste für das Decky-Plugin aktuell halten (nur Linux)
+    use_effect(move || {
+        if !cfg!(target_os = "linux") || !*app.loaded.read() {
+            return;
+        }
+        let games = app.games.read().clone();
+        let s = app.settings.read().clone();
+        spawn(async move {
+            let _ = tokio::task::spawn_blocking(move || crate::decky::write(&games, &s)).await;
+        });
     });
     // Steam Deck im Gaming-Modus: direkt Big Picture
     use_hook(move || {

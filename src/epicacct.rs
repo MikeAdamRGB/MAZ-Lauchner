@@ -110,6 +110,7 @@ fn build_agent() -> ureq::Agent {
         .root_certs(RootCerts::PlatformVerifier)
         .build();
     ureq::Agent::config_builder()
+        .https_only(true)
         .tls_config(tls)
         .timeout_global(Some(Duration::from_secs(20)))
         .http_status_as_error(false)

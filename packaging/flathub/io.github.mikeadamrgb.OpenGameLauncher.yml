@@ -1,4 +1,4 @@
-app-id: io.github.mikeadamrgb.MAZLauncher
+app-id: io.github.mikeadamrgb.OpenGameLauncher
 runtime: org.gnome.Platform
 runtime-version: '49'
 sdk: org.gnome.Sdk
@@ -12,6 +12,8 @@ finish-args:
   - --filesystem=host:ro
   - --talk-name=org.freedesktop.Flatpak
   - --filesystem=xdg-run/discord-ipc-0
+  # Einmalig: Einstellungen der alten App-ID (bis 2.0) übernehmen – nur lesen
+  - --filesystem=~/.var/app/io.github.mikeadamrgb.MAZLauncher:ro
   - --talk-name=org.kde.StatusNotifierWatcher
 modules:
   - name: open-game-launcher

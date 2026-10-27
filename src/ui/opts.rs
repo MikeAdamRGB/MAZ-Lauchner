@@ -270,6 +270,52 @@ pub fn IntegrationSection() -> Element {
                     Icon { name: "gamepad", class: "size-4" } {t("steamsc.add")}
                 }
             }
+            if cfg!(target_os = "linux") {
+                Separator {}
+                SwitchRow { title: t("integ.decky"), description: t("integ.decky_text"), checked: s.decky_export,
+                    onchange: move |v: bool| app.update(|s| s.decky_export = v) }
+            }
+        }
+    }
+}
+
+/// Flatpak: Die App hat eine neue ID – die alte (gleiche App, alter Name) kann weg
+#[component]
+pub fn OldFlatpakDialog() -> Element {
+    let app = use_app();
+    let mut busy = use_signal(|| false);
+    let done = move |app: App| {
+        app.update(|s| s.old_flatpak_asked = true);
+        app.close_modal();
+    };
+    rsx! {
+        Dialog { on_close: move |_| done(app), class: "max-w-lg",
+            div { class: "p-8",
+                div { class: "flex items-center gap-3 mb-3",
+                    div { class: "size-10 rounded-xl bg-primary/15 text-primary grid place-items-center", Icon { name: "package", class: "size-5" } }
+                    h2 { class: "text-lg font-bold", {t("oldfp.title")} }
+                }
+                p { class: "text-sm leading-relaxed", {t("oldfp.text")} }
+                div { class: "flex justify-end gap-2 mt-6",
+                    Button { variant: ButtonVariant::Ghost, onclick: move |_| done(app), {t("oldfp.keep")} }
+                    Button { variant: ButtonVariant::Glow, disabled: busy(),
+                        onclick: move |_| {
+                            busy.set(true);
+                            spawn(async move {
+                                let ok = tokio::task::spawn_blocking(crate::flatpakid::uninstall_old).await.unwrap_or(false);
+                                busy.set(false);
+                                if ok {
+                                    app.toast(&t("oldfp.removed"), "check-circle");
+                                } else {
+                                    app.toast(&t("oldfp.failed"), "alert");
+                                }
+                                done(app);
+                            });
+                        },
+                        Icon { name: "trash", class: "size-4" } {t("oldfp.remove")}
+                    }
+                }
+            }
         }
     }
 }

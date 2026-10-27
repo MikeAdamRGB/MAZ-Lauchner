@@ -406,6 +406,7 @@ pub fn http_agent() -> ureq::Agent {
         .root_certs(RootCerts::PlatformVerifier)
         .build();
     let config = ureq::Agent::config_builder()
+        .https_only(true)
         .tls_config(tls)
         .timeout_global(Some(std::time::Duration::from_secs(12)))
         .user_agent("Open-Game-Launcher")

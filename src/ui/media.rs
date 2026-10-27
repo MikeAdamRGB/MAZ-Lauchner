@@ -319,3 +319,110 @@ pub fn Achievements(id: String) -> Element {
         }
     }
 }
+
+#[derive(Clone, PartialEq)]
+enum NewsState {
+    Closed,
+    Loading,
+    Ready(Vec<crate::news::NewsItem>),
+    Failed,
+}
+
+/// Spiel-Details: News und Patch-Notes von Steam (lädt erst auf Klick)
+#[component]
+pub fn GameNews(appid: u32) -> Element {
+    let mut state = use_signal(|| NewsState::Closed);
+    let mut only_patch = use_signal(|| false);
+    let mut open_item = use_signal(|| None::<usize>);
+    let mut load = move || {
+        state.set(NewsState::Loading);
+        spawn(async move {
+            let res = tokio::task::spawn_blocking(move || crate::news::steam(appid)).await;
+            state.set(match res {
+                Ok(Ok(v)) => NewsState::Ready(v),
+                _ => NewsState::Failed,
+            });
+        });
+    };
+    let st = state();
+    let patch_on = only_patch();
+    let all_on = !patch_on;
+    rsx! {
+        div { class: "mt-5 rounded-xl border border-border p-4",
+            div { class: "flex flex-wrap items-center gap-3",
+                Icon { name: "news", class: "size-4 text-primary" }
+                h3 { class: "text-sm font-semibold flex-1", {t("news.title")} }
+                if matches!(st, NewsState::Ready(_)) {
+                    div { class: "flex rounded-lg bg-muted p-0.5 text-xs", role: "group",
+                        button { class: if !only_patch() { "px-2.5 py-1 rounded-md bg-background font-medium cursor-pointer" } else { "px-2.5 py-1 rounded-md text-muted-foreground cursor-pointer" },
+                            "aria-pressed": "{all_on}", onclick: move |_| only_patch.set(false), {t("news.all")} }
+                        button { class: if only_patch() { "px-2.5 py-1 rounded-md bg-background font-medium cursor-pointer" } else { "px-2.5 py-1 rounded-md text-muted-foreground cursor-pointer" },
+                            "aria-pressed": "{patch_on}", onclick: move |_| only_patch.set(true), {t("news.patches")} }
+                    }
+                }
+                if matches!(st, NewsState::Closed | NewsState::Failed) {
+                    Button { variant: ButtonVariant::Outline, size: ButtonSize::Sm, onclick: move |_| load(),
+                        Icon { name: "download", class: "size-3.5" } {t("news.load")} }
+                }
+            }
+            match st {
+                NewsState::Closed => rsx! {},
+                NewsState::Loading => rsx! { p { class: "mt-3 text-sm text-muted-foreground", role: "status", {t("news.loading")} } },
+                NewsState::Failed => rsx! { p { class: "mt-3 text-sm text-muted-foreground", role: "alert", {t("news.failed")} } },
+                NewsState::Ready(items) => {
+                    let list: Vec<(usize, crate::news::NewsItem)> = items.into_iter().enumerate().filter(|(_, n)| !only_patch() || n.patch).collect();
+                    rsx! {
+                        if list.is_empty() {
+                            p { class: "mt-3 text-sm text-muted-foreground", {t("news.none")} }
+                        }
+                        ul { class: "mt-3 divide-y divide-border",
+                            {list.into_iter().map(|(i, n)| {
+                                let (y, m, d, _, _) = crate::util::civil(n.date as i64);
+                                let date = format!("{d:02}.{m:02}.{y}");
+                                let expanded = open_item() == Some(i);
+                                let url = n.url.clone();
+                                let chevron: &'static str = if expanded { "chevron-up" } else { "chevron-down" };
+                                let (title, feed, body, is_patch) = (n.title.clone(), n.feed.clone(), n.text.clone(), n.patch);
+                                rsx! {
+                                    li { key: "{i}", class: "py-3",
+                                        button { class: "w-full text-left flex items-start gap-2 cursor-pointer rounded-md",
+                                            "aria-expanded": "{expanded}",
+                                            onclick: move |_| open_item.set(if expanded { None } else { Some(i) }),
+                                            div { class: "flex-1 min-w-0",
+                                                div { class: "text-sm font-medium leading-snug", "{title}" }
+                                                div { class: "text-xs text-muted-foreground mt-0.5 flex gap-2",
+                                                    span { "{date}" }
+                                                    if !feed.is_empty() { span { "· {feed}" } }
+                                                    if is_patch { span { class: "text-primary font-medium", "· " {t("news.patch")} } }
+                                                }
+                                            }
+                                            Icon { name: chevron, class: "size-4 text-muted-foreground mt-0.5" }
+                                        }
+                                        if expanded {
+                                            p { class: "mt-2 text-sm leading-relaxed whitespace-pre-line select-text", "{body}" }
+                                            if let Some(u) = url {
+                                                Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, class: "mt-2",
+                                                    onclick: move |_| { let _ = sys::open_url(&u); },
+                                                    Icon { name: "external", class: "size-3.5" } {t("news.read_more")} }
+                                            }
+                                        }
+                                    }
+                                }
+                            })}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// News nur für Spiele mit Steam-Nummer
+#[component]
+pub fn NewsFor(id: String) -> Element {
+    let app = use_app();
+    match app.game(&id).and_then(|g| g.steam_appid) {
+        Some(appid) => rsx! { GameNews { key: "{appid}", appid } },
+        None => rsx! {},
+    }
+}

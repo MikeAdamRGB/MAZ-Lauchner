@@ -2,7 +2,7 @@
 //!
 //! Sprachdateien liegen in `lang/<code>.txt` (eine Zeile = `schlüssel = text`)
 //! und werden in die EXE eingebettet. Zusätzlich lädt der Launcher eigene
-//! Sprachdateien aus `%APPDATA%\MAZ Launcher\lang\` – so kann jeder neue
+//! Sprachdateien aus `%APPDATA%\Open Game Launcher\lang\` – so kann jeder neue
 //! Sprachen hinzufügen, ohne neu zu kompilieren.
 //!
 //! Platzhalter: `{name}` usw. – werden mit [`tf`] ersetzt.

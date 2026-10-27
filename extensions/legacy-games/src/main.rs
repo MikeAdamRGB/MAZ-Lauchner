@@ -2,7 +2,7 @@
 //! - installierte Spiele aus der Windows-Programmliste (Herausgeber „Legacy Games“)
 //! - gekaufte Spiele aus dem Legacy Games Launcher, soweit er sie lokal speichert
 //!   (%APPDATA%\legacy-games-launcher\*.json). Anmeldedaten werden nie gelesen oder weitergegeben.
-use maz_extension_sdk::*;
+use og_extension_sdk::*;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 

@@ -20,7 +20,7 @@ winget install MikeAdamRGB.OpenGameLauncher
 scoop install open-game-launcher          # nach "scoop bucket add …"
 brew install --cask open-game-launcher    # nach "brew tap …"
 yay -S open-game-launcher-bin
-flatpak install flathub io.github.mikeadamrgb.MAZLauncher
+flatpak install flathub io.github.mikeadamrgb.OpenGameLauncher
 ```
 
 Bei Installation über einen Paketmanager am besten auch über diesen aktualisieren

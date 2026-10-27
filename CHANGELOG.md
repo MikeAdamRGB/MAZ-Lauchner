@@ -1,11 +1,38 @@
 # Changelog
 
-Alle wichtigen Änderungen am MAZ Launcher. Jede Version hat bis zu vier Abschnitte:
+Alle wichtigen Änderungen am Open Game Launcher (OG, bis 1.7 „MAZ Launcher“). Jede Version hat bis zu vier Abschnitte:
 **Neu**, **Verbessert**, **Behoben** und **Sicherheit**. Wie oft Updates kommen, steht in
 [docs/UPDATE-POLICY.md](docs/UPDATE-POLICY.md).
 
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
+
+## [2.1.0] – 2026-10-27
+
+### Neu
+- **News & Patch-Notes** in den Spiel-Details (von Steam, lädt erst auf Klick). Filter „Patch-Notes“, ganzen Artikel im Browser öffnen.
+- **Speicherplatz-Übersicht** (Statistik-Seite): Wie viel Platz belegen deine Spiele – pro Laufwerk, mit freiem Platz und „Deinstallieren“-Knopf.
+- **Screenshot-Galerie** pro Spiel: Steam-Screenshots (F12) automatisch, dazu ein eigener Ordner je Spiel. Großansicht mit Pfeiltasten und „Im Ordner zeigen“.
+- **Steam-Deck-Plugin (Decky):** Spiele aus dem Open Game Launcher direkt im Schnellzugriffsmenü des Gaming-Modus starten. `Open-Game-Launcher-Decky.zip` hängt am Release.
+- **4 neue Designs im Minecraft-Skin-Stil:** Wemmbu (Lila), Flamefrags (Rot-Schwarz mit Flammen), Spoke (Schwarz-Bunt) und Parrot (Grün) – mit kantigen Ecken und einem Pixel-Streifen in den Skin-Farben.
+
+### Verbessert
+- Überall „Open Game Launcher“ statt „MAZ Launcher“ (Begrüßung, Über-Seite, Changelog). Das Erweiterungs-SDK heißt jetzt `og-extension-sdk`, Erweiterungen bekommen zusätzlich `OG_*`-Umgebungsvariablen.
+- **Flatpak-ID** heißt jetzt `io.github.mikeadamrgb.OpenGameLauncher`. Beim ersten Start werden die Einstellungen der alten App übernommen, danach kann die alte App mit einem Klick entfernt werden.
+- Die mit UPX gepackte „Mini“-EXE entfällt (wurde oft fälschlich als Virus gemeldet).
+
+### Sicherheit
+- **Herkunftsnachweis** für jede Datei im Release (prüfbar mit `gh attestation verify`), siehe [SECURITY.md](SECURITY.md).
+- **Windows:** Control Flow Guard und CET-Schattenstapel aktiviert, aktueller Ordner aus der DLL-Suche entfernt, Deinstallation baut keine unsicheren Pfade mehr in Befehle ein.
+- **Fenster:** Inhaltsrichtlinie (CSP) – nichts darf von fremden Servern nachgeladen oder dorthin gesendet werden, keine eingebetteten Seiten, keine Formulare.
+- **Links:** Steam-Links mit angehängten Startparametern werden abgelehnt.
+- **Alle Online-Abfragen nur noch über HTTPS** (auch nach Weiterleitungen).
+- **Sicherung wiederherstellen** übernimmt nie Programme vor/nach dem Spiel und nie Zustimmungen zu Erweiterungen aus der Datei.
+- **Linux-Pakete:** Pacman- und RPM-Pakete enthalten jetzt nur Dateien, die root gehören (vorher konnten Dateien die Benutzernummer des Build-Rechners tragen).
+- **AppImage:** appimagetool und AppImage-Laufzeit in fester Version mit Prüfsumme statt „continuous“.
+- **Discord-Status:** nur noch über Sockets des eigenen Benutzers.
+- **Webseite:** Schriften werden selbst ausgeliefert – Besucher verbinden sich nicht mehr mit Google.
+- CI: npm ohne Installations-Skripte, Dependabot für Bibliotheken und CI-Aktionen.
 
 ## [2.0.0] – 2026-10-27
 

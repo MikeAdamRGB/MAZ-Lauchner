@@ -4,7 +4,7 @@
 <dict>
   <key>CFBundleName</key><string>Open Game Launcher</string>
   <key>CFBundleDisplayName</key><string>Open Game Launcher</string>
-  <key>CFBundleIdentifier</key><string>io.github.mikeadamrgb.MAZLauncher</string>
+  <key>CFBundleIdentifier</key><string>io.github.mikeadamrgb.OpenGameLauncher</string>
   <key>CFBundleVersion</key><string>@VERSION@</string>
   <key>CFBundleShortVersionString</key><string>@VERSION@</string>
   <key>CFBundleExecutable</key><string>maz-launcher</string>

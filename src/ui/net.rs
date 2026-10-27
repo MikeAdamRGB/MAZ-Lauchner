@@ -1,4 +1,4 @@
-//! Online-Funktionen der Oberfläche: Gratis-Spiele und Epic-Bibliothek (ohne MAZ-Konto).
+//! Online-Funktionen der Oberfläche: Gratis-Spiele und Epic-Bibliothek (ohne eigenes Konto).
 //! Alle Netzwerkaufrufe laufen im Hintergrund, die Oberfläche bleibt flüssig.
 
 use super::state::*;

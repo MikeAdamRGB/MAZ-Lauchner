@@ -85,7 +85,6 @@ Steam, Epic Games 그리고 직접 추가한 게임을 빠르고 가볍고 보�
 > [!TIP]
 > **포터블로 쓰고 싶다면** 설치 메뉴에서 **„Ohne Installation starten“**(*설치 없이 실행*)을 클릭하거나, EXE 옆에 빈 `portable.txt` 파일을 두세요.
 
-**`Open-Game-Launcher-mini.exe`**는 같은 앱을 UPX로 압축한 버전입니다. 일부 백신이 압축된 EXE를 잘못 탐지할 수 있으니, 그럴 때는 일반 버전을 사용하세요.
 
 **제거:** Windows 설정 → 앱 → “Open Game Launcher” → 제거, 또는 런처의 **Einstellungen → Allgemein**(*설정 → 일반*)에서. 게임은 그대로 유지됩니다.
 

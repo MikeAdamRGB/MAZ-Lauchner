@@ -307,6 +307,8 @@ pub fn uninstall_interactive() {
             // Ordner danach nur löschen, wenn er leer ist (rmdir ohne /s schlägt sonst fehl).
             // Die laufende EXE kann sich nicht selbst löschen → kurz warten.
             let d = dir.to_string_lossy().to_string();
+            // SICHERHEIT: Pfade mit Zeichen, die cmd.exe auswertet, nie in den Befehl einbauen
+            let safe = !d.contains(['"', '%', '^', '!', '\n', '\r']);
             // Den (leeren) Ordner nur entfernen, wenn er wirklich wie der Launcher heißt –
             // nie z. B. einen leeren Downloads- oder Desktop-Ordner.
             let own_dir = is_own_dir_name(&dir);
@@ -317,7 +319,9 @@ pub fn uninstall_interactive() {
                 old = sys::OLD_EXE_NAME
             );
             use std::os::windows::process::CommandExt;
-            let _ = sys::quiet_command(sys::system_program("cmd.exe")).raw_arg(format!("/C {cmd}")).current_dir(sys::system_program("cmd.exe").parent().unwrap_or(Path::new("C:\\"))).spawn();
+            if safe {
+                let _ = sys::quiet_command(sys::system_program("cmd.exe")).raw_arg(format!("/C {cmd}")).current_dir(sys::system_program("cmd.exe").parent().unwrap_or(Path::new("C:\\"))).spawn();
+            }
         }
         MessageDialog::new()
             .set_level(MessageLevel::Info)

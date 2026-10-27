@@ -19,4 +19,4 @@ parts:
 apps:
   maz-launcher:
     command: bin/maz-launcher
-    desktop: share/applications/io.github.mikeadamrgb.MAZLauncher.desktop
+    desktop: share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop

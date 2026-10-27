@@ -1,0 +1,11 @@
+{
+  "name": "Open Game Launcher",
+  "author": "MikeAdamRGB",
+  "flags": [],
+  "api_version": 1,
+  "publish": {
+    "tags": ["launcher", "library", "games"],
+    "description": "Start games from Open Game Launcher (Epic, GOG, emulators, your own games …) right from the Quick Access menu.",
+    "image": "https://mikeadamrgb.github.io/Open-Game-Launcher/img/og.png"
+  }
+}

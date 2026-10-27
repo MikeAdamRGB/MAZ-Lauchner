@@ -1,5 +1,5 @@
 # Flatpak-Manifest. Baut KEIN Rust, sondern packt die fertige Linux-Datei aus dem CI ein.
-app-id: io.github.mikeadamrgb.MAZLauncher
+app-id: io.github.mikeadamrgb.OpenGameLauncher
 runtime: org.gnome.Platform
 runtime-version: '49'
 sdk: org.gnome.Sdk
@@ -18,16 +18,18 @@ finish-args:
   - --talk-name=org.freedesktop.Flatpak
   # Optional: Discord-Status (nur der lokale Discord-Kanal) und Symbol im Infobereich
   - --filesystem=xdg-run/discord-ipc-0
+  # Einmalig: Einstellungen der alten App-ID (bis 2.0) übernehmen – nur lesen
+  - --filesystem=~/.var/app/io.github.mikeadamrgb.MAZLauncher:ro
   - --talk-name=org.kde.StatusNotifierWatcher
 modules:
   - name: maz-launcher
     buildsystem: simple
     build-commands:
       - install -Dm755 maz-launcher /app/bin/maz-launcher
-      - install -Dm644 io.github.mikeadamrgb.MAZLauncher.desktop /app/share/applications/io.github.mikeadamrgb.MAZLauncher.desktop
-      - install -Dm644 io.github.mikeadamrgb.MAZLauncher.metainfo.xml /app/share/metainfo/io.github.mikeadamrgb.MAZLauncher.metainfo.xml
-      - install -Dm644 icon-256.png /app/share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.MAZLauncher.png
-      - install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.MAZLauncher.png
+      - install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.desktop /app/share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop
+      - install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml /app/share/metainfo/io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml
+      - install -Dm644 icon-256.png /app/share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+      - install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.OpenGameLauncher.png
     sources:
       - type: dir
         path: flatpak-src

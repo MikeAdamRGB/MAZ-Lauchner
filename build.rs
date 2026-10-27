@@ -13,6 +13,10 @@ fn main() {
     // Ordner, in dem die EXE liegt (z. B. "Downloads", wo jemand eine falsche DLL ablegen könnte).
     if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
         println!("cargo:rustc-link-arg-bins=/DEPENDENTLOADFLAG:0x800");
+        // Schattenstapel (Intel CET / AMD Shadow Stack): schützt Rücksprungadressen
+        if std::env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("x86_64") {
+            println!("cargo:rustc-link-arg-bins=/CETCOMPAT");
+        }
     }
 
     let version = std::env::var("CARGO_PKG_VERSION").unwrap_or_else(|_| "1.0.0".into());
@@ -30,7 +34,7 @@ fn main() {
     res.set_manifest(
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-  <assemblyIdentity type="win32" name="MikeAdamRGB.MAZLauncher" version="1.0.0.0"/>
+  <assemblyIdentity type="win32" name="MikeAdamRGB.OpenGameLauncher" version="1.0.0.0"/>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>

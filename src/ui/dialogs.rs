@@ -50,6 +50,8 @@ pub fn ModalHost() -> Element {
         Some(Modal::LaunchOpts(id)) => rsx! { super::opts::LaunchOptsDialog { id } },
         Some(Modal::AddToSteam(id)) => rsx! { super::opts::AddToSteamDialog { id } },
         Some(Modal::CrashReport(text)) => rsx! { super::opts::CrashReportDialog { text } },
+        Some(Modal::OldFlatpak) => rsx! { super::opts::OldFlatpakDialog {} },
+        Some(Modal::Screenshot(id, index)) => rsx! { super::gallery::ScreenshotViewer { id, index } },
         Some(Modal::EpicConnect) => rsx! {
             Dialog { on_close: move |_| app.close_modal(), class: "max-w-xl",
                 div { class: "p-6 pt-8",
@@ -703,7 +705,7 @@ fn WelcomeDialog() -> Element {
                 div { class: "flex items-center gap-4",
                     MazLogo { class: "size-14 text-base" }
                     div {
-                        h2 { class: "text-3xl font-black font-display", {t("welcome.title")} " " span { class: "maz-gradient-text", "MAZ Launcher" } }
+                        h2 { class: "text-3xl font-black font-display", {t("welcome.title")} " " span { class: "maz-gradient-text", {crate::sys::APP_NAME} } }
                         p { class: "text-muted-foreground mt-1", {t("welcome.sub")} }
                     }
                 }

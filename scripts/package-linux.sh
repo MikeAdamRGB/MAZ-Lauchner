@@ -9,7 +9,7 @@ FORMATS="${*:-appimage deb rpm pacman flatpak snap}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/dist"
 WORK="$(mktemp -d)"
-ID="io.github.mikeadamrgb.MAZLauncher"
+ID="io.github.mikeadamrgb.OpenGameLauncher"
 PKG="maz-launcher"
 DESC="All your Steam, Epic, Roblox and own games in one launcher"
 URL="https://github.com/MikeAdamRGB/Open-Game-Launcher"
@@ -77,6 +77,7 @@ mkdir -p %{buildroot}
 cp -a $top/stage/usr %{buildroot}/
 
 %files
+%defattr(-,root,root,-)
 /usr/bin/$PKG
 /usr/share/applications/$ID.desktop
 /usr/share/metainfo/$ID.metainfo.xml
@@ -109,10 +110,12 @@ PKGI
   (
     cd "$d"
     export LANG=C
-    bsdtar -czf .MTREE --format=mtree \
+    # SICHERHEIT: Dateien gehören root (nicht dem Build-Benutzer), sonst könnte ein normaler
+    # Benutzer mit derselben Nummer das installierte Programm verändern.
+    bsdtar -czf .MTREE --format=mtree --uid 0 --gid 0 --uname root --gname root \
       --options='!all,use-set,type,uid,gid,mode,time,size,md5,sha256,link' \
       .PKGINFO usr
-    bsdtar -cf - .MTREE .PKGINFO usr | zstd -19 -T0 -q -o "$OUT/$PKG-$VERSION-1-$ARCH.pkg.tar.zst"
+    bsdtar -cf - --uid 0 --gid 0 --uname root --gname root .MTREE .PKGINFO usr | zstd -19 -T0 -q -o "$OUT/$PKG-$VERSION-1-$ARCH.pkg.tar.zst"
   )
 }
 
@@ -128,10 +131,25 @@ HERE="$(dirname "$(readlink -f "$0")")"
 exec "$HERE/usr/bin/maz-launcher" "$@"
 RUN
   chmod +x "$d/AppRun"
-  local tool="$WORK/appimagetool"
-  curl -fsSL -o "$tool" "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-$ARCH.AppImage"
+  # SICHERHEIT: feste Versionen von appimagetool und AppImage-Laufzeit, mit Prüfsumme
+  # (sonst könnte jede neue „continuous“-Version unbemerkt in die AppImage gelangen)
+  local tool="$WORK/appimagetool" runtime="$WORK/runtime"
+  local tool_sha runtime_sha
+  case "$ARCH" in
+    x86_64)
+      tool_sha=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
+      runtime_sha=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d ;;
+    aarch64)
+      tool_sha=f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158
+      runtime_sha=00cbdfcf917cc6c0ff6d3347d59e0ca1f7f45a6df1a428a0d6d8a78664d87444 ;;
+    *) echo "Unbekannte Architektur: $ARCH" >&2; return 1 ;;
+  esac
+  curl -fsSL --proto '=https' -o "$tool" "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-$ARCH.AppImage"
+  curl -fsSL --proto '=https' -o "$runtime" "https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-$ARCH"
+  echo "$tool_sha  $tool" | sha256sum -c -
+  echo "$runtime_sha  $runtime" | sha256sum -c -
   chmod +x "$tool"
-  ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream "$d" "$OUT/Open-Game-Launcher-$VERSION-$ARCH.AppImage"
+  ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream --runtime-file "$runtime" "$d" "$OUT/Open-Game-Launcher-$VERSION-$ARCH.AppImage"
 }
 
 build_flatpak() {

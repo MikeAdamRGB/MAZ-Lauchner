@@ -85,7 +85,6 @@ Steam、Epic Games、そして自分で追加したゲームを、高速・軽�
 > [!TIP]
 > **ポータブル版として使いたい場合** はインストールメニューで **「Ohne Installation starten」**(*インストールせずに起動*)をクリックするか、EXE と同じフォルダーに空の `portable.txt` を置いてください。
 
-**`Open-Game-Launcher-mini.exe`** は同じアプリを UPX で圧縮したものです。圧縮された EXE をウイルス対策ソフトが誤検知することがあるので、その場合は通常版を使ってください。
 
 **アンインストール:** Windows の設定 → アプリ → 「Open Game Launcher」 → アンインストール、またはランチャーの **Einstellungen → Allgemein**(*設定 → 一般*)から。ゲーム自体は削除されません。
 
