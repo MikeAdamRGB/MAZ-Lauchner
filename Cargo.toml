@@ -29,7 +29,7 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg"]
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 # Komplette Bibliotheken aus den lokalen Datenbanken von GOG Galaxy, Amazon Games und itch.io
 # lesen (nur lesend). "bundled" = SQLite fest eingebaut, keine System-DLL nötig.
-rusqlite = { version = "0.37", features = ["bundled"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
 # HTTP für optionale Online-Funktionen (Steam-API, Cover-Suche).
 # native-tls nutzt das in Windows eingebaute SChannel → keine große TLS-Bibliothek in der EXE.
 ureq = { version = "3.5", default-features = false, features = ["json", "native-tls-no-default"] }
