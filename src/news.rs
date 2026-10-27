@@ -170,8 +170,10 @@ pub fn parse(json: &str) -> Vec<NewsItem> {
         .collect()
 }
 
-fn cache() -> &'static Mutex<HashMap<u32, (u64, Vec<NewsItem>)>> {
-    static C: OnceLock<Mutex<HashMap<u32, (u64, Vec<NewsItem>)>>> = OnceLock::new();
+type Cache = Mutex<HashMap<u32, (u64, Vec<NewsItem>)>>;
+
+fn cache() -> &'static Cache {
+    static C: OnceLock<Cache> = OnceLock::new();
     C.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
