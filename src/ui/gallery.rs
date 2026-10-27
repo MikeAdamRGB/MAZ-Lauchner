@@ -125,6 +125,7 @@ pub fn ScreenshotViewer(id: String, index: usize) -> Element {
                     Some(s) => {
                         let src = crate::sys::file_url(&s.path);
                         let path = s.path.to_string_lossy().to_string();
+                        let path_title = path.clone();
                         let name = s.path.file_name().map(|f| f.to_string_lossy().to_string()).unwrap_or_default();
                         rsx! {
                             div { class: "relative bg-black rounded-lg overflow-hidden grid place-items-center min-h-[50vh]",
@@ -137,7 +138,7 @@ pub fn ScreenshotViewer(id: String, index: usize) -> Element {
                                 }
                             }
                             div { class: "mt-3 flex flex-wrap items-center gap-3 text-sm",
-                                span { class: "flex-1 min-w-0 truncate font-mono text-xs text-muted-foreground", title: "{path}", "{name}" }
+                                span { class: "flex-1 min-w-0 truncate font-mono text-xs text-muted-foreground", title: "{path_title}", "{name}" }
                                 span { class: "text-xs text-muted-foreground", "{pos}" }
                                 Button { variant: ButtonVariant::Outline, size: ButtonSize::Sm,
                                     onclick: move |_| crate::sys::reveal_file(&path),
