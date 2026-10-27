@@ -428,10 +428,22 @@ pub fn GameCard(game: Game, favorite: bool, show_name: bool, #[props(into)] cove
     let play_title = t(if installed { "game.play" } else { "game.install" });
     let g2 = game.clone();
     let g3 = game.clone();
+    let logos = game.art.logo.clone();
+    let use_logo = show_name && app.settings.read().show_logos && !logos.is_empty();
+    let id_key = game.id.clone();
     rsx! {
         div {
-            class: "group relative cursor-pointer animate-pop-in",
+            class: "group relative cursor-pointer animate-pop-in rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            role: "button",
+            tabindex: "0",
+            "aria-label": "{name}",
             onclick: move |_| app.open(Modal::Detail(id.clone())),
+            onkeydown: move |e| {
+                if e.key() == Key::Enter || e.key() == Key::Character(" ".into()) {
+                    e.prevent_default();
+                    app.open(Modal::Detail(id_key.clone()));
+                }
+            },
             div { class: "relative aspect-[2/3] rounded-xl overflow-hidden bg-muted ring-1 ring-white/5 shadow-lg shadow-black/30 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:ring-2 group-hover:ring-primary group-hover:shadow-2xl card-shine",
                 ArtImage {
                     srcs: covers.clone(),
@@ -458,6 +470,8 @@ pub fn GameCard(game: Game, favorite: bool, show_name: bool, #[props(into)] cove
                     button {
                         class: "size-14 rounded-full maz-gradient-bg text-glow-fg grid place-items-center shadow-2xl shadow-black/50 scale-75 group-hover:scale-100 transition-transform duration-300 cursor-pointer hover:brightness-110",
                         title: "{play_title}",
+                        "aria-label": "{play_title}: {name}",
+                        tabindex: "-1",
                         onclick: move |e| {
                             e.stop_propagation();
                             play(app, id_play.clone());
@@ -469,7 +483,17 @@ pub fn GameCard(game: Game, favorite: bool, show_name: bool, #[props(into)] cove
                     GameIcon { game: g3.clone(), class: "size-7 rounded-md ring-1 ring-white/20 shadow" }
                 }
             }
-            if show_name {
+            if use_logo {
+                // Logo statt Text; klappt das Bild nicht, steht doch der Name da
+                div { class: "mt-2 h-10 px-0.5 flex items-center",
+                    ArtImage {
+                        srcs: logos.clone(),
+                        class: "max-h-10 max-w-full object-contain object-left drop-shadow",
+                        alt: name.clone(),
+                        fallback: rsx! { div { class: "text-[13px] font-medium leading-snug line-clamp-2 text-foreground/90", "{name}" } },
+                    }
+                }
+            } else if show_name {
                 div { class: "mt-2.5 px-0.5 text-[13px] font-medium leading-snug line-clamp-2 text-foreground/90 group-hover:text-foreground", "{name}" }
             }
         }

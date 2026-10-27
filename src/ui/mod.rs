@@ -1,6 +1,7 @@
 //! Oberfläche (Dioxus + Komponenten im rust-ui-Stil).
 
 pub mod art;
+pub mod bigpicture;
 pub mod components;
 pub mod detail;
 pub mod dialogs;
@@ -10,6 +11,7 @@ pub mod icons;
 pub mod installer;
 pub mod library;
 pub mod manage;
+pub mod media;
 pub mod minecraft;
 pub mod net;
 pub mod settings;
@@ -107,7 +109,12 @@ pub fn Root() -> Element {
         }
         if !s.accent.is_empty() && custom.is_none() {
             let a = &s.accent;
-            style.push_str(&format!("--primary:{a};--ring:{a};--glow:{a};--primary-foreground:{};", theme::contrast_text(a)));
+            let a2 = theme::preset(&s.theme).map(|p| p.accent2).unwrap_or_else(|| a.clone());
+            style.push_str(&format!(
+                "--primary:{a};--ring:{a};--glow:{a};--primary-foreground:{};--glow-fg:{};",
+                theme::contrast_text(a),
+                theme::gradient_text(a, &a2)
+            ));
         }
     }
     let anim = if s.animations { "" } else { "no-anim" };
@@ -121,6 +128,12 @@ pub fn Root() -> Element {
     };
     let lang = if s.language.is_empty() { "auto".to_string() } else { s.language.clone() };
     drop(s);
+    // Schriftgröße (Barrierefreiheit): alle Größen hängen an der Grundschrift (rem)
+    use_effect(move || {
+        let fs = app.settings.read().font_scale.clamp(80, 175);
+        let js = format!("document.documentElement.style.fontSize='{fs}%';");
+        let _ = dioxus::desktop::window().webview.evaluate_script(&js);
+    });
 
     rsx! {
         div {
@@ -135,7 +148,9 @@ pub fn Root() -> Element {
             // Bei Sprachwechsel alles neu aufbauen (Schlüssel = Sprache)
             {std::iter::once(rsx! {
                 div { key: "{lang}", class: "relative z-[1] flex-1 min-h-0 flex flex-col",
-                    TitleBar { nav: matches!(mode(), StartMode::Launcher) }
+                    if *app.page.read() != Page::BigPicture {
+                        TitleBar { nav: matches!(mode(), StartMode::Launcher) }
+                    }
                     div { class: "flex-1 min-h-0 relative",
                         {match mode() {
                             StartMode::Launcher => rsx! { LauncherShell {} },
@@ -161,7 +176,7 @@ pub fn Root() -> Element {
 }
 
 /// Controller-Modus ein-/ausschalten (Skript wird nur einmal geladen)
-fn apply_controller(on: bool) {
+pub fn apply_controller(on: bool) {
     let js = include_str!("../../assets/controller.js").replace("__ON__", if on { "true" } else { "false" });
     let _ = window().webview.evaluate_script(&js);
 }
@@ -199,6 +214,7 @@ fn LauncherShell() -> Element {
         Page::Free => rsx! { free::FreePage {} },
         Page::Minecraft => rsx! { minecraft::MinecraftPage {} },
         Page::Stats => rsx! { stats::StatsPage {} },
+        Page::BigPicture => rsx! { bigpicture::BigPicture {} },
         Page::Settings(_) => rsx! { settings::SettingsPage {} },
     }
 }
@@ -272,7 +288,16 @@ fn TitleBar(#[props(default = false)] nav: bool) -> Element {
             div { class: "flex-1" }
             if nav {
                 button {
+                    class: "mr-1 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-white/10 flex items-center gap-1.5 cursor-pointer",
+                    title: t("bp.tip"),
+                    "aria-label": t("bp.tip"),
+                    onmousedown: move |e| e.stop_propagation(),
+                    onclick: move |_| app.go(Page::BigPicture),
+                    Icon { name: "monitor", class: "size-4" }
+                }
+                button {
                     class: "mr-2 h-7 px-2.5 rounded-md text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-white/10 flex items-center gap-1.5 cursor-pointer",
+                    "aria-label": t("random.tip"),
                     title: t("random.tip"),
                     onmousedown: move |e| e.stop_propagation(),
                     onclick: move |_| app.open(Modal::Random),

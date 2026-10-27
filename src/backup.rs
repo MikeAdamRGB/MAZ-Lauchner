@@ -25,6 +25,7 @@ fn without_secrets(s: &Settings) -> Settings {
     let mut c = s.clone();
     c.steam_api_key.clear();
     c.curseforge_key.clear();
+    c.sgdb_key.clear();
     c.epic_auth = None;
     c
 }
@@ -53,6 +54,7 @@ pub fn restore(current: &Settings, from_backup: &Settings) -> Settings {
     let mut s = from_backup.clone();
     s.steam_api_key = current.steam_api_key.clone();
     s.curseforge_key = current.curseforge_key.clone();
+    s.sgdb_key = current.sgdb_key.clone();
     s.epic_auth = current.epic_auth.clone();
     s
 }

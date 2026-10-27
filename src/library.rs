@@ -142,6 +142,7 @@ pub fn scan(settings: &Settings) -> ScanResult {
     }
     for g in result.games.iter_mut().chain(result.duplicates.values_mut().flatten()) {
         apply_meta(g, settings);
+        crate::sgdb::apply(g);
     }
     result
 }
@@ -152,9 +153,26 @@ pub fn apply_meta(g: &mut Game, settings: &Settings) {
         if !m.name.trim().is_empty() {
             g.name = m.name.trim().to_string();
         }
-        if !m.hero.trim().is_empty() {
-            g.art.hero.insert(0, sys::file_url(Path::new(m.hero.trim())));
+        let hero = image_ref(m.hero.trim());
+        if !m.hero.trim().is_empty() && !hero.is_empty() {
+            g.art.hero.insert(0, hero);
         }
+    }
+    if let Some(l) = settings.logo_overrides.get(&g.id).map(|l| image_ref(l.trim())).filter(|l| !l.is_empty()) {
+        g.art.logo.insert(0, l);
+    }
+}
+
+/// Selbst gewähltes Bild: Datei auf dem PC oder (geprüfte) SteamGridDB-Adresse
+pub fn image_ref(v: &str) -> String {
+    if v.starts_with("https://") {
+        if crate::sgdb::allowed_image(v) {
+            v.to_string()
+        } else {
+            String::new()
+        }
+    } else {
+        sys::file_url(Path::new(v))
     }
 }
 

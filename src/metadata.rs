@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 /// Version des Cache-Formats – ältere Einträge werden einmal neu geladen
-pub const VERSION: u32 = 2;
+pub const VERSION: u32 = 3;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(default)]
@@ -32,6 +32,10 @@ pub struct Info {
     pub page: String,
     /// Bild aus der Quelle (nur genutzt, wenn das Spiel sonst kein Cover hat)
     pub cover: String,
+    /// Trailer (nur Steam-CDN): Adresse, Art ("mp4", "webm", "hls") und Vorschaubild
+    pub trailer: String,
+    pub trailer_kind: String,
+    pub trailer_thumb: String,
     pub version: u32,
     /// Wann geladen (0 = nichts gefunden)
     pub fetched: u64,
@@ -136,6 +140,7 @@ pub fn parse_appdetails_for(appid: u32, json: &str, req_key: &str) -> Option<Inf
         .filter(|r| r.get("minimum").is_some())
         .or_else(|| data.get("pc_requirements"));
     let req = |k: &str| reqs.and_then(|r| r.get(k)).and_then(|x| x.as_str()).map(parse_requirements).unwrap_or_default();
+    let trailer = parse_trailer(data);
     Some(Info {
         description: s("short_description"),
         genres: data
@@ -153,11 +158,47 @@ pub fn parse_appdetails_for(appid: u32, json: &str, req_key: &str) -> Option<Inf
         release: data.get("release_date").and_then(|r| r.get("date")).and_then(|x| x.as_str()).unwrap_or("").to_string(),
         req_min: req("minimum"),
         req_rec: req("recommended"),
+        trailer: trailer.0,
+        trailer_kind: trailer.1,
+        trailer_thumb: trailer.2,
         source: "steam".into(),
         version: VERSION,
         fetched: crate::sys::now_secs(),
         ..Default::default()
     })
+}
+
+/// SICHERHEIT: Videos und Bilder nur von Steams eigenen Servern
+pub fn steam_media_url(u: &str) -> bool {
+    let Some(rest) = u.strip_prefix("https://") else { return false };
+    let host = rest.split(['/', '?', '#']).next().unwrap_or("").to_ascii_lowercase();
+    u.len() < 600 && (host.ends_with(".steamstatic.com") || host.ends_with(".steampowered.com") || host == "steamcdn-a.akamaihd.net")
+}
+
+/// Ersten Trailer aus „movies“: (Adresse, Art, Vorschaubild). MP4/WebM bevorzugt,
+/// sonst HLS (spielt nur macOS direkt ab).
+pub fn parse_trailer(data: &serde_json::Value) -> (String, String, String) {
+    let Some(movies) = data.get("movies").and_then(|m| m.as_array()) else { return Default::default() };
+    // Hervorgehobener Trailer zuerst
+    let mut list: Vec<&serde_json::Value> = movies.iter().collect();
+    list.sort_by_key(|m| !m.get("highlight").and_then(|h| h.as_bool()).unwrap_or(false));
+    for m in list {
+        let thumb = m.get("thumbnail").and_then(|x| x.as_str()).filter(|u| steam_media_url(u)).unwrap_or("").to_string();
+        let pick = |key: &str| -> Option<String> {
+            let v = m.get(key)?;
+            ["480", "max"].iter().find_map(|q| v.get(*q).and_then(|x| x.as_str())).filter(|u| steam_media_url(u)).map(|u| u.to_string())
+        };
+        if let Some(u) = pick("mp4") {
+            return (u, "mp4".into(), thumb);
+        }
+        if let Some(u) = pick("webm") {
+            return (u, "webm".into(), thumb);
+        }
+        if let Some(u) = m.get("hls_h264").and_then(|x| x.as_str()).filter(|u| steam_media_url(u)) {
+            return (u.to_string(), "hls".into(), thumb);
+        }
+    }
+    Default::default()
 }
 
 /// Steam-Deck-Bewertung aus ajaxgetdeckappcompatibilityreport
@@ -437,6 +478,16 @@ mod tests {
         assert_eq!(i.req_rec, vec![("Graphics".into(), "GTX 1060".into())]);
         assert!(i.is_current());
         assert!(parse_appdetails(570, r#"{"570":{"success":false}}"#).is_none());
+        let movies: serde_json::Value = serde_json::from_str(r#"{"movies":[
+            {"thumbnail":"https://shared.akamai.steamstatic.com/a.jpg","hls_h264":"https://video.akamai.steamstatic.com/a.m3u8"},
+            {"highlight":true,"thumbnail":"https://shared.akamai.steamstatic.com/b.jpg","mp4":{"480":"https://video.akamai.steamstatic.com/b.mp4"}},
+            {"mp4":{"480":"https://evil.example/c.mp4"}}]}"#).unwrap();
+        let (u, k, th) = parse_trailer(&movies);
+        assert_eq!((u.as_str(), k.as_str()), ("https://video.akamai.steamstatic.com/b.mp4", "mp4"));
+        assert!(th.ends_with("b.jpg"));
+        assert!(!steam_media_url("https://evil.example/x.mp4"));
+        assert!(!steam_media_url("https://steamstatic.com.evil.example/x.mp4"));
+        assert!(!steam_media_url("http://video.akamai.steamstatic.com/x.mp4"));
         assert_eq!(parse_deck(r#"{"success":1,"results":{"appid":570,"resolved_category":3}}"#), 3);
         assert_eq!(parse_deck("kaputt"), 0);
     }

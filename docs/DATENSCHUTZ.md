@@ -29,7 +29,9 @@ Nur für diese Dinge – und immer direkt zum jeweiligen Anbieter, nie über ein
 | Gratis-Spiele-Liste | Epic Games Store, Steam-Store, GamerPower | nichts Persönliches |
 | Roblox-Spiel hinzufügen | öffentliche Roblox-Schnittstellen (Name, Bild) | nur die Spiel-Nummer |
 | Update-Prüfung (abschaltbar) | GitHub | nichts Persönliches |
-| Optional: Steam-Web-API-Schlüssel | Steam | dein Schlüssel und deine SteamID |
+| Optional: Steam-Web-API-Schlüssel | Steam | dein Schlüssel und deine SteamID (auch für die Erfolge eines Spiels, wenn du die Details öffnest) |
+| Trailer in den Spiel-Details (nur wenn du auf Abspielen klickst) | Steam-Video-Server | nichts Persönliches |
+| Optional: SteamGridDB-Schlüssel | SteamGridDB | dein Schlüssel und der Spielname bzw. die Steam-Nummer |
 | Optional: Epic-Konto verbinden | Epic Games | Anmeldung erfolgt bei Epic im Browser |
 
 Die Bibliotheken von GOG Galaxy, Amazon Games und itch.io werden **nur lokal** aus deren Dateien auf deinem Computer gelesen (nur lesend) – dabei wird nichts gesendet.

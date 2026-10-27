@@ -7,6 +7,16 @@ Alle wichtigen Änderungen am MAZ Launcher. Jede Version hat bis zu vier Abschni
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [1.10.0] – 2026-10-27
+
+### Neu
+- **Big Picture:** Vollbild mit großen Kacheln für TV und Sofa (Knopf oben rechts). Hintergrundbild und Logo des ausgewählten Spiels, Reihen für Weiterspielen, Favoriten, Installiert und Alle. Bedienung mit Controller, Pfeiltasten oder Maus; B oder Esc geht zurück.
+- **SteamGridDB** (mit eigenem, kostenlosem Schlüssel, Anleitung in Einstellungen → Verbindungen): Fehlende Cover, Hintergründe, Logos und Icons werden automatisch ergänzt. In den Spiel-Details kannst du unter „Bilder von SteamGridDB“ selbst ein Cover, einen Hintergrund oder ein Logo auswählen.
+- **Logos statt Text:** Unter den Kacheln und in den Spiel-Details steht das Spiel-Logo statt des Namens, wenn es eins gibt (abschaltbar unter Design).
+- **Trailer** in den Spiel-Details (von Steam). Kann das Fenster den Trailer nicht direkt abspielen, öffnet ein Klick ihn auf Steam.
+- **Erfolge:** Steam-Erfolge in den Spiel-Details – mit Fortschritt, Symbolen und Beschreibung (über den Steam-Web-API-Schlüssel, der schon eingetragen ist). GOG zeigt die Zahl, soweit GOG Galaxy sie lokal speichert. Für Epic gibt es keine offene Schnittstelle – dort führt ein Knopf zum Epic Games Launcher.
+- **Barrierefreiheit:** Schriftgröße einstellbar (100–150 %), deutlich sichtbarer Tastatur-Fokus überall, Kacheln mit Tab und Enter bedienbar, Beschriftungen für Bildschirmleser bei Knöpfen mit Symbol, die Systemeinstellung „Bewegung reduzieren“ wird beachtet.
+
 ## [1.9.0] – 2026-10-27
 
 ### Neu

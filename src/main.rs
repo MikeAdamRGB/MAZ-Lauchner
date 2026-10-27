@@ -4,6 +4,7 @@
 // Kein schwarzes Konsolenfenster im Release-Build
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
+mod achievements;
 mod appinfo;
 mod backup;
 mod appx;
@@ -29,6 +30,7 @@ mod problem;
 mod roblox;
 mod runners;
 mod steam;
+mod sgdb;
 mod stats;
 mod stores;
 mod sys;
