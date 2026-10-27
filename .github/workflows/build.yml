@@ -275,7 +275,7 @@ jobs:
   # --------------------------------------------------------------------------
   macos:
     name: macOS (Universal)
-    runs-on: macos-15
+    runs-on: macos-latest
     permissions:
       contents: read
     steps:
