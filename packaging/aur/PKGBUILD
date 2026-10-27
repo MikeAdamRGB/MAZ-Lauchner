@@ -1,0 +1,24 @@
+# Maintainer: MikeAdamRGB <m.zweers10 at gmail dot com>
+# Fertige Programmdatei aus dem GitHub-Release (gleiche Datei wie im .deb)
+pkgname=open-game-launcher-bin
+pkgver={VERSION}
+pkgrel=1
+pkgdesc="All your Steam, Epic, GOG and own games in one launcher"
+arch=('x86_64' 'aarch64')
+url="https://github.com/MikeAdamRGB/Open-Game-Launcher"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3' 'xdotool' 'openssl')
+optdepends=('libayatana-appindicator: Symbol im Infobereich'
+            'gamemode: GameMode beim Spielstart'
+            'mangohud: MangoHud beim Spielstart')
+provides=('open-game-launcher' 'maz-launcher')
+conflicts=('open-game-launcher' 'maz-launcher')
+source_x86_64=("$url/releases/download/v$pkgver/maz-launcher_${pkgver}_amd64.deb")
+source_aarch64=("$url/releases/download/v$pkgver/maz-launcher_${pkgver}_arm64.deb")
+sha256sums_x86_64=('{SHA_maz-launcher_{VERSION}_amd64.deb}')
+sha256sums_aarch64=('{SHA_maz-launcher_{VERSION}_arm64.deb}')
+
+package() {
+  bsdtar -xf data.tar.* -C "$pkgdir"
+  ln -s maz-launcher "$pkgdir/usr/bin/open-game-launcher"
+}

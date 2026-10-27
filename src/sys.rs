@@ -33,6 +33,15 @@ fn home() -> PathBuf {
     env_path("HOME").or_else(|| env_path("USERPROFILE")).unwrap_or_else(|| PathBuf::from("."))
 }
 
+/// Steam Deck (oder anderes Gerät) im Gaming-Modus von Steam (gamescope-Sitzung)?
+pub fn gaming_mode() -> bool {
+    if !cfg!(target_os = "linux") {
+        return false;
+    }
+    let var = |k: &str| std::env::var(k).unwrap_or_default();
+    var("SteamGamepadUI") == "1" || var("XDG_CURRENT_DESKTOP").eq_ignore_ascii_case("gamescope") || !var("GAMESCOPE_WAYLAND_DISPLAY").is_empty()
+}
+
 /// Ordnernamen (neu, alt) je System
 #[cfg(any(windows, target_os = "macos"))]
 const DIR_NAMES: (&str, &str) = (APP_NAME, OLD_APP_NAME);

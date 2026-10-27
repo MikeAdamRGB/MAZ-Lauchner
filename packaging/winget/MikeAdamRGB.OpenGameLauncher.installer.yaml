@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+PackageIdentifier: MikeAdamRGB.OpenGameLauncher
+PackageVersion: {VERSION}
+InstallerType: portable
+Commands:
+  - open-game-launcher
+Dependencies:
+  PackageDependencies:
+    - PackageIdentifier: Microsoft.EdgeWebView2Runtime
+ReleaseDate: {DATE}
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/Open-Game-Launcher.exe
+    InstallerSha256: {SHA_Open-Game-Launcher.exe}
+  - Architecture: arm64
+    InstallerUrl: https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/Open-Game-Launcher-arm64.exe
+    InstallerSha256: {SHA_Open-Game-Launcher-arm64.exe}
+ManifestType: installer
+ManifestVersion: 1.9.0

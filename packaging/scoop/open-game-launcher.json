@@ -1,0 +1,27 @@
+{
+    "version": "{VERSION}",
+    "description": "All your Steam, Epic, GOG, Xbox and own games in one launcher.",
+    "homepage": "https://github.com/MikeAdamRGB/Open-Game-Launcher",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/Open-Game-Launcher.exe",
+            "hash": "{SHA_Open-Game-Launcher.exe}"
+        },
+        "arm64": {
+            "url": "https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v{VERSION}/Open-Game-Launcher-arm64.exe#/Open-Game-Launcher.exe",
+            "hash": "{SHA_Open-Game-Launcher-arm64.exe}"
+        }
+    },
+    "pre_install": "if (!(Test-Path \"$dir\\portable.txt\")) { New-Item \"$dir\\portable.txt\" -ItemType File | Out-Null }",
+    "bin": [["Open-Game-Launcher.exe", "open-game-launcher", "--portable"]],
+    "shortcuts": [["Open-Game-Launcher.exe", "Open Game Launcher", "--portable"]],
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": { "url": "https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v$version/Open-Game-Launcher.exe" },
+            "arm64": { "url": "https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/download/v$version/Open-Game-Launcher-arm64.exe#/Open-Game-Launcher.exe" }
+        },
+        "hash": { "url": "$baseurl/SHA256SUMS.txt" }
+    }
+}

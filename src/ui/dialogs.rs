@@ -47,6 +47,9 @@ pub fn ModalHost() -> Element {
         Some(Modal::Restore(settings)) => rsx! { super::tools::RestoreDialog { settings } },
         Some(Modal::PlayniteImport) => rsx! { super::tools::PlayniteDialog {} },
         Some(Modal::SgdbPick(id)) => rsx! { super::media::SgdbPickDialog { id } },
+        Some(Modal::LaunchOpts(id)) => rsx! { super::opts::LaunchOptsDialog { id } },
+        Some(Modal::AddToSteam(id)) => rsx! { super::opts::AddToSteamDialog { id } },
+        Some(Modal::CrashReport(text)) => rsx! { super::opts::CrashReportDialog { text } },
         Some(Modal::EpicConnect) => rsx! {
             Dialog { on_close: move |_| app.close_modal(), class: "max-w-xl",
                 div { class: "p-6 pt-8",

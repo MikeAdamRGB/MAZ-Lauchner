@@ -9,8 +9,10 @@ mod appinfo;
 mod backup;
 mod appx;
 mod config;
+mod crashreport;
 mod epic;
 mod emulators;
+mod discord;
 mod epicacct;
 mod extensions;
 mod freegames;
@@ -18,6 +20,7 @@ mod i18n;
 mod icons;
 mod install;
 mod launch;
+mod launchopts;
 mod metadata;
 mod library;
 mod mccontent;
@@ -30,12 +33,14 @@ mod problem;
 mod roblox;
 mod runners;
 mod steam;
+mod steamshortcut;
 mod sgdb;
 mod stats;
 mod stores;
 mod sys;
 mod theme;
 mod ui;
+mod uitest;
 mod updater;
 mod util;
 mod vdf;
@@ -49,6 +54,8 @@ use std::sync::OnceLock;
 
 /// Wie wurde gestartet? (Installer oder Launcher)
 pub static START: OnceLock<install::StartMode> = OnceLock::new();
+/// `--play <id>`: dieses Spiel direkt nach dem Start öffnen (z. B. aus Steam heraus)
+pub static PLAY_ON_START: OnceLock<String> = OnceLock::new();
 
 /// Fertig gebautes Tailwind-CSS – direkt in die EXE eingebettet (keine Extra-Dateien).
 const CSS: &str = include_str!("../assets/maz.css");
@@ -67,6 +74,16 @@ fn main() {
     if !sys::webview2_installed() {
         show_startup_problem(&problem::Problem::webview2_missing());
         return;
+    }
+
+    if let Some(i) = args.iter().position(|a| a == "--ui-test") {
+        let dir = args.get(i + 1).map(std::path::PathBuf::from).unwrap_or_else(|| std::path::PathBuf::from("ui-test"));
+        let _ = uitest::DIR.set(dir);
+    }
+    if let Some(i) = args.iter().position(|a| a == "--play") {
+        if let Some(id) = args.get(i + 1).filter(|id| steamshortcut::valid_play_id(id)) {
+            let _ = PLAY_ON_START.set(id.clone());
+        }
     }
 
     updater::cleanup_old();
@@ -153,7 +170,7 @@ fn show_startup_problem(p: &problem::Problem) {
 fn install_panic_hook() {
     std::panic::set_hook(Box::new(|info| {
         let msg = info.to_string();
-        let log = sys::local_dir().join("absturz.log");
+        let log = crashreport::log_path();
         let _ = std::fs::create_dir_all(sys::local_dir());
         let _ = std::fs::write(&log, format!("{} {}\n{}\n", sys::APP_NAME, sys::VERSION, msg));
         let p = problem::Problem::app_crashed(

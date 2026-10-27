@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.9.0.schema.json
+PackageIdentifier: MikeAdamRGB.OpenGameLauncher
+PackageVersion: {VERSION}
+PackageLocale: en-US
+Publisher: MikeAdamRGB
+PublisherUrl: https://github.com/MikeAdamRGB
+PackageName: Open Game Launcher
+PackageUrl: https://github.com/MikeAdamRGB/Open-Game-Launcher
+License: MIT
+LicenseUrl: https://github.com/MikeAdamRGB/Open-Game-Launcher/blob/main/LICENSE
+ShortDescription: All your Steam, Epic, GOG, Xbox and own games in one launcher.
+Tags:
+  - games
+  - launcher
+  - steam
+  - epic-games
+  - gog
+ReleaseNotesUrl: https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/tag/v{VERSION}
+ManifestType: defaultLocale
+ManifestVersion: 1.9.0

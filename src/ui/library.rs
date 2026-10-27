@@ -122,6 +122,7 @@ pub fn filter_title(app: App) -> String {
     match f {
         Filter::Tag => format!("# {arg}"),
         Filter::Status => t(&format!("status.{arg}")),
+        Filter::Platform => arg.clone(),
         Filter::Collection => app
             .settings
             .read()
@@ -379,7 +380,7 @@ fn EmptyState() -> Element {
             Filter::Steam => (t("empty.steam.title"), t("empty.steam.text")),
             Filter::Epic => (t("empty.epic.title"), t("empty.epic.text")),
             Filter::Roblox => (t("empty.roblox.title"), t("empty.roblox.text")),
-            Filter::Tag | Filter::Collection | Filter::Status => (t("empty.group.title"), t("empty.group.text")),
+            Filter::Tag | Filter::Collection | Filter::Status | Filter::Platform => (t("empty.group.title"), t("empty.group.text")),
             Filter::Store(Source::Emulator) => (t("empty.emu.title"), t("empty.emu.text")),
             Filter::Store(src) => (tf("empty.store.title", &[("store", &src.label())]), tf("store.client_missing", &[("store", &src.label())])),
             _ => (t("empty.all.title"), t("empty.all.text")),
@@ -590,6 +591,7 @@ pub fn MazSidebar() -> Element {
                     NavItem { filter: Filter::Custom, count: count_for(app, Filter::Custom) }
                 }
                 StatusNav {}
+                PlatformsNav {}
                 CollectionsNav {}
                 TagsNav {}
                 if count_for(app, Filter::Hidden) > 0 {
@@ -608,6 +610,36 @@ pub fn MazSidebar() -> Element {
                     {t("nav.settings")}
                 }
             }
+        }
+    }
+}
+
+/// ROM-Plattformen in der Seitenleiste (nur wenn es ROMs gibt)
+#[component]
+fn PlatformsNav() -> Element {
+    let app = use_app();
+    let mut counts: Vec<(String, usize)> = Vec::new();
+    {
+        let s = app.settings.read();
+        for g in app.games.read().iter().filter(|g| !s.is_hidden(&g.id)) {
+            if let Some(p) = crate::emulators::platform(g, &s.emulators) {
+                match counts.iter_mut().find(|(n, _)| *n == p) {
+                    Some(e) => e.1 += 1,
+                    None => counts.push((p, 1)),
+                }
+            }
+        }
+    }
+    if counts.len() < 2 {
+        return rsx! {};
+    }
+    counts.sort_by(|a, b| a.0.cmp(&b.0));
+    rsx! {
+        div { class: "space-y-0.5",
+            div { class: "px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", {t("nav.rom_platforms")} }
+            {counts.into_iter().map(|(p, n)| rsx! {
+                NavItem { key: "{p}", filter: Filter::Platform, count: n, arg: p.clone(), label: p.clone() }
+            })}
         }
     }
 }

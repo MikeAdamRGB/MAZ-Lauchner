@@ -16,6 +16,9 @@ finish-args:
   # Hinweis: Damit kann die App Programme außerhalb der Sandbox starten – das ist für einen
   # Launcher nötig. Gestartet wird nur, was in der Bibliothek steht bzw. vorher bestätigt wurde.
   - --talk-name=org.freedesktop.Flatpak
+  # Optional: Discord-Status (nur der lokale Discord-Kanal) und Symbol im Infobereich
+  - --filesystem=xdg-run/discord-ipc-0
+  - --talk-name=org.kde.StatusNotifierWatcher
 modules:
   - name: maz-launcher
     buildsystem: simple

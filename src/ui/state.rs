@@ -25,6 +25,8 @@ pub enum Filter {
     Collection,
     /// Spielstatus (Kennung steht in `App::filter_arg`)
     Status,
+    /// ROM-Plattform (Name steht in `App::filter_arg`)
+    Platform,
 }
 
 impl Filter {
@@ -44,6 +46,7 @@ impl Filter {
                 Filter::Tag => "filter.tag",
                 Filter::Collection | Filter::Store(_) => "filter.collection",
                 Filter::Status => "filter.status",
+                Filter::Platform => "filter.platform",
             }),
         }
     }
@@ -62,6 +65,7 @@ impl Filter {
             Filter::Tag => "tag",
             Filter::Collection => "folder",
             Filter::Status => "flag",
+            Filter::Platform => "joystick",
         }
     }
     /// Passt das Spiel zu diesem Filter? (versteckte Spiele prüft der Aufrufer)
@@ -79,6 +83,7 @@ impl Filter {
             Filter::Tag => s.tags.get(&g.id).map(|t| t.iter().any(|x| x.eq_ignore_ascii_case(arg))).unwrap_or(false),
             Filter::Collection => s.in_collection(arg, &g.id),
             Filter::Status => s.status_of(&g.id) == arg,
+            Filter::Platform => crate::emulators::platform(g, &s.emulators).as_deref() == Some(arg),
         }
     }
 }
@@ -142,6 +147,12 @@ pub enum Modal {
     PlayniteImport,
     /// Bilder von SteamGridDB auswählen (Spiel-ID)
     SgdbPick(String),
+    /// Starthilfen eines Spiels (Spiel-ID)
+    LaunchOpts(String),
+    /// Spiel zu Steam hinzufügen (Spiel-ID)
+    AddToSteam(String),
+    /// Absturzbericht vom letzten Start (Text)
+    CrashReport(String),
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -310,6 +321,19 @@ pub fn rescan(app: App) {
     let mut scanning = app.scanning;
     scanning.set(true);
     let settings = app.settings.peek().clone();
+    if crate::uitest::active() {
+        let mut games = app.games;
+        games.set(crate::uitest::demo_games());
+        let mut loaded = app.loaded;
+        loaded.set(true);
+        scanning.set(false);
+        // Nach kurzer Zeit im Fenster prüfen und das Ergebnis melden
+        dioxus::core::spawn_forever(async move {
+            tokio::time::sleep(std::time::Duration::from_secs(4)).await;
+            let _ = dioxus::desktop::window().webview.evaluate_script(crate::uitest::CHECK_JS);
+        });
+        return;
+    }
     dioxus::core::spawn_forever(async move {
         let s2 = settings.clone();
         let res = tokio::task::spawn_blocking(move || library::scan(&s2)).await;
@@ -601,6 +625,14 @@ pub fn track_playtime(app: App, game: &Game) {
         let minutes = tokio::task::spawn_blocking(move || crate::playtime::track(m)).await.unwrap_or(0);
         let mut tr = app.tracking;
         tr.write().retain(|x| *x != id);
+        crate::discord::clear();
+        // Starthilfe: Programm nach dem Spiel
+        let post = launch_opts(app, &id).post;
+        if minutes > 0 && !post.trim().is_empty() {
+            if let Err(e) = crate::launchopts::run_helper(&post) {
+                app.toast(&e, "alert");
+            }
+        }
         if minutes > 0 {
             let start = sys::now_secs().saturating_sub(minutes * 60);
             app.update(|s| {
@@ -609,6 +641,28 @@ pub fn track_playtime(app: App, game: &Game) {
             });
         }
     });
+}
+
+/// Discord-Status setzen (wenn eingeschaltet)
+fn discord_playing(app: App, name: &str) {
+    let s = app.settings.peek();
+    if s.discord_enabled {
+        crate::discord::set_playing(&s.discord_app_id, name);
+    }
+}
+
+/// Starthilfen eines Spiels (Standard, wenn nichts eingestellt ist)
+pub fn launch_opts(app: App, id: &str) -> crate::launchopts::LaunchOpts {
+    app.settings.peek().launch_opts.get(id).cloned().unwrap_or_default()
+}
+
+/// Starthilfe: Programm vor dem Spiel
+fn run_pre(app: App, opts: &crate::launchopts::LaunchOpts) {
+    if !opts.pre.trim().is_empty() {
+        if let Err(e) = crate::launchopts::run_helper(&opts.pre) {
+            app.toast(&e, "alert");
+        }
+    }
 }
 
 /// "Spielen" wurde geklickt.
@@ -634,7 +688,12 @@ pub fn play(app: App, id: String) {
 /// Store-/Erweiterungs-Spiel wirklich starten
 fn start_store_game(app: App, game: Game) {
     let id = game.id.clone();
-    match launch::launch_store(&game) {
+    let opts = launch_opts(app, &id);
+    // Beim Installieren keine Starthilfen
+    if game.installed && !matches!(game.launch, LaunchTarget::SteamInstall(_) | LaunchTarget::EpicInstall(_)) {
+        run_pre(app, &opts);
+    }
+    match launch::launch_store(&game, &opts) {
         Ok(()) => {
             let installing = !game.installed || matches!(game.launch, LaunchTarget::SteamInstall(_) | LaunchTarget::EpicInstall(_));
             let store = game.source.label();
@@ -645,6 +704,7 @@ fn start_store_game(app: App, game: Game) {
                 return;
             }
             mark_played(app, &id);
+            discord_playing(app, &game.name);
             let text = if game.source == Source::Emulator {
                 tf("toast.started", &[("name", &game.name)])
             } else {
@@ -688,9 +748,12 @@ pub fn start_confirmed(app: App, id: String) {
 pub fn start_custom(app: App, id: String, force_admin: bool) {
     app.close_modal();
     let Some(c) = app.settings.peek().custom(&id).cloned() else { return };
-    match launch::launch_custom(&c, force_admin) {
+    let opts = launch_opts(app, &id);
+    run_pre(app, &opts);
+    match launch::launch_custom(&c, force_admin, &opts) {
         Ok(child) => {
             mark_played(app, &id);
+            discord_playing(app, &c.name);
             if let Some(g) = app.game(&id) {
                 track_playtime(app, &g);
             }

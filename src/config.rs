@@ -48,6 +48,10 @@ pub fn parse(text: &str) -> Option<Settings> {
 }
 
 pub fn save(settings: &Settings) -> std::io::Result<()> {
+    // Oberflächen-Test: echte Einstellungen nie überschreiben
+    if crate::uitest::active() {
+        return Ok(());
+    }
     let dir = sys::roaming_dir();
     fs::create_dir_all(&dir)?;
     let json = serde_json::to_string_pretty(settings)

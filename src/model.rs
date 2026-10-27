@@ -248,6 +248,8 @@ pub struct Emulator {
     pub extensions: Vec<String>,
     /// Ordner, die nach ROMs durchsucht werden
     pub rom_dirs: Vec<String>,
+    /// Plattform (z. B. „PlayStation 2“) – leer = aus der Vorlage bzw. Dateiendung
+    pub platform: String,
 }
 
 /// Spielstatus (vom Nutzer gesetzt)
@@ -358,6 +360,12 @@ pub struct Settings {
     pub show_logos: bool,
     /// Schriftgröße in Prozent (100 = normal)
     pub font_scale: u16,
+    /// Symbol im Infobereich der Taskleiste
+    pub tray_icon: bool,
+    /// Discord-Status „Spielt gerade …“
+    pub discord_enabled: bool,
+    /// Eigene Discord-Anwendungs-ID (Discord Developer Portal)
+    pub discord_app_id: String,
 
 
     // Weitere Stores: Kennung ("gog", "ea" …) → angezeigt? (fehlt = ja)
@@ -383,6 +391,8 @@ pub struct Settings {
     pub collections: Vec<Collection>,
     /// Selbst bearbeitete Spiel-Infos
     pub meta: BTreeMap<String, GameMeta>,
+    /// Starthilfen je Spiel (Programm vor/nach dem Spiel, GameMode, MangoHud, DXVK …)
+    pub launch_opts: BTreeMap<String, crate::launchopts::LaunchOpts>,
     /// Spielstatus je Spiel (siehe `status`)
     pub status: BTreeMap<String, String>,
     /// Gemessene Spielsitzungen (für Statistik pro Woche/Monat)
@@ -454,6 +464,7 @@ impl Default for Settings {
             tags: BTreeMap::new(),
             collections: Vec::new(),
             meta: BTreeMap::new(),
+            launch_opts: BTreeMap::new(),
             status: BTreeMap::new(),
             sessions: Vec::new(),
             emulators: Vec::new(),
@@ -462,6 +473,9 @@ impl Default for Settings {
             sgdb_key: String::new(),
             show_logos: true,
             font_scale: 100,
+            tray_icon: true,
+            discord_enabled: false,
+            discord_app_id: String::new(),
 
             checklist: Vec::new(),
             custom_games: Vec::new(),
