@@ -71,9 +71,14 @@ pub fn to_plain(input: &str) -> String {
             let close = if c == '<' { '>' } else { ']' };
             // Tag nur, wenn er kurz ist und geschlossen wird
             if let Some(len) = input[i + 1..].find(close).filter(|l| *l <= 200) {
-                let tag = input[i + 1..i + 1 + len].trim().to_ascii_lowercase();
-                let name: String = tag.trim_start_matches('/').chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '*').collect();
-                let known = matches!(
+                let raw = &input[i + 1..i + 1 + len];
+                let tag = raw.to_ascii_lowercase();
+                let body = tag.strip_prefix('/').unwrap_or(&tag);
+                let name: String = body.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '*').collect();
+                // Ein Tag beginnt direkt mit dem Namen („<p>“, „[/list]“) – „a < b“ ist kein Tag
+                let after = body[name.len()..].chars().next();
+                let shaped = !name.is_empty() && matches!(after, None | Some(' ' | '=' | '/' | '\t'));
+                let known = shaped && matches!(
                     name.as_str(),
                     "p" | "br" | "b" | "i" | "u" | "s" | "h1" | "h2" | "h3" | "h4" | "h5" | "list" | "olist" | "ul" | "ol" | "li" | "*" | "url" | "a"
                         | "img" | "strong" | "em" | "strike" | "spoiler" | "noparse" | "hr" | "quote" | "code" | "table" | "tr" | "td" | "th"
