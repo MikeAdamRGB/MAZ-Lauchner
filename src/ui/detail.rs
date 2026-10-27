@@ -75,9 +75,11 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
     let s = app.settings.read();
     let fav = s.is_favorite(&game.id);
     let hidden = s.is_hidden(&game.id);
-    let has_override = s.cover_overrides.contains_key(&game.id);
+    let has_override = s.cover_overrides.contains_key(&game.id) || s.logo_overrides.contains_key(&game.id);
     let is_custom = s.custom(&game.id).is_some();
+    let has_sgdb = !s.sgdb_key.trim().is_empty() && game.source != Source::Roblox;
     drop(s);
+    let id11 = game.id.clone();
     let btn = if steam_style { "w-full justify-start rounded-sm" } else { "w-full justify-start" };
     let (id1, id2, id3, id4, id5, id6) = (
         game.id.clone(),
@@ -122,6 +124,12 @@ fn ActionList(game: Game, #[props(default = false)] steam_style: bool) -> Elemen
             Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::EditMeta(id10.clone())),
                 Icon { name: "pencil", class: "size-4" }
                 {t("act.edit_meta")}
+            }
+            if has_sgdb {
+                Button { variant: ButtonVariant::Outline, class: btn, onclick: move |_| app.open(Modal::SgdbPick(id11.clone())),
+                    Icon { name: "image", class: "size-4" }
+                    {t("sgdb.button")}
+                }
             }
             if has_override {
                 Button { variant: ButtonVariant::Ghost, class: btn, onclick: move |_| reset_cover(app, &id3),
@@ -207,11 +215,16 @@ fn AboutGame(id: String) -> Element {
     let wiki_page = (!own_desc && auto.source == "wikipedia" && auto.page.starts_with("https://")).then(|| auto.page.clone());
     let deck = auto.deck;
     let (req_min, req_rec) = (auto.req_min.clone(), auto.req_rec.clone());
-    if desc.is_empty() && genres.is_empty() && deck == 0 && req_min.is_empty() {
+    let trailer = (!auto.trailer.is_empty()).then(|| (auto.trailer.clone(), auto.trailer_kind.clone(), auto.trailer_thumb.clone()));
+    if desc.is_empty() && genres.is_empty() && deck == 0 && req_min.is_empty() && trailer.is_none() {
         return rsx! {};
     }
+    let store_page = app.game(&id).and_then(|g| g.steam_appid.or_else(|| {
+        app.settings.peek().art_lookup.get(&crate::model::normalize_name(&g.name)).copied().filter(|a| *a != 0)
+    })).map(|a| format!("https://store.steampowered.com/app/{a}/"));
     rsx! {
         div { class: "mt-5",
+            {trailer.map(|(url, kind, thumb)| rsx! { TrailerBox { url, kind, thumb, page: store_page.clone().unwrap_or_default() } })}
             if !desc.is_empty() {
                 p { class: "text-sm leading-relaxed text-foreground/85 select-text", "{desc}" }
             }
@@ -247,6 +260,44 @@ fn AboutGame(id: String) -> Element {
             }
             if !req_min.is_empty() || !req_rec.is_empty() {
                 SpecsBox { req_min, req_rec }
+            }
+        }
+    }
+}
+
+/// Trailer-Vorschau (Steam). MP4/WebM spielt überall, HLS nur unter macOS –
+/// sonst Vorschaubild mit Link zur Store-Seite.
+#[component]
+fn TrailerBox(url: String, kind: String, thumb: String, page: String) -> Element {
+    let playable = matches!(kind.as_str(), "mp4" | "webm") || (kind == "hls" && cfg!(target_os = "macos"));
+    if !crate::metadata::steam_media_url(&url) {
+        return rsx! {};
+    }
+    rsx! {
+        div { class: "mb-4 rounded-xl overflow-hidden border border-border bg-black aspect-video relative",
+            if playable {
+                video {
+                    class: "size-full object-contain bg-black",
+                    src: "{url}",
+                    poster: "{thumb}",
+                    controls: true,
+                    preload: "none",
+                    "playsinline": "true",
+                    "aria-label": t("trailer.label"),
+                }
+            } else if !thumb.is_empty() {
+                button {
+                    class: "group absolute inset-0 cursor-pointer",
+                    "aria-label": t("trailer.open"),
+                    onclick: move |_| { if !page.is_empty() { let _ = sys::open_url(&page); } },
+                    img { src: "{thumb}", alt: "", class: "absolute inset-0 size-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" }
+                    span { class: "absolute inset-0 grid place-items-center",
+                        span { class: "flex items-center gap-2 rounded-full bg-black/75 text-white px-4 py-2 text-sm font-semibold",
+                            Icon { name: "play", class: "size-4", filled: true }
+                            {t("trailer.open")}
+                        }
+                    }
+                }
             }
         }
     }
@@ -465,7 +516,7 @@ pub fn DetailModal(id: String) -> Element {
     drop(s);
     let mut hero = game.art.hero.clone();
     hero.extend(game.art.header.iter().cloned());
-    let logos = game.art.logo.clone();
+    let logos = if app.settings.read().show_logos { game.art.logo.clone() } else { Vec::new() };
     let rows = info_rows(app, &game);
     let name = game.name.clone();
     let grad = gradient_for(&game.name);
@@ -532,6 +583,7 @@ pub fn DetailModal(id: String) -> Element {
                         }
                     })}
                     AboutGame { id: id.clone() }
+                    super::media::Achievements { id: id.clone() }
                     OtherStores { id: id.clone() }
                     OrganizeBox { id: id.clone() }
                     div { class: "mt-6 rounded-xl border border-border divide-y divide-border overflow-hidden",
@@ -566,7 +618,7 @@ pub fn SteamDetail(game: Game) -> Element {
     hero.extend(effective_cover(&s, &game));
     let last = sys::format_ago(s.last_played(&game.id));
     drop(s);
-    let logos = game.art.logo.clone();
+    let logos = if app.settings.read().show_logos { game.art.logo.clone() } else { Vec::new() };
     let name = game.name.clone();
     let grad = gradient_for(&game.name);
     let installed = game.installed;
@@ -619,6 +671,7 @@ pub fn SteamDetail(game: Game) -> Element {
             div { class: "px-10 py-6 grid grid-cols-[1fr_260px] gap-8",
                 div { class: "rounded-sm bg-black/20 p-5",
                     AboutGame { id: gid.clone() }
+                    super::media::Achievements { id: gid.clone() }
                     OtherStores { id: gid.clone() }
                     OrganizeBox { id: gid.clone() }
                     div { class: "text-[13px] uppercase tracking-wider text-muted-foreground mb-3 mt-6", {t("detail.info")} }

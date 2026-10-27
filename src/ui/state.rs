@@ -102,6 +102,8 @@ pub enum Page {
     Minecraft,
     /// Statistik: Spielzeit, meistgespielt, ungespielt
     Stats,
+    /// Vollbild mit großen Kacheln (TV, Sofa)
+    BigPicture,
     Settings(SettingsTab),
 }
 
@@ -138,6 +140,8 @@ pub enum Modal {
     Restore(Box<Settings>),
     /// Import aus Playnite
     PlayniteImport,
+    /// Bilder von SteamGridDB auswählen (Spiel-ID)
+    SgdbPick(String),
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -366,6 +370,17 @@ pub fn rescan(app: App) {
                 }
             }
             fill_metadata(app).await;
+        }
+        // Phase 3: fehlende Bilder von SteamGridDB (nur mit eigenem Schlüssel)
+        let key = app.settings.peek().sgdb_key.clone();
+        if !key.trim().is_empty() {
+            let list = games.peek().clone();
+            let res = tokio::task::spawn_blocking(move || crate::sgdb::fill(&list, &key, sys::now_secs(), 80)).await;
+            if let Ok(Ok(true)) = res {
+                for g in games.write().iter_mut() {
+                    crate::sgdb::apply(g);
+                }
+            }
         }
     });
 }
@@ -1029,7 +1044,9 @@ pub fn reset_cover(app: App, id: &str) {
     let id = id.to_string();
     app.update(|s| {
         s.cover_overrides.remove(&id);
+        s.logo_overrides.remove(&id);
     });
+    rescan(app);
 }
 
 // ----------------------------------------------------------------------
@@ -1073,7 +1090,10 @@ pub fn pick_image_file() -> Option<String> {
 pub fn effective_cover(settings: &Settings, game: &Game) -> Vec<String> {
     let mut v = Vec::new();
     if let Some(p) = settings.cover_overrides.get(&game.id) {
-        v.push(sys::file_url(std::path::Path::new(p)));
+        let r = library::image_ref(p);
+        if !r.is_empty() {
+            v.push(r);
+        }
     }
     v.extend(game.art.cover.iter().cloned());
     v

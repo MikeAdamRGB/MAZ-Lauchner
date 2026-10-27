@@ -283,6 +283,16 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 .toast-progress { animation: toast-progress 5s linear forwards; }
 
 /* Controller-Modus: deutlicher Fokus-Rahmen */
+/* Barrierefreiheit: Tastatur-Fokus immer deutlich sichtbar */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+/* Betriebssystem-Einstellung „Bewegung reduzieren“ respektieren */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
 .controller-mode :focus,
 .controller-mode :focus-visible {
   outline: 3px solid var(--primary);

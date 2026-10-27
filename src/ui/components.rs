@@ -73,7 +73,7 @@ pub fn Button(
     children: Element,
 ) -> Element {
     let cls = format!(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] cursor-pointer active:scale-[0.98] select-none {} {} {}",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-1 focus-visible:ring-offset-background cursor-pointer active:scale-[0.98] select-none {} {} {}",
         variant.as_str(),
         size.as_str(),
         class.as_deref().unwrap_or("")
@@ -84,6 +84,8 @@ pub fn Button(
             class: "{cls}",
             disabled,
             title: title.as_deref(),
+            // Bildschirmleser: Knöpfe nur mit Symbol bekommen den Titel als Beschriftung
+            "aria-label": if matches!(size, ButtonSize::Icon | ButtonSize::IconSm) { title.as_deref() } else { None },
             onclick: move |e| {
                 if let Some(h) = &onclick {
                     h.call(e);

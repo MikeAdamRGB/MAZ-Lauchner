@@ -827,10 +827,37 @@ fn DesignTab() -> Element {
             }
             Separator {}
             SwitchRow {
+                title: t("design.logos"),
+                description: t("design.logos_text"),
+                checked: s.show_logos,
+                onchange: move |v: bool| app.update(|s| s.show_logos = v),
+            }
+            Separator {}
+            SwitchRow {
                 title: t("design.animations"),
                 description: t("design.animations_text"),
                 checked: s.animations,
                 onchange: move |v: bool| app.update(|s| s.animations = v),
+            }
+        }
+        Section { title: t("a11y.title"), description: t("a11y.text"),
+            div { class: "flex flex-wrap items-center justify-between gap-4 py-3",
+                div {
+                    div { class: "text-sm font-medium", {t("a11y.font")} }
+                    div { class: "text-xs text-muted-foreground mt-1", {t("a11y.font_text")} }
+                }
+                Segmented {
+                    options: vec![("100".to_string(), "100 %".to_string()), ("115".to_string(), "115 %".to_string()), ("130".to_string(), "130 %".to_string()), ("150".to_string(), "150 %".to_string())],
+                    value: s.font_scale.to_string(),
+                    onchange: move |v: String| { let n = v.parse::<u16>().unwrap_or(100); app.update(|s| s.font_scale = n); },
+                }
+            }
+            Separator {}
+            div { class: "py-3 text-sm",
+                div { class: "font-medium mb-2", {t("a11y.keys")} }
+                ul { class: "space-y-1 text-foreground/85",
+                    {crate::i18n::tl("a11y.keys_list").into_iter().enumerate().map(|(i, k)| rsx! { li { key: "{i}", "{k}" } })}
+                }
             }
         }
     }
@@ -1263,6 +1290,8 @@ fn ConnectionsTab() -> Element {
         RobloxSection {}
 
         MoreStoresSection {}
+
+        super::media::SgdbSection {}
 
         MinecraftSection {}
 

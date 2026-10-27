@@ -351,6 +351,14 @@ pub struct Settings {
     /// Eigener CurseForge-API-Schlüssel (für Minecraft-Inhalte von CurseForge)
     #[serde(with = "crate::util::secret")]
     pub curseforge_key: String,
+    /// Eigener SteamGridDB-API-Schlüssel (Cover, Hintergründe, Logos, Icons)
+    #[serde(with = "crate::util::secret")]
+    pub sgdb_key: String,
+    /// Logos statt Text auf Kacheln und in den Spiel-Details
+    pub show_logos: bool,
+    /// Schriftgröße in Prozent (100 = normal)
+    pub font_scale: u16,
+
 
     // Weitere Stores: Kennung ("gog", "ea" …) → angezeigt? (fehlt = ja)
     pub stores_off: Vec<String>,
@@ -399,6 +407,8 @@ pub struct Settings {
     pub last_played: BTreeMap<String, u64>,
     pub launch_count: BTreeMap<String, u32>,
     pub cover_overrides: BTreeMap<String, String>,
+    /// Selbst gewähltes Logo je Spiel (Datei oder SteamGridDB-Adresse)
+    pub logo_overrides: BTreeMap<String, String>,
     /// Name (normalisiert) → Steam-AppID für Cover-Bilder (0 = nichts gefunden)
     pub art_lookup: BTreeMap<String, u32>,
     pub welcome_done: bool,
@@ -449,6 +459,10 @@ impl Default for Settings {
             emulators: Vec::new(),
             online_art: true,
             curseforge_key: String::new(),
+            sgdb_key: String::new(),
+            show_logos: true,
+            font_scale: 100,
+
             checklist: Vec::new(),
             custom_games: Vec::new(),
             minimize_on_launch: true,
@@ -458,6 +472,7 @@ impl Default for Settings {
             last_played: BTreeMap::new(),
             launch_count: BTreeMap::new(),
             cover_overrides: BTreeMap::new(),
+            logo_overrides: BTreeMap::new(),
             art_lookup: BTreeMap::new(),
             welcome_done: false,
         }
