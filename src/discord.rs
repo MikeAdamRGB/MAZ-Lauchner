@@ -7,7 +7,6 @@
 use std::io::{Read, Write};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Mutex, OnceLock};
-use std::time::Duration;
 
 enum Msg {
     Playing { app_id: String, game: String, start: u64 },
@@ -73,8 +72,8 @@ fn connect() -> Option<Box<dyn Pipe>> {
                 for i in 0..10 {
                     let p = b.join(s).join(format!("discord-ipc-{i}"));
                     if let Ok(sock) = std::os::unix::net::UnixStream::connect(&p) {
-                        let _ = sock.set_read_timeout(Some(Duration::from_secs(3)));
-                        let _ = sock.set_write_timeout(Some(Duration::from_secs(3)));
+                        let _ = sock.set_read_timeout(Some(std::time::Duration::from_secs(3)));
+                        let _ = sock.set_write_timeout(Some(std::time::Duration::from_secs(3)));
                         return Some(Box::new(sock));
                     }
                 }

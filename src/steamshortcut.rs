@@ -198,7 +198,7 @@ pub fn steam_running() -> bool {
     })
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum AddResult {
     Added,
     AlreadyThere,
