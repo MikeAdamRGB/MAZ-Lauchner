@@ -58,6 +58,8 @@ pub fn BigPicture() -> Element {
     let (cur_id2, installed) = (cur_id.clone(), current.as_ref().map(|g| g.installed).unwrap_or(false));
     let cur_play = cur_id.clone();
     let has_current = !cur_id.is_empty();
+    let play_icon: &'static str = if installed { "play" } else { "download" };
+    let play_label = t(if installed { "game.play" } else { "game.install" });
     let playtime = current.as_ref().map(|g| crate::stats::fmt_minutes(app.settings.read().playtime(g))).unwrap_or_default();
 
     rsx! {
@@ -100,8 +102,8 @@ pub fn BigPicture() -> Element {
                         button {
                             class: "h-16 px-10 rounded-full bg-white text-black text-xl font-bold flex items-center gap-3 hover:scale-105 focus-visible:ring-4 focus-visible:ring-primary transition-transform cursor-pointer",
                             onclick: move |_| play(app, cur_play.clone()),
-                            Icon { name: if installed { "play" } else { "download" }, class: "size-6", filled: true }
-                            {t(if installed { "game.play" } else { "game.install" })}
+                            Icon { name: play_icon, class: "size-6", filled: true }
+                            {play_label}
                         }
                         button {
                             class: "h-16 px-8 rounded-full bg-white/15 text-xl font-semibold hover:bg-white/25 focus-visible:ring-4 focus-visible:ring-white cursor-pointer",
