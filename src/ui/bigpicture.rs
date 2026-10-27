@@ -31,7 +31,7 @@ pub fn BigPicture() -> Element {
         let s = app.settings.read();
         let games: Vec<Game> = app.games.read().iter().filter(|g| !s.is_hidden(&g.id)).cloned().collect();
         let mut recent: Vec<Game> = games.iter().filter(|g| s.last_played(&g.id) > 0).cloned().collect();
-        recent.sort_by(|a, b| s.last_played(&b.id).cmp(&s.last_played(&a.id)));
+        recent.sort_by_key(|g| std::cmp::Reverse(s.last_played(&g.id)));
         recent.truncate(12);
         let favs: Vec<Game> = games.iter().filter(|g| s.is_favorite(&g.id)).cloned().collect();
         let mut installed: Vec<Game> = games.iter().filter(|g| g.installed).cloned().collect();

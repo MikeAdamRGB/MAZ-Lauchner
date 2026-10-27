@@ -68,7 +68,7 @@ fn recent_games(app: App) -> Vec<(String, String)> {
         .filter(|g| g.installed && s.last_played(&g.id) > 0 && !s.is_hidden(&g.id))
         .map(|g| (s.last_played(&g.id), g.id.clone(), g.name.clone()))
         .collect();
-    list.sort_by(|a, b| b.0.cmp(&a.0));
+    list.sort_by_key(|x| std::cmp::Reverse(x.0));
     list.into_iter().take(6).map(|(_, id, n)| (id, n)).collect()
 }
 

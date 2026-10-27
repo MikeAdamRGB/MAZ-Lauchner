@@ -1600,7 +1600,7 @@ fn EmulatorCard(emu: crate::model::Emulator) -> Element {
             }
             div { class: "grid gap-1",
                 Label { {t("emu.folders")} }
-                {emu.rom_dirs.iter().cloned().map(|d| {
+                {emu.rom_dirs.iter().map(|d| {
                     let (eid, d2) = (emu.id.clone(), d.clone());
                     rsx! {
                         div { key: "{d}", class: "flex items-center gap-2 text-xs font-mono",
