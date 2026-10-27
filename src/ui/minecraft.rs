@@ -57,7 +57,7 @@ pub fn MinecraftPage() -> Element {
     let mut key_input = use_signal(String::new);
     // Schon installierte Projekte im aktuellen Zielordner ("modrinth:…", "curseforge:…")
     let mut installed = use_signal(std::collections::BTreeSet::<String>::new);
-    let mut refresh_installed = move || {
+    let refresh_installed = move || {
         let Some(tgt) = targets.peek().iter().find(|x| x.id == *target_id.peek()).cloned() else { return };
         let k = *kind.peek();
         let w = if world.peek().is_empty() { mc::worlds(&tgt.dir).into_iter().next().unwrap_or_default() } else { world.peek().clone() };

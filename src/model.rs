@@ -258,10 +258,6 @@ pub mod status {
     pub const DROPPED: &str = "dropped";
     pub const ALL: [&str; 4] = [NOT_STARTED, PLAYING, FINISHED, DROPPED];
 
-    pub fn valid(s: &str) -> bool {
-        ALL.contains(&s)
-    }
-
     pub fn icon(s: &str) -> &'static str {
         match s {
             PLAYING => "play",
