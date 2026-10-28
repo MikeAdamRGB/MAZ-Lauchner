@@ -21,7 +21,7 @@ Steam, Epic Games i Twoje własne gry w jednej szybkiej, lekkiej i ładnej aplik
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Biblioteka Open Game Launcher w stylu Epic Games" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@ Steam, Epic Games i Twoje własne gry w jednej szybkiej, lekkiej i ładnej aplik
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Biblioteka w stylu Steam"><br>
-      <sub><b>Styl Steam</b>: lista gier po lewej, „Ostatnio grane” i siatka wszystkich gier</sub>
+      <img src="../screenshots/library.webp" alt="Biblioteka"><br>
+      <sub><b>Biblioteka</b>: wszystkie gry w jednym miejscu</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Biblioteka w stylu Epic Games"><br>
-      <sub><b>Styl Epic Games</b>: duże karty i filtry u góry</sub>
+      <img src="../screenshots/game-details.webp" alt="Szczegóły gry"><br>
+      <sub><b>Szczegóły gry</b>: zwiastun, informacje i osiągnięcia</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="Szczegóły gry"><br>
-      <sub><b>Szczegóły gry</b>: graj, ulubione, folder gry, własna okładka</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>: mody jednym kliknięciem</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="Ustawienia wyglądu"><br>
-      <sub><b>Ustawienia wyglądu</b>: 3 układy, 8 motywów i kolor akcentu</sub>
+      <img src="../screenshots/settings-design.webp" alt="Wygląd"><br>
+      <sub><b>Wygląd</b>: 20 gotowych motywów i własne</sub>
     </td>
   </tr>
 </table>

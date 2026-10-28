@@ -21,7 +21,7 @@ Steam, Epic Games и твои собственные игры в одном бы
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Библиотека Open Game Launcher в стиле Epic Games" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@ Steam, Epic Games и твои собственные игры в одном бы
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Библиотека в стиле Steam"><br>
-      <sub><b>Стиль Steam</b>: список игр слева, «Недавние» и сетка всех игр</sub>
+      <img src="../screenshots/library.webp" alt="Библиотека"><br>
+      <sub><b>Библиотека</b>: все игры в одном месте</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Библиотека в стиле Epic Games"><br>
-      <sub><b>Стиль Epic Games</b>: большие карточки и фильтры сверху</sub>
+      <img src="../screenshots/game-details.webp" alt="Об игре"><br>
+      <sub><b>Об игре</b>: трейлер, информация и достижения</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="Информация об игре"><br>
-      <sub><b>Карточка игры</b>: играть, в избранное, открыть папку, своя обложка</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>: моды в один клик</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="Настройки оформления"><br>
-      <sub><b>Настройки оформления</b>: 3 вида, 8 тем и акцентный цвет</sub>
+      <img src="../screenshots/settings-design.webp" alt="Оформление"><br>
+      <sub><b>Оформление</b>: 20 готовых тем и свои</sub>
     </td>
   </tr>
 </table>

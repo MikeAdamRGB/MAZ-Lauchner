@@ -1151,3 +1151,5 @@ theme.pixel_violet = Píxel roxo
 theme.pixel_flame = Chama
 theme.pixel_rainbow = Arco-íris
 theme.pixel_jungle = Selva
+about.tip = Gorjeta no Ko-fi
+about.tip_text = O Open Game Launcher é gratuito e vai continuar a ser. Se gostares, um café alegra-me o dia.

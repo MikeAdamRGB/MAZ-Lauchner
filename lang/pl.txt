@@ -1151,3 +1151,5 @@ theme.pixel_violet = Fioletowy piksel
 theme.pixel_flame = Płomień
 theme.pixel_rainbow = Tęcza
 theme.pixel_jungle = Dżungla
+about.tip = Napiwek na Ko-fi
+about.tip_text = Open Game Launcher jest darmowy i taki pozostanie. Jeśli ci się podoba, kawa sprawi mi radość.

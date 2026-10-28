@@ -7,6 +7,14 @@ Alle wichtigen Änderungen am Open Game Launcher (OG, bis 1.7 „MAZ Launcher“
 Der Abschnitt der aktuellen Version wird automatisch als Text für das GitHub-Release
 und für das Update-Fenster in der App verwendet.
 
+## [2.1.3] – 2026-10-28
+
+### Neu
+- **Trinkgeld:** Wer den Launcher unterstützen möchte, findet unter Einstellungen → Über einen Knopf zu [Ko-fi](https://ko-fi.com/mikeadamrgb) – ebenso auf GitHub („Sponsor“) und auf der Webseite. Der Launcher bleibt komplett kostenlos.
+
+### Verbessert
+- Neue, aktuelle Screenshots im README und auf der Webseite (Bibliothek, Spiel-Details, Erfolge, Statistik, Minecraft, Stores, Designs, Sprachen).
+
 ## [2.1.2] – 2026-10-27
 
 ### Verbessert

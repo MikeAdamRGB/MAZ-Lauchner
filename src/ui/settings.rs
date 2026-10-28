@@ -1861,6 +1861,14 @@ fn AboutTab() -> Element {
                     {t("fix.report")}
                 }
             }
+            // Freiwilliges Trinkgeld – der Launcher bleibt komplett kostenlos
+            div { class: "mt-8 max-w-md rounded-xl border border-border p-5 text-center",
+                p { class: "text-sm leading-relaxed", {t("about.tip_text")} }
+                Button { variant: ButtonVariant::Glow, class: "mt-4", onclick: move |_| { let _ = sys::open_url(sys::TIP_URL); },
+                    Icon { name: "heart", class: "size-4" }
+                    {t("about.tip")}
+                }
+            }
             p { class: "text-xs text-muted-foreground mt-12 max-w-md leading-relaxed", {t("about.legal")} }
         }
     }

@@ -21,7 +21,7 @@ Steam、Epic Games、そして自分で追加したゲームを、高速・軽�
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Epic Games スタイルの Open Game Launcher ライブラリ" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@ Steam、Epic Games、そして自分で追加したゲームを、高速・軽�
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Steam スタイルのライブラリ"><br>
-      <sub><b>Steam スタイル</b>: 左にゲーム一覧、「最近プレイしたゲーム」とグリッド表示</sub>
+      <img src="../screenshots/library.webp" alt="ライブラリ"><br>
+      <sub><b>ライブラリ</b>：すべてのゲームを一か所に</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Epic Games スタイルのライブラリ"><br>
-      <sub><b>Epic Games スタイル</b>: 大きなカードと上部のフィルター</sub>
+      <img src="../screenshots/game-details.webp" alt="ゲーム詳細"><br>
+      <sub><b>ゲーム詳細</b>：トレーラー、情報、実績</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="ゲーム詳細"><br>
-      <sub><b>ゲーム詳細</b>: プレイ、お気に入り、フォルダーを開く、カバーを変更</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>：ワンクリックで Mod</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="デザイン設定"><br>
-      <sub><b>デザイン設定</b>: 3 つのレイアウト、8 つのテーマ、アクセントカラー</sub>
+      <img src="../screenshots/settings-design.webp" alt="デザイン"><br>
+      <sub><b>デザイン</b>：20 種類のデザインと自作デザイン</sub>
     </td>
   </tr>
 </table>

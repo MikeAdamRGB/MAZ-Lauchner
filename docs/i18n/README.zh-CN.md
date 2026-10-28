@@ -21,7 +21,7 @@
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Epic Games 风格的 Open Game Launcher 游戏库" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Steam 风格的游戏库"><br>
-      <sub><b>Steam 风格</b>:左侧游戏列表,“最近游玩”及全部游戏网格</sub>
+      <img src="../screenshots/library.webp" alt="游戏库"><br>
+      <sub><b>游戏库</b>：所有游戏集中一处</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Epic Games 风格的游戏库"><br>
-      <sub><b>Epic Games 风格</b>:大卡片,顶部筛选</sub>
+      <img src="../screenshots/game-details.webp" alt="游戏详情"><br>
+      <sub><b>游戏详情</b>：预告片、信息和成就</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="游戏详情"><br>
-      <sub><b>游戏详情</b>:开始游戏、收藏、打开文件夹、自定义封面</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>：一键安装模组</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="外观设置"><br>
-      <sub><b>外观设置</b>:3 种布局、8 种配色和强调色</sub>
+      <img src="../screenshots/settings-design.webp" alt="外观"><br>
+      <sub><b>外观</b>：20 种现成主题和自定义主题</sub>
     </td>
   </tr>
 </table>

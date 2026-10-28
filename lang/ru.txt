@@ -1151,3 +1151,5 @@ theme.pixel_violet = Фиолетовый пиксель
 theme.pixel_flame = Пламя
 theme.pixel_rainbow = Радуга
 theme.pixel_jungle = Джунгли
+about.tip = Чаевые на Ko-fi
+about.tip_text = Open Game Launcher бесплатный и останется таким. Если он вам нравится, буду рад чашке кофе.

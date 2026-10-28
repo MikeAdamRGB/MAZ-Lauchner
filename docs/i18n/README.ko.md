@@ -21,7 +21,7 @@ Steam, Epic Games 그리고 직접 추가한 게임을 빠르고 가볍고 보�
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Epic Games 스타일의 Open Game Launcher 라이브러리" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@ Steam, Epic Games 그리고 직접 추가한 게임을 빠르고 가볍고 보�
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Steam 스타일 라이브러리"><br>
-      <sub><b>Steam 스타일</b>: 왼쪽 게임 목록, “최근 플레이”와 전체 게임 그리드</sub>
+      <img src="../screenshots/library.webp" alt="라이브러리"><br>
+      <sub><b>라이브러리</b>: 모든 게임을 한곳에</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Epic Games 스타일 라이브러리"><br>
-      <sub><b>Epic Games 스타일</b>: 큰 카드와 상단 필터</sub>
+      <img src="../screenshots/game-details.webp" alt="게임 상세"><br>
+      <sub><b>게임 상세</b>: 트레일러, 정보, 업적</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="게임 상세 정보"><br>
-      <sub><b>게임 상세</b>: 플레이, 즐겨찾기, 폴더 열기, 커버 변경</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>: 클릭 한 번으로 모드 설치</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="디자인 설정"><br>
-      <sub><b>디자인 설정</b>: 3가지 레이아웃, 8가지 테마, 강조 색상</sub>
+      <img src="../screenshots/settings-design.webp" alt="디자인"><br>
+      <sub><b>디자인</b>: 20가지 디자인과 나만의 디자인</sub>
     </td>
   </tr>
 </table>

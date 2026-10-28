@@ -1151,3 +1151,5 @@ theme.pixel_violet = Mor Piksel
 theme.pixel_flame = Alev
 theme.pixel_rainbow = Gökkuşağı
 theme.pixel_jungle = Orman
+about.tip = Ko-fi'de bahşiş
+about.tip_text = Open Game Launcher ücretsizdir ve öyle kalacak. Beğendiysen bir kahve ısmarlayabilirsin.

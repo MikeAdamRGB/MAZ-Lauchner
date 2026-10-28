@@ -41,6 +41,7 @@ fn svg_body(name: &str) -> &'static str {
         "chevron-right" => r#"<path d="m9 18 6-6-6-6"/>"#,
         "chevron-left" => r#"<path d="m15 18-6-6 6-6"/>"#,
         "chevron-down" => r#"<path d="m6 9 6 6 6-6"/>"#,
+        "heart" => r#"<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>"#,
         "chevron-up" => r#"<path d="m18 15-6-6-6 6"/>"#,
         "news" => r#"<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>"#,
         "hard-drive" => r#"<path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01"/><path d="M10 16h.01"/>"#,

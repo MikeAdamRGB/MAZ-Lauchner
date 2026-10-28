@@ -22,6 +22,8 @@ pub const EXE_NAME: &str = "maz-launcher";
 pub const OLD_EXE_NAME: &str = "maz-launcher";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const GITHUB_URL: &str = "https://github.com/MikeAdamRGB/Open-Game-Launcher";
+/// Trinkgeld / Unterstützung (freiwillig)
+pub const TIP_URL: &str = "https://ko-fi.com/mikeadamrgb";
 
 pub fn env_path(var: &str) -> Option<PathBuf> {
     std::env::var_os(var)

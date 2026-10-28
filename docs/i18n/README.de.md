@@ -17,11 +17,11 @@ Steam, Epic Games, Roblox und deine eigenen Spiele in einer schnellen, schlanken
 
 [English](../../README.md) · **Deutsch** · [Français](README.fr.md) · [Español](README.es.md) · [Italiano](README.it.md) · [Português](README.pt-BR.md) · [Polski](README.pl.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [简体中文](README.zh-CN.md)
 
-[**⬇️ Herunterladen**](https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/latest) · [**🌐 Webseite**](https://mikeadamrgb.github.io/Open-Game-Launcher/)
+[**⬇️ Herunterladen**](https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/latest) · [**🌐 Webseite**](https://mikeadamrgb.github.io/Open-Game-Launcher/) · [**☕ Trinkgeld auf Ko-fi**](https://ko-fi.com/mikeadamrgb)
 
 <br>
 
-<img src="../screenshots/library-maz.webp" alt="Open Game Launcher Bibliothek im OG-Stil" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher Bibliothek" width="900">
 
 </div>
 
@@ -59,20 +59,44 @@ Alle Änderungen je Version: [CHANGELOG.md](../../CHANGELOG.md).
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="../screenshots/library-maz.webp" alt="OG-Stil"><br><sub><b>OG-Stil</b>: „Weiterspielen“ und alle Spiele im Raster</sub></td>
-    <td width="50%" align="center"><img src="../screenshots/installed.webp" alt="Installiert"><br><sub><b>Installiert</b>: nur die Spiele auf deinem PC</sub></td>
+    <td width="50%" align="center">
+      <img src="../screenshots/library.webp" alt="Bibliothek"><br>
+      <sub><b>Bibliothek</b>: alle Spiele aus allen Stores an einem Ort</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="../screenshots/game-details.webp" alt="Spiel-Details"><br>
+      <sub><b>Spiel-Details</b>: Trailer, Installieren, Favorit, Starthilfen, HowLongToBeat</sub>
+    </td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="../screenshots/library-steam-style.webp" alt="Steam-Stil"><br><sub><b>Steam-Stil</b>: Liste links, alle Spiele im Raster</sub></td>
-    <td width="50%" align="center"><img src="../screenshots/details-steam-style.webp" alt="Details im Steam-Stil"><br><sub><b>Details im Steam-Stil</b>: Installieren, Spielzeit, Store-Seite</sub></td>
+    <td width="50%" align="center">
+      <img src="../screenshots/achievements.webp" alt="Systemanforderungen und Erfolge"><br>
+      <sub><b>Anforderungen & Erfolge</b>: Läuft es bei mir, und wie weit bin ich?</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="../screenshots/stats.webp" alt="Statistik"><br>
+      <sub><b>Statistik</b>: Spielzeit pro Store und meistgespielt – lokal berechnet</sub>
+    </td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="../screenshots/library-epic-style.webp" alt="Epic-Stil"><br><sub><b>Epic-Games-Stil</b>: große Karten mit Filtern oben</sub></td>
-    <td width="50%" align="center"><img src="../screenshots/game-details.webp" alt="Spiel-Details"><br><sub><b>Spiel-Details</b>: Spielen, Favorit, Cover, Hilfe, Deinstallieren</sub></td>
+    <td width="50%" align="center">
+      <img src="../screenshots/minecraft.webp" alt="Minecraft-Inhalte"><br>
+      <sub><b>Minecraft</b>: Mods, Ressourcenpakete und Shader mit einem Klick</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="../screenshots/stores.webp" alt="Weitere Stores"><br>
+      <sub><b>Stores</b>: GOG, EA, Ubisoft, Battle.net, Amazon, itch.io, Xbox – automatisch gefunden</sub>
+    </td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="../screenshots/free-games.webp" alt="Gratis-Spiele"><br><sub><b>Gratis-Spiele</b>: was es gerade bei Epic und Steam gratis gibt</sub></td>
-    <td width="50%" align="center"><img src="../screenshots/settings-design.webp" alt="Designs"><br><sub><b>Designs</b>: 16 fertige, eigene Designs und Akzentfarbe</sub></td>
+    <td width="50%" align="center">
+      <img src="../screenshots/settings-design.webp" alt="Designs"><br>
+      <sub><b>Designs</b>: 20 fertige Designs und eigene</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="../screenshots/settings-language.webp" alt="Sprachen"><br>
+      <sub><b>9 Sprachen</b>: der ganze Launcher in deiner Sprache</sub>
+    </td>
   </tr>
 </table>
 
@@ -228,6 +252,10 @@ Fehlermeldungen, Ideen und Pull Requests sind willkommen.
 **Minecraft & NoRisk Client:** Der offizielle Minecraft Launcher und jedes NoRisk-Profil erscheinen als eigene Kachel. Über den Tab „Minecraft“ installierst du Mods, Texturenpakete, Shader und Datenpakete von Modrinth und CurseForge (eigener, kostenloser Schlüssel – mit Anleitung).
 
 **Erweiterungen** (standardmäßig aus): kleine externe Programme, die neue Spielquellen, Infos oder Knöpfe liefern. Vor der Installation siehst du alle Rechte und die Prüfsumme. Ehrlicher Hinweis: Erweiterungen laufen mit deinen Benutzerrechten – installiere nur, was du vertraust. Details: [docs/EXTENSIONS.md](../EXTENSIONS.md).
+
+## Projekt unterstützen
+
+Der Open Game Launcher ist kostenlos und bleibt es – ohne Werbung, ohne Bezahl-Funktionen. Wenn er dir gefällt, kannst du mir auf **[Ko-fi](https://ko-fi.com/mikeadamrgb)** einen Kaffee spendieren ☕. Danke!
 
 ## Lizenz
 

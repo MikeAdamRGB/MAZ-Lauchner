@@ -21,7 +21,7 @@ Steam, Epic Games ve kendi oyunların; tamamen Rust ile yazılmış hızlı, haf
 
 <br>
 
-<img src="../screenshots/library-epic-style.webp" alt="Epic Games tarzında Open Game Launcher kütüphanesi" width="900">
+<img src="../screenshots/library.webp" alt="Open Game Launcher" width="900">
 
 </div>
 
@@ -49,22 +49,22 @@ Steam, Epic Games ve kendi oyunların; tamamen Rust ile yazılmış hızlı, haf
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/library-steam-style.webp" alt="Steam tarzında kütüphane"><br>
-      <sub><b>Steam tarzı</b>: solda oyun listesi, “Son oynananlar” ve tüm oyunlar ızgarası</sub>
+      <img src="../screenshots/library.webp" alt="Kütüphane"><br>
+      <sub><b>Kütüphane</b>: tüm oyunların tek yerde</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/library-epic-style.webp" alt="Epic Games tarzında kütüphane"><br>
-      <sub><b>Epic Games tarzı</b>: büyük kartlar, üstte filtreler</sub>
+      <img src="../screenshots/game-details.webp" alt="Oyun ayrıntıları"><br>
+      <sub><b>Oyun ayrıntıları</b>: fragman, bilgi ve başarımlar</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="../screenshots/game-details.webp" alt="Oyun ayrıntıları"><br>
-      <sub><b>Oyun ayrıntıları</b>: oyna, favorilere ekle, klasörü aç, özel kapak seç</sub>
+      <img src="../screenshots/minecraft.webp" alt="Minecraft"><br>
+      <sub><b>Minecraft</b>: tek tıkla mod</sub>
     </td>
     <td width="50%" align="center">
-      <img src="../screenshots/settings-design.webp" alt="Tasarım ayarları"><br>
-      <sub><b>Tasarım ayarları</b>: 3 görünüm, 8 tema ve vurgu rengi</sub>
+      <img src="../screenshots/settings-design.webp" alt="Tasarımlar"><br>
+      <sub><b>Tasarımlar</b>: 20 hazır tasarım ve kendi tasarımların</sub>
     </td>
   </tr>
 </table>

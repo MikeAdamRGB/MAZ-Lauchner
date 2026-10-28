@@ -19,11 +19,11 @@ Steam, Epic Games, Roblox and your own games in one fast, lightweight and good-l
 
 **English** · [Deutsch](docs/i18n/README.de.md) · [Français](docs/i18n/README.fr.md) · [Español](docs/i18n/README.es.md) · [Italiano](docs/i18n/README.it.md) · [Português](docs/i18n/README.pt-BR.md) · [Polski](docs/i18n/README.pl.md) · [Türkçe](docs/i18n/README.tr.md) · [Русский](docs/i18n/README.ru.md) · [日本語](docs/i18n/README.ja.md) · [한국어](docs/i18n/README.ko.md) · [简体中文](docs/i18n/README.zh-CN.md)
 
-[**⬇️ Download**](https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/latest) · [**🌐 Website**](https://mikeadamrgb.github.io/Open-Game-Launcher/)
+[**⬇️ Download**](https://github.com/MikeAdamRGB/Open-Game-Launcher/releases/latest) · [**🌐 Website**](https://mikeadamrgb.github.io/Open-Game-Launcher/) · [**☕ Tip on Ko-fi**](https://ko-fi.com/mikeadamrgb)
 
 <br>
 
-<img src="docs/screenshots/library-maz.webp" alt="Open Game Launcher library in its own OG style" width="900">
+<img src="docs/screenshots/library.webp" alt="Open Game Launcher library" width="900">
 
 </div>
 
@@ -65,42 +65,42 @@ Everything that changed in each version: [CHANGELOG.md](CHANGELOG.md).
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/library-maz.webp" alt="OG style"><br>
-      <sub><b>OG style</b>: "Continue playing" banner and all games in a grid</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/installed.webp" alt="Installed"><br>
-      <sub><b>Installed</b>: only the games that are on your PC</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/library-steam-style.webp" alt="Steam style"><br>
-      <sub><b>Steam style</b>: game list on the left and all games in a grid</sub>
-    </td>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/details-steam-style.webp" alt="Steam-style details"><br>
-      <sub><b>Steam-style details</b>: install, playtime, store page and more</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="docs/screenshots/library-epic-style.webp" alt="Epic Games style"><br>
-      <sub><b>Epic Games style</b>: large cards with filters along the top</sub>
+      <img src="docs/screenshots/library.webp" alt="Library"><br>
+      <sub><b>Library</b>: all your games from every store in one place</sub>
     </td>
     <td width="50%" align="center">
       <img src="docs/screenshots/game-details.webp" alt="Game details"><br>
-      <sub><b>Game details</b>: play or install, favorite, custom cover, help and uninstall</sub>
+      <sub><b>Game details</b>: trailer, install, favorite, launch helpers, HowLongToBeat</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="docs/screenshots/free-games.webp" alt="Free games"><br>
-      <sub><b>Free games</b>: what is free on Epic and Steam right now, with a countdown</sub>
+      <img src="docs/screenshots/achievements.webp" alt="System requirements and achievements"><br>
+      <sub><b>Requirements & achievements</b>: can I run it, and how far am I?</sub>
     </td>
     <td width="50%" align="center">
-      <img src="docs/screenshots/settings-design.webp" alt="Design settings"><br>
-      <sub><b>Designs</b>: 16 ready-made designs, your own designs and a custom accent color</sub>
+      <img src="docs/screenshots/stats.webp" alt="Stats"><br>
+      <sub><b>Stats</b>: playtime per store and most played – calculated locally</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/minecraft.webp" alt="Minecraft content"><br>
+      <sub><b>Minecraft</b>: mods, resource packs and shaders in one click</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/stores.webp" alt="More stores"><br>
+      <sub><b>Stores</b>: GOG, EA, Ubisoft, Battle.net, Amazon, itch.io, Xbox – found automatically</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/settings-design.webp" alt="Designs"><br>
+      <sub><b>Designs</b>: 20 ready-made designs and your own</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/settings-language.webp" alt="Languages"><br>
+      <sub><b>9 languages</b>: the whole launcher in your language</sub>
     </td>
   </tr>
 </table>
@@ -283,6 +283,10 @@ Bug reports, ideas and pull requests are welcome.
 - 🐞 [Report a bug](https://github.com/MikeAdamRGB/Open-Game-Launcher/issues/new/choose)
 - 💡 [Suggest an idea](https://github.com/MikeAdamRGB/Open-Game-Launcher/issues/new/choose)
 - 🛠️ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request
+
+## Support the project
+
+Open Game Launcher is free and stays free – no ads, no paid features. If you like it, you can buy me a coffee on **[Ko-fi](https://ko-fi.com/mikeadamrgb)** ☕. Thank you!
 
 ## License
 
