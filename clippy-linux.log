@@ -1,0 +1,47 @@
+[1m[92m   Compiling[0m maz-launcher v2.1.3 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher)
+src/achievements.rs:159:8: [1m[33mwarning[0m: function `parse_galaxy_count` is never used
+src/appx.rs:21:8: [1m[33mwarning[0m: function `family_of` is never used
+src/appx.rs:74:8: [1m[33mwarning[0m: function `manifest_app_ids` is never used
+src/launch.rs:242:4: [1m[33mwarning[0m: function `is_helper` is never used
+src/launch.rs:336:9: [1m[33mwarning[0m: field `args` is never read
+src/problem.rs:207:12: [1m[33mwarning[0m: associated functions `store_crash`, `uac_cancelled`, and `from_shell_code` are never used
+src/stores.rs:31:8: [1m[33mwarning[0m: method `has_library` is never used
+src/stores.rs:164:4: [1m[33mwarning[0m: function `has_column` is never used
+src/stores.rs:174:8: [1m[33mwarning[0m: function `galaxy_owned` is never used
+src/stores.rs:180:8: [1m[33mwarning[0m: function `galaxy_releases` is never used
+src/stores.rs:231:8: [1m[33mwarning[0m: function `amazon_owned` is never used
+src/stores.rs:546:8: [1m[33mwarning[0m: function `battlenet_config_games` is never used
+src/stores.rs:559:8: [1m[33mwarning[0m: function `battlenet_name` is never used
+src/stores.rs:736:8: [1m[33mwarning[0m: function `battlenet_code` is never used
+src/stores.rs:766:8: [1m[33mwarning[0m: function `battlenet_uid` is never used
+src/sys.rs:445:5: [1m[33mwarning[0m: variants `LocalMachine` and `ClassesRoot` are never constructed
+src/sys.rs:478:8: [1m[33mwarning[0m: function `reg_u32` is never used
+src/sys.rs:491:8: [1m[33mwarning[0m: function `reg_key_exists` is never used
+src/ui/components.rs:17:5: [1m[33mwarning[0m: variants `Success` and `Link` are never constructed
+src/ui/state.rs:129:5: [1m[33mwarning[0m: variant `Info` is never constructed
+src/util.rs:220:7: [1m[33mwarning[0m: constant `B64` is never used
+src/util.rs:223:8: [1m[33mwarning[0m: function `base64url` is never used
+src/util.rs:323:8: [1m[33mwarning[0m: function `random_bytes` is never used
+src/vdf.rs:33:12: [1m[33mwarning[0m: method `as_str` is never used
+src/appinfo.rs:127:5: [1m[33mwarning[0m: this loop could be written as a `while let` loop: help: try: `while let Some(appid) = r.u32() { .. }`
+src/config.rs:62:22: [1m[33mwarning[0m: this can be `std::io::Error::other(_)`
+src/epic.rs:79:9: [1m[33mwarning[0m: this `if` statement can be collapsed
+src/epicacct.rs:303:5: [1m[33mwarning[0m: consider using `sort_by_key`
+src/install.rs:140:42: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/launch.rs:12:56: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/launch.rs:62:43: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/launch.rs:79:79: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/launch.rs:124:96: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/roblox.rs:205:38: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/steam.rs:393:5: [1m[33mwarning[0m: consider using `sort_by_key`
+src/steam.rs:419:46: [1m[33mwarning[0m: the `Err`-variant returned from this function is very large: the `Err`-variant is at least 152 bytes
+src/ui/detail.rs:457:42: [1m[33mwarning[0m: using `contains()` instead of `iter().any()` is more efficient: help: try: `c.games.contains(&id)`
+src/ui/installer.rs:43:51: [1m[33mwarning[0m: the `Err`-variant returned from this closure is very large: the `Err`-variant is at least 152 bytes
+src/ui/minecraft.rs:93:91: [1m[33mwarning[0m: redundant closure: help: replace the closure with the function itself: `&*version`
+src/ui/minecraft.rs:94:84: [1m[33mwarning[0m: redundant closure: help: replace the closure with the function itself: `&*loader`
+src/ui/state.rs:116:1: [1m[33mwarning[0m: large size difference between variants: the entire enum is at least 392 bytes
+src/ui/tools.rs:247:14: [1m[33mwarning[0m: redundant closure: help: replace the closure with the function itself: `&mut load`
+src/ui/mod.rs:209:18: [1m[33mwarning[0m: using `clone` on type `Page` which implements the `Copy` trait: help: try dereferencing it: `*app.page.read()`
+src/ui/mod.rs:209:43: [1m[33mwarning[0m: using `clone` on type `Filter` which implements the `Copy` trait: help: try dereferencing it: `*app.filter.read()`
+[1m[33mwarning[0m: `maz-launcher` (bin "Open-Game-Launcher") generated 44 warnings (run `cargo clippy --fix --bin "Open-Game-Launcher" -p maz-launcher -- ` to apply 10 suggestions)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 7.81s

@@ -1,0 +1,28 @@
+[1m[92m    Updating[0m crates.io index
+[1m[92m   Compiling[0m maz-launcher v2.1.3 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher)
+src/achievements.rs:159:8: [1m[33mwarning[0m: function `parse_galaxy_count` is never used
+src/appx.rs:21:8: [1m[33mwarning[0m: function `family_of` is never used
+src/appx.rs:74:8: [1m[33mwarning[0m: function `manifest_app_ids` is never used
+src/launch.rs:242:4: [1m[33mwarning[0m: function `is_helper` is never used
+src/launch.rs:336:9: [1m[33mwarning[0m: field `args` is never read
+src/problem.rs:207:12: [1m[33mwarning[0m: associated functions `store_crash`, `uac_cancelled`, and `from_shell_code` are never used
+src/stores.rs:31:8: [1m[33mwarning[0m: method `has_library` is never used
+src/stores.rs:164:4: [1m[33mwarning[0m: function `has_column` is never used
+src/stores.rs:174:8: [1m[33mwarning[0m: function `galaxy_owned` is never used
+src/stores.rs:180:8: [1m[33mwarning[0m: function `galaxy_releases` is never used
+src/stores.rs:231:8: [1m[33mwarning[0m: function `amazon_owned` is never used
+src/stores.rs:546:8: [1m[33mwarning[0m: function `battlenet_config_games` is never used
+src/stores.rs:559:8: [1m[33mwarning[0m: function `battlenet_name` is never used
+src/stores.rs:736:8: [1m[33mwarning[0m: function `battlenet_code` is never used
+src/stores.rs:766:8: [1m[33mwarning[0m: function `battlenet_uid` is never used
+src/sys.rs:445:5: [1m[33mwarning[0m: variants `LocalMachine` and `ClassesRoot` are never constructed
+src/sys.rs:478:8: [1m[33mwarning[0m: function `reg_u32` is never used
+src/sys.rs:491:8: [1m[33mwarning[0m: function `reg_key_exists` is never used
+src/ui/components.rs:17:5: [1m[33mwarning[0m: variants `Success` and `Link` are never constructed
+src/ui/state.rs:129:5: [1m[33mwarning[0m: variant `Info` is never constructed
+src/util.rs:220:7: [1m[33mwarning[0m: constant `B64` is never used
+src/util.rs:223:8: [1m[33mwarning[0m: function `base64url` is never used
+src/util.rs:323:8: [1m[33mwarning[0m: function `random_bytes` is never used
+src/vdf.rs:33:12: [1m[33mwarning[0m: method `as_str` is never used
+[1m[33mwarning[0m: `maz-launcher` (bin "Open-Game-Launcher") generated 24 warnings
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1m 44s

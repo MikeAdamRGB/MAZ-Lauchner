@@ -1,0 +1,64 @@
+    Updating crates.io index
+     Locking 12 packages to highest compatible versions
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.154
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling syn v3.0.9
+   Compiling serde_derive v1.0.229
+   Compiling og-extension-sdk v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\crates\og-extension-sdk)
+   Compiling og-ext-humble-app v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\extensions\humble-app)
+    Finished `release` profile [optimized] target(s) in 12.09s
+     Running unittests src\main.rs (extensions\humble-app\target\release\deps\og_ext_humble_app-6680d5a9044f2396.exe)
+
+running 1 test
+test tests::parses_config ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling og-extension-sdk v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\crates\og-extension-sdk)
+   Compiling og-ext-humble-app v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\extensions\humble-app)
+    Finished `release` profile [optimized] target(s) in 5.25s
+    Updating crates.io index
+     Locking 12 packages to highest compatible versions
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.154
+   Compiling memchr v2.8.3
+   Compiling syn v3.0.9
+   Compiling itoa v1.0.18
+   Compiling serde_derive v1.0.229
+   Compiling og-extension-sdk v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\crates\og-extension-sdk)
+   Compiling og-ext-legacy-games v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\extensions\legacy-games)
+    Finished `release` profile [optimized] target(s) in 12.57s
+     Running unittests src\main.rs (extensions\legacy-games\target\release\deps\og_ext_legacy_games-4fb2ece8e40a29e4.exe)
+
+running 1 test
+test tests::registry_and_json ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling og-extension-sdk v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\crates\og-extension-sdk)
+   Compiling og-ext-legacy-games v1.0.0 (D:\a\Open-Game-Launcher\Open-Game-Launcher\extensions\legacy-games)
+    Finished `release` profile [optimized] target(s) in 6.22s

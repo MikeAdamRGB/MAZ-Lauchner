@@ -1,0 +1,66 @@
+::group::flatpak
+Installing runtime/org.freedesktop.Platform.GL.default/aarch64/25.08
+Installing runtime/org.freedesktop.Platform.GL.default/aarch64/25.08-extra
+Installing runtime/org.freedesktop.Platform.GL.default/aarch64/26.08
+Installing runtime/org.freedesktop.Platform.GL.default/aarch64/26.08-extra
+Installing runtime/org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra
+Installing runtime/org.freedesktop.Platform.codecs-extra/aarch64/26.08-extra
+Installing runtime/org.freedesktop.Sdk.Locale/aarch64/26.08
+Installing runtime/org.freedesktop.Sdk/aarch64/26.08
+Installing app/org.flatpak.Builder/aarch64/stable
+Installing runtime/org.gnome.Platform.Locale/aarch64/49
+Installing runtime/org.gnome.Platform/aarch64/49
+Installing runtime/org.gnome.Sdk.Locale/aarch64/49
+Installing runtime/org.gnome.Sdk/aarch64/49
+dbus-daemon[5043]: [session uid=1001 pid=5043] Activating service name='org.freedesktop.Flatpak' requested by ':1.0' (uid=1001 pid=5044 comm="flatpak run org.flatpak.Builder --user --disable-r" label="unconfined")
+dbus-daemon[5043]: [session uid=1001 pid=5043] Successfully activated service 'org.freedesktop.Flatpak'
+dbus-daemon[5043]: [session uid=1001 pid=5043] Activating service name='org.freedesktop.portal.Documents' requested by ':1.0' (uid=1001 pid=5044 comm="flatpak run org.flatpak.Builder --user --disable-r" label="unconfined")
+dbus-daemon[5043]: [session uid=1001 pid=5043] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1001 pid=5058 comm="/usr/libexec/xdg-document-portal " label="unconfined")
+dbus-daemon[5043]: [session uid=1001 pid=5043] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[5043]: [session uid=1001 pid=5043] Successfully activated service 'org.freedesktop.portal.Documents'
+Downloading sources
+Initializing build dir
+Committing stage init to cache
+Starting build of io.github.mikeadamrgb.OpenGameLauncher
+========================================================================
+Building module maz-launcher in /home/runner/work/Open-Game-Launcher/Open-Game-Launcher/.flatpak-work/.flatpak-builder/build/maz-launcher-1
+========================================================================
+Running: install -Dm755 maz-launcher /app/bin/maz-launcher
+Running: install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.desktop /app/share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop
+Running: install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml /app/share/metainfo/io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml
+Running: install -Dm644 icon-256.png /app/share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Running: install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Committing stage build-maz-launcher to cache
+Cleaning up
+Running appstreamcli compose
+Only accepting components: io.github.mikeadamrgb.OpenGameLauncher, io.github.mikeadamrgb.OpenGameLauncher.desktop
+Processing directory: /home/runner/work/Open-Game-Launcher/Open-Game-Launcher/.flatpak-work/build/files
+Composing metadata...
+dbus-daemon[5043]: [session uid=1001 pid=5043] Activating service name='org.freedesktop.portal.Flatpak' requested by ':1.13' (uid=1001 pid=5074 comm="xdg-dbus-proxy --args=41 " label="unconfined")
+dbus-daemon[5043]: [session uid=1001 pid=5043] Successfully activated service 'org.freedesktop.portal.Flatpak'
+Success!
+Committing stage cleanup to cache
+Finishing app
+Exporting share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop
+Exporting share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Exporting share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Exporting share/metainfo/io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml
+Please review the exported files and the metadata
+Committing stage finish to cache
+Exporting io.github.mikeadamrgb.OpenGameLauncher to repo
+Commit: d599674d1bb4641d0d9dbe4ccb6cfb413f56f31b57909473546ee75bd05a2851
+Metadata Total: 57
+Metadata Written: 22
+Content Total: 14
+Content Written: 10
+Content Bytes Written: 8474377 (8.5 MB)
+Pruning cache
+::endgroup::
+total 15896
+drwxr-xr-x  2 runner runner    4096 Oct 28 17:18 .
+drwxr-xr-x 20 runner runner    4096 Oct 28 17:17 ..
+-rwxr-xr-x  1 runner runner 4155912 Oct 28 17:17 Open-Game-Launcher-2.1.3-aarch64.AppImage
+-rw-r--r--  1 runner runner 2985055 Oct 28 17:17 maz-launcher-2.1.3-1-aarch64.pkg.tar.zst
+-rw-r--r--  1 runner runner 3480133 Oct 28 17:17 maz-launcher-2.1.3-1.aarch64.rpm
+-rw-r--r--  1 runner runner 2598464 Oct 28 17:18 maz-launcher-2.1.3-aarch64.flatpak
+-rw-r--r--  1 runner runner 3042366 Oct 28 17:17 maz-launcher_2.1.3_arm64.deb

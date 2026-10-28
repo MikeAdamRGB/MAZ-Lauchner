@@ -1,0 +1,3 @@
+
+(Open-Game-Launcher:5757): dbind-WARNING **: 17:17:39.994: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+Ergebnis: {'alerts': 0, 'buttons': 36, 'cards': 8, 'title': 'All games', 'version': '2.1.3'}

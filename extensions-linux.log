@@ -1,0 +1,46 @@
+[1m[92m    Updating[0m crates.io index
+[1m[92m     Locking[0m 12 packages to highest compatible versions
+[1m[92m   Compiling[0m proc-macro2 v1.0.107
+[1m[92m   Compiling[0m quote v1.0.47
+[1m[92m   Compiling[0m unicode-ident v1.0.27
+[1m[92m   Compiling[0m serde_core v1.0.229
+[1m[92m   Compiling[0m zmij v1.0.23
+[1m[92m   Compiling[0m serde v1.0.229
+[1m[92m   Compiling[0m serde_json v1.0.154
+[1m[92m   Compiling[0m itoa v1.0.18
+[1m[92m   Compiling[0m memchr v2.8.3
+[1m[92m   Compiling[0m syn v3.0.9
+[1m[92m   Compiling[0m serde_derive v1.0.229
+[1m[92m   Compiling[0m og-extension-sdk v1.0.0 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher/crates/og-extension-sdk)
+[1m[92m   Compiling[0m og-ext-humble-app v1.0.0 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher/extensions/humble-app)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 9.62s
+[1m[92m     Running[0m unittests src/main.rs (extensions/humble-app/target/release/deps/og_ext_humble_app-022f89008215f234)
+
+running 1 test
+test tests::parses_config ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m    Updating[0m crates.io index
+[1m[92m     Locking[0m 12 packages to highest compatible versions
+[1m[92m   Compiling[0m proc-macro2 v1.0.107
+[1m[92m   Compiling[0m quote v1.0.47
+[1m[92m   Compiling[0m unicode-ident v1.0.27
+[1m[92m   Compiling[0m serde_core v1.0.229
+[1m[92m   Compiling[0m zmij v1.0.23
+[1m[92m   Compiling[0m serde v1.0.229
+[1m[92m   Compiling[0m serde_json v1.0.154
+[1m[92m   Compiling[0m memchr v2.8.3
+[1m[92m   Compiling[0m itoa v1.0.18
+[1m[92m   Compiling[0m syn v3.0.9
+[1m[92m   Compiling[0m serde_derive v1.0.229
+[1m[92m   Compiling[0m og-extension-sdk v1.0.0 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher/crates/og-extension-sdk)
+[1m[92m   Compiling[0m og-ext-legacy-games v1.0.0 (/home/runner/work/Open-Game-Launcher/Open-Game-Launcher/extensions/legacy-games)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 9.79s
+[1m[92m     Running[0m unittests src/main.rs (extensions/legacy-games/target/release/deps/og_ext_legacy_games-989fde2198d90308)
+
+running 1 test
+test tests::registry_and_json ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

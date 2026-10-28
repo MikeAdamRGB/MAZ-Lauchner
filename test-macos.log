@@ -1,0 +1,190 @@
+[1m[92m   Compiling[0m maz-launcher v2.1.3 (/Users/runner/work/Open-Game-Launcher/Open-Game-Launcher)
+[1m[33mwarning[0m[1m: field `args` is never read[0m
+   [1m[94m--> [0msrc/launch.rs:336:9
+    [1m[94m|[0m
+[1m[94m333[0m [1m[94m|[0m pub struct Uninstaller {
+    [1m[94m|[0m            [1m[94m-----------[0m [1m[94mfield in this struct[0m
+[1m[94m...[0m
+[1m[94m336[0m [1m[94m|[0m     pub args: String,
+    [1m[94m|[0m         [1m[33m^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: associated function `from_shell_code` is never used[0m
+   [1m[94m--> [0msrc/problem.rs:314:12
+    [1m[94m|[0m
+[1m[94m 97[0m [1m[94m|[0m impl Problem {
+    [1m[94m|[0m [1m[94m------------[0m [1m[94massociated function in this implementation[0m
+[1m[94m...[0m
+[1m[94m314[0m [1m[94m|[0m     pub fn from_shell_code(game: &str, path: &str, code: i32, as_admin: bool) -> Problem {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `has_library` is never used[0m
+  [1m[94m--> [0msrc/stores.rs:31:8
+   [1m[94m|[0m
+[1m[94m18[0m [1m[94m|[0m pub trait StoreLibrary {
+   [1m[94m|[0m           [1m[94m------------[0m [1m[94mmethod in this trait[0m
+[1m[94m...[0m
+[1m[94m31[0m [1m[94m|[0m     fn has_library(&self) -> bool {
+   [1m[94m|[0m        [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: variants `LocalMachine` and `ClassesRoot` are never constructed[0m
+   [1m[94m--> [0msrc/sys.rs:445:5
+    [1m[94m|[0m
+[1m[94m443[0m [1m[94m|[0m pub enum Hive {
+    [1m[94m|[0m          [1m[94m----[0m [1m[94mvariants in this enum[0m
+[1m[94m444[0m [1m[94m|[0m     CurrentUser,
+[1m[94m445[0m [1m[94m|[0m     LocalMachine,
+    [1m[94m|[0m     [1m[33m^^^^^^^^^^^^[0m
+[1m[94m446[0m [1m[94m|[0m     ClassesRoot,
+    [1m[94m|[0m     [1m[33m^^^^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `Hive` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: function `reg_u32` is never used[0m
+   [1m[94m--> [0msrc/sys.rs:478:8
+    [1m[94m|[0m
+[1m[94m478[0m [1m[94m|[0m pub fn reg_u32(hive: Hive, path: &str, name: &str) -> Option<u32> {
+    [1m[94m|[0m        [1m[33m^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: function `reg_key_exists` is never used[0m
+   [1m[94m--> [0msrc/sys.rs:491:8
+    [1m[94m|[0m
+[1m[94m491[0m [1m[94m|[0m pub fn reg_key_exists(hive: Hive, path: &str) -> bool {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: variants `Success` and `Link` are never constructed[0m
+  [1m[94m--> [0msrc/ui/components.rs:17:5
+   [1m[94m|[0m
+[1m[94m13[0m [1m[94m|[0m pub enum ButtonVariant {
+   [1m[94m|[0m          [1m[94m-------------[0m [1m[94mvariants in this enum[0m
+[1m[94m...[0m
+[1m[94m17[0m [1m[94m|[0m     Success,
+   [1m[94m|[0m     [1m[33m^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m21[0m [1m[94m|[0m     Link,
+   [1m[94m|[0m     [1m[33m^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `ButtonVariant` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: variant `Info` is never constructed[0m
+   [1m[94m--> [0msrc/ui/state.rs:129:5
+    [1m[94m|[0m
+[1m[94m116[0m [1m[94m|[0m pub enum Modal {
+    [1m[94m|[0m          [1m[94m-----[0m [1m[94mvariant in this enum[0m
+[1m[94m...[0m
+[1m[94m129[0m [1m[94m|[0m     Info(String, String),
+    [1m[94m|[0m     [1m[33m^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `Modal` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: method `as_str` is never used[0m
+  [1m[94m--> [0msrc/vdf.rs:33:12
+   [1m[94m|[0m
+[1m[94m14[0m [1m[94m|[0m impl Vdf {
+   [1m[94m|[0m [1m[94m--------[0m [1m[94mmethod in this implementation[0m
+[1m[94m...[0m
+[1m[94m33[0m [1m[94m|[0m     pub fn as_str(&self) -> Option<&str> {
+   [1m[94m|[0m            [1m[33m^^^^^^[0m
+
+[1m[33mwarning[0m: `maz-launcher` (bin "Open-Game-Launcher" test) generated 9 warnings
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1m 07s
+[1m[33mwarning[0m: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+[1m[92mnote[0m: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`
+[1m[92m     Running[0m unittests src/main.rs (target/x86_64-apple-darwin/release/deps/Open_Game_Launcher-ae7b33f79935735e)
+
+running 91 tests
+test appinfo::tests::parses_v40_inline_keys ... ok
+test achievements::tests::galaxy_counts ... ok
+test appinfo::tests::parses_v41_with_string_table ... ok
+test achievements::tests::steam_parsing ... ok
+test appinfo::tests::survives_garbage ... ok
+test appx::tests::family_names ... ok
+test backup::tests::restore_never_takes_commands_or_consent ... ok
+test config::tests::migrate_old_config ... ok
+test config::tests::roundtrip_new_fields ... ok
+test decky::tests::export_has_no_paths_or_secrets ... ok
+test discord::tests::frames ... ok
+test crashreport::tests::url_is_encoded_and_short ... ok
+test emulators::tests::args_and_names ... ok
+test emulators::tests::platforms ... ok
+test epic::tests::catalog_filters_dlc_and_engines ... ok
+test epicacct::tests::code_extraction ... ok
+test extensions::manifest::tests::invalid_manifests ... ok
+test extensions::manifest::tests::valid_manifest ... ok
+test extensions::process::tests::limited_lines ... ok
+test extensions::manifest::tests::run_must_stay_inside ... ok
+test backup::tests::roundtrip_without_secrets ... ok
+test extensions::tests::game_validation ... ok
+test extensions::tests::actions_validated ... ok
+test extensions::zipread::tests::extract_and_zip_slip ... ok
+test extensions::tests::hash_pinning ... ok
+test freegames::tests::epic_free_and_upcoming ... ok
+test freegames::tests::steam_search_rows ... ok
+test flatpakid::tests::copies_once_without_symlinks ... ok
+test i18n::tests::parses_lines ... ok
+test launch::tests::uninstall_command_split ... ok
+test launchopts::tests::env_and_split ... ok
+test library::tests::duplicates_prefer_installed ... ok
+test mccontent::tests::cf_key_cleaning ... ok
+test mccontent::tests::curseforge_fingerprint ... ok
+test mccontent::tests::launcher_profiles ... ok
+test mccontent::tests::safety ... ok
+test mccontent::tests::urls_and_parsing ... ok
+test metadata::tests::appdetails ... ok
+test metadata::tests::wikipedia ... ok
+test minecraft::tests::profiles ... ok
+test model::tests::sessions_and_status ... ok
+test news::tests::parse_items ... ok
+test news::tests::plain_text_is_safe ... ok
+test notes::tests::markdown ... ok
+test playnite::tests::import_folder ... ok
+test playnite::tests::status_names ... ok
+test playtime::tests::matching ... ok
+test problem::tests::drive_detection ... ok
+test i18n::tests::all_languages_have_all_german_keys ... ok
+test roblox::tests::place_ids ... ok
+test runners::tests::prefixes_are_safe ... ok
+test problem::tests::problems_are_translated ... ok
+test sgdb::tests::parsing_and_safety ... ok
+test stats::tests::format ... ok
+test stats::tests::numbers ... ok
+test stats::tests::random ... ok
+test screenshots::tests::finds_steam_and_own ... ok
+test storage::tests::sizes_and_mounts ... ok
+test stores::tests::amazon_ids ... ok
+test stores::tests::battlenet_codes ... ok
+test stores::tests::battlenet_config ... ok
+test stores::tests::ea_installerdata ... ok
+test steamshortcut::tests::roundtrip_and_add ... ok
+test stores::tests::heroic_gog ... ok
+test stores::tests::icon_paths ... ok
+test stores::tests::itch_receipt ... ok
+test stores::tests::itch_urls ... ok
+test stores::tests::xbox_config ... ok
+test sys::safety_tests::only_safe_links_and_images ... ok
+test sys::tests::env_expansion ... ok
+test sys::tests::file_url_roundtrip ... ok
+test stores::tests::owned_from_databases ... ok
+test sys::tests::old_folder_moves_to_new_name ... ok
+test theme::tests::colors ... ok
+test theme::tests::presets_and_codes ... ok
+test sys::tests::formatting ... ok
+test updater::tests::assets_and_hashes ... ok
+test uitest::tests::demo_is_stable ... ok
+test updater::tests::versions ... ok
+test updater::tests::test_versions ... ok
+test util::hash_tests::sha1_sha512_vectors ... ok
+test util::tests::base64_roundtrip ... ok
+test util::tests::pkce_rfc7636_example ... ok
+test util::tests::misc ... ok
+test util::tests::sha256_vectors ... ok
+test vdf::tests::parses_appmanifest ... ok
+test vdf::tests::parses_library_folders_new_format ... ok
+test vdf::tests::parses_old_format_and_comments ... ok
+test vdf::tests::survives_garbage ... ok
+test extensions::process::tests::protocol_failures ... ok
+test extensions::tests::example_extension_end_to_end ... ok
+
+test result: ok. 91 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.06s
+

@@ -1,0 +1,70 @@
+::group::flatpak
+Installing runtime/org.freedesktop.Platform.GL.default/x86_64/25.08
+Installing runtime/org.freedesktop.Platform.GL.default/x86_64/25.08-extra
+Installing runtime/org.freedesktop.Platform.GL.default/x86_64/26.08
+Installing runtime/org.freedesktop.Platform.GL.default/x86_64/26.08-extra
+Installing runtime/org.freedesktop.Platform.codecs-extra/x86_64/25.08-extra
+Installing runtime/org.freedesktop.Platform.codecs-extra/x86_64/26.08-extra
+Installing runtime/org.freedesktop.Sdk.Locale/x86_64/26.08
+Installing runtime/org.freedesktop.Sdk/x86_64/26.08
+Installing app/org.flatpak.Builder/x86_64/stable
+Installing runtime/org.gnome.Platform.Locale/x86_64/49
+Installing runtime/org.gnome.Platform/x86_64/49
+Installing runtime/org.gnome.Sdk.Locale/x86_64/49
+Installing runtime/org.gnome.Sdk/x86_64/49
+dbus-daemon[6358]: [session uid=1001 pid=6358] Activating service name='org.freedesktop.Flatpak' requested by ':1.0' (uid=1001 pid=6359 comm="flatpak run org.flatpak.Builder --user --disable-r" label="unconfined")
+dbus-daemon[6358]: [session uid=1001 pid=6358] Successfully activated service 'org.freedesktop.Flatpak'
+dbus-daemon[6358]: [session uid=1001 pid=6358] Activating service name='org.freedesktop.portal.Documents' requested by ':1.0' (uid=1001 pid=6359 comm="flatpak run org.flatpak.Builder --user --disable-r" label="unconfined")
+dbus-daemon[6358]: [session uid=1001 pid=6358] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1001 pid=6373 comm="/usr/libexec/xdg-document-portal " label="unconfined")
+dbus-daemon[6358]: [session uid=1001 pid=6358] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[6358]: [session uid=1001 pid=6358] Successfully activated service 'org.freedesktop.portal.Documents'
+fusermount3: failed to access mountpoint /run/user/1001/doc: Permission denied
+error: fuse init failed: Can't mount path /run/user/1001/doc
+F: Can't get document portal: GDBus.Error:org.freedesktop.portal.Error.Failed: Can't mount path /run/user/1001/doc
+Downloading sources
+Initializing build dir
+Committing stage init to cache
+Starting build of io.github.mikeadamrgb.OpenGameLauncher
+========================================================================
+Building module maz-launcher in /home/runner/work/Open-Game-Launcher/Open-Game-Launcher/.flatpak-work/.flatpak-builder/build/maz-launcher-1
+========================================================================
+Running: install -Dm755 maz-launcher /app/bin/maz-launcher
+Running: install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.desktop /app/share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop
+Running: install -Dm644 io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml /app/share/metainfo/io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml
+Running: install -Dm644 icon-256.png /app/share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Running: install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Committing stage build-maz-launcher to cache
+Cleaning up
+Running appstreamcli compose
+Only accepting components: io.github.mikeadamrgb.OpenGameLauncher, io.github.mikeadamrgb.OpenGameLauncher.desktop
+Processing directory: /home/runner/work/Open-Game-Launcher/Open-Game-Launcher/.flatpak-work/build/files
+Composing metadata...
+dbus-daemon[6358]: [session uid=1001 pid=6358] Activating service name='org.freedesktop.portal.Flatpak' requested by ':1.13' (uid=1001 pid=6387 comm="xdg-dbus-proxy --args=40 " label="unconfined")
+dbus-daemon[6358]: [session uid=1001 pid=6358] Successfully activated service 'org.freedesktop.portal.Flatpak'
+Success!
+Committing stage cleanup to cache
+Finishing app
+Exporting share/applications/io.github.mikeadamrgb.OpenGameLauncher.desktop
+Exporting share/icons/hicolor/256x256/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Exporting share/icons/hicolor/512x512/apps/io.github.mikeadamrgb.OpenGameLauncher.png
+Exporting share/metainfo/io.github.mikeadamrgb.OpenGameLauncher.metainfo.xml
+Please review the exported files and the metadata
+Committing stage finish to cache
+Exporting io.github.mikeadamrgb.OpenGameLauncher to repo
+Commit: 590a734aba8425a682ff57b2666c8ac8aa68a0719390394203109096add5a7ef
+Metadata Total: 57
+Metadata Written: 22
+Content Total: 14
+Content Written: 10
+Content Bytes Written: 9451391 (9.5 MB)
+Pruning cache
+::endgroup::
+total 16068
+drwxr-xr-x  2 runner runner    4096 Oct 28 17:20 .
+drwxr-xr-x 22 runner runner    4096 Oct 28 17:18 ..
+-rwxr-xr-x  1 runner runner 4213240 Oct 28 17:18 Open-Game-Launcher-2.1.3-x86_64.AppImage
+-rw-r--r--  1 runner runner    7769 Oct 28 17:17 Open-Game-Launcher-Decky.zip
+-rw-r--r--  1 runner runner 2947834 Oct 28 17:18 maz-launcher-2.1.3-1-x86_64.pkg.tar.zst
+-rw-r--r--  1 runner runner 3529165 Oct 28 17:18 maz-launcher-2.1.3-1.x86_64.rpm
+-rw-r--r--  1 runner runner 2755648 Oct 28 17:20 maz-launcher-2.1.3-x86_64.flatpak
+-rw-r--r--  1 runner runner 2983798 Oct 28 17:18 maz-launcher_2.1.3_amd64.deb

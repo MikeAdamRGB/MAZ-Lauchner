@@ -1,0 +1,156 @@
+   Compiling maz-launcher v2.1.3 (D:\a\Open-Game-Launcher\Open-Game-Launcher)
+warning: function `steam_root` is never used
+   --> src\runners.rs:111:8
+    |
+111 | pub fn steam_root() -> Option<PathBuf> {
+    |        ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `has_library` is never used
+  --> src\stores.rs:31:8
+   |
+18 | pub trait StoreLibrary {
+   |           ------------ method in this trait
+...
+31 |     fn has_library(&self) -> bool {
+   |        ^^^^^^^^^^^
+
+warning: function `reg_u32` is never used
+   --> src\sys.rs:478:8
+    |
+478 | pub fn reg_u32(hive: Hive, path: &str, name: &str) -> Option<u32> {
+    |        ^^^^^^^
+
+warning: variants `Success` and `Link` are never constructed
+  --> src\ui\components.rs:17:5
+   |
+13 | pub enum ButtonVariant {
+   |          ------------- variants in this enum
+...
+17 |     Success,
+   |     ^^^^^^^
+...
+21 |     Link,
+   |     ^^^^
+   |
+   = note: `ButtonVariant` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: variant `Info` is never constructed
+   --> src\ui\state.rs:129:5
+    |
+116 | pub enum Modal {
+    |          ----- variant in this enum
+...
+129 |     Info(String, String),
+    |     ^^^^
+    |
+    = note: `Modal` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: method `as_str` is never used
+  --> src\vdf.rs:33:12
+   |
+14 | impl Vdf {
+   | -------- method in this implementation
+...
+33 |     pub fn as_str(&self) -> Option<&str> {
+   |            ^^^^^^
+
+warning: `maz-launcher` (bin "Open-Game-Launcher" test) generated 6 warnings
+    Finished `release` profile [optimized] target(s) in 44.74s
+     Running unittests src\main.rs (target\x86_64-pc-windows-msvc\release\deps\Open_Game_Launcher-4bc38c720a6d8aeb.exe)
+
+running 90 tests
+test achievements::tests::galaxy_counts ... ok
+test appinfo::tests::parses_v40_inline_keys ... ok
+test appinfo::tests::parses_v41_with_string_table ... ok
+test achievements::tests::steam_parsing ... ok
+test appinfo::tests::survives_garbage ... ok
+test appx::tests::family_names ... ok
+test backup::tests::restore_never_takes_commands_or_consent ... ok
+test config::tests::migrate_old_config ... ok
+test config::tests::roundtrip_new_fields ... ok
+test crashreport::tests::url_is_encoded_and_short ... ok
+test decky::tests::export_has_no_paths_or_secrets ... ok
+test discord::tests::frames ... ok
+test emulators::tests::platforms ... ok
+test epic::tests::catalog_filters_dlc_and_engines ... ok
+test emulators::tests::args_and_names ... ok
+test epicacct::tests::code_extraction ... ok
+test extensions::manifest::tests::valid_manifest ... ok
+test extensions::manifest::tests::invalid_manifests ... ok
+test extensions::process::tests::limited_lines ... ok
+test backup::tests::roundtrip_without_secrets ... ok
+test extensions::manifest::tests::run_must_stay_inside ... ok
+test extensions::tests::actions_validated ... ok
+test extensions::tests::game_validation ... ok
+test extensions::zipread::tests::extract_and_zip_slip ... ok
+test freegames::tests::epic_free_and_upcoming ... ok
+test freegames::tests::steam_search_rows ... ok
+test extensions::tests::hash_pinning ... ok
+test i18n::tests::parses_lines ... ok
+test launch::tests::uninstall_command_split ... ok
+test launchopts::tests::env_and_split ... ok
+test library::tests::duplicates_prefer_installed ... ok
+test mccontent::tests::cf_key_cleaning ... ok
+test mccontent::tests::curseforge_fingerprint ... ok
+test mccontent::tests::launcher_profiles ... ok
+test mccontent::tests::safety ... ok
+test mccontent::tests::urls_and_parsing ... ok
+test metadata::tests::appdetails ... ok
+test metadata::tests::wikipedia ... ok
+test flatpakid::tests::copies_once_without_symlinks ... ok
+test minecraft::tests::profiles ... ok
+test news::tests::parse_items ... ok
+test model::tests::sessions_and_status ... ok
+test news::tests::plain_text_is_safe ... ok
+test notes::tests::markdown ... ok
+test playnite::tests::status_names ... ok
+test playtime::tests::matching ... ok
+test problem::tests::drive_detection ... ok
+test i18n::tests::all_languages_have_all_german_keys ... ok
+test roblox::tests::place_ids ... ok
+test problem::tests::problems_are_translated ... ok
+test runners::tests::prefixes_are_safe ... ok
+test sgdb::tests::parsing_and_safety ... ok
+test stats::tests::format ... ok
+test stats::tests::numbers ... ok
+test stats::tests::random ... ok
+test playnite::tests::import_folder ... ok
+test steamshortcut::tests::roundtrip_and_add ... ok
+test stores::tests::amazon_ids ... ok
+test stores::tests::battlenet_codes ... ok
+test stores::tests::battlenet_config ... ok
+test stores::tests::ea_installerdata ... ok
+test stores::tests::heroic_gog ... ok
+test stores::tests::icon_paths ... ok
+test storage::tests::sizes_and_mounts ... ok
+test stores::tests::itch_urls ... ok
+test stores::tests::itch_receipt ... ok
+test stores::tests::xbox_config ... ok
+test sys::safety_tests::only_safe_links_and_images ... ok
+test sys::tests::env_expansion ... ok
+test sys::tests::file_url_roundtrip ... ok
+test stores::tests::owned_from_databases ... ok
+test screenshots::tests::finds_steam_and_own ... ok
+test theme::tests::colors ... ok
+test sys::tests::old_folder_moves_to_new_name ... ok
+test theme::tests::presets_and_codes ... ok
+test updater::tests::assets_and_hashes ... ok
+test updater::tests::test_versions ... ok
+test updater::tests::versions ... ok
+test sys::tests::formatting ... ok
+test uitest::tests::demo_is_stable ... ok
+test util::hash_tests::sha1_sha512_vectors ... ok
+test util::tests::base64_roundtrip ... ok
+test util::tests::misc ... ok
+test util::tests::pkce_rfc7636_example ... ok
+test util::tests::sha256_vectors ... ok
+test vdf::tests::parses_appmanifest ... ok
+test vdf::tests::parses_library_folders_new_format ... ok
+test vdf::tests::survives_garbage ... ok
+test vdf::tests::parses_old_format_and_comments ... ok
+test extensions::tests::example_extension_end_to_end ... ok
+
+test result: ok. 90 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.94s
+

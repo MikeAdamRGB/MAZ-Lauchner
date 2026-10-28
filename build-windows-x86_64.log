@@ -1,0 +1,18 @@
+    Updating crates.io index
+   Compiling maz-launcher v2.1.3 (D:\a\Open-Game-Launcher\Open-Game-Launcher)
+src\launchopts.rs:44:12: warning: method `wine_env` is never used
+src\problem.rs:375:12: warning: associated function `runner_missing` is never used
+src\runners.rs:95:8: warning: function `find` is never used
+src\runners.rs:103:8: warning: function `prefix_for` is never used
+src\runners.rs:111:8: warning: function `steam_root` is never used
+src\stores.rs:31:8: warning: method `has_library` is never used
+src\stores.rs:351:8: warning: function `parse_heroic_gog_library` is never used
+src\stores.rs:376:8: warning: function `parse_heroic_gog` is never used
+src\sys.rs:478:8: warning: function `reg_u32` is never used
+src\ui\components.rs:17:5: warning: variants `Success` and `Link` are never constructed
+src\ui\state.rs:129:5: warning: variant `Info` is never constructed
+src\util.rs:323:8: warning: function `random_bytes` is never used
+src\util.rs:330:16: warning: function `RtlGenRandom` is never used
+src\vdf.rs:33:12: warning: method `as_str` is never used
+warning: `maz-launcher` (bin "Open-Game-Launcher") generated 14 warnings
+    Finished `release` profile [optimized] target(s) in 2m 24s
